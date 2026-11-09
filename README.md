@@ -37,6 +37,13 @@ UI 测试通过 Avalonia Headless + Skia 渲染真实 XAML，快照保存在 `ar
 
 测试覆盖真实 HTTP/HTTPS、WebSocket、代理、增量导入、SQLite、文件下载及 MVVM/界面渲染。六个平台的 Native AOT 安装包由 GitHub Actions 构建，实际结果见对应的工作流。自动化测试不等于所有系统的安装和升级流程均已完成实机验证。
 
+v0.1.0 验证记录：
+
+- Windows、Linux、macOS 均通过 32 项自动化测试（24 项服务/网络测试 + 8 项桌面测试）。
+- 六个 RID 的 Native AOT 编译、Velopack 打包及 Release 上传全部成功，见[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42586154097)。
+- Windows x64 原生程序已在本机验证启动、工作区数据库创建和正常退出。
+- 使用 Velopack 测试定位器模拟旧版本，已从公开 GitHub Releases 检查、下载并校验真实的 Windows x64 更新包，无需访问令牌；这项检查未执行应用替换和重启。
+
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
