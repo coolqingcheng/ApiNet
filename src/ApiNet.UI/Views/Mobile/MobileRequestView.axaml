@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:c="using:ApiNet.Desktop.Controls" xmlns:views="using:ApiNet.Desktop.Views.Tabs" x:Class="ApiNet.Desktop.Views.Mobile.MobileRequestView" x:DataType="vm:RequestTabViewModel">
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:c="using:ApiNet.Desktop.Controls" xmlns:mobile="using:ApiNet.Desktop.Views.Mobile" x:Class="ApiNet.Desktop.Views.Mobile.MobileRequestView" x:DataType="vm:RequestTabViewModel">
   <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="8,0,8,8">
     <Grid x:Name="NameRow" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="4"><TextBox x:Name="NameInput" Text="{Binding Name}" FontWeight="SemiBold" /><Button Grid.Column="1" Classes="ghost" Content="复制" Command="{Binding DuplicateCommand}" /><Button Grid.Column="2" Content="保存" Command="{Binding SaveCommand}" /></Grid>
     <c:CodeEditor Grid.Row="1" Text="{Binding Url}" SingleLine="True" MinHeight="48" Margin="0,8" />
@@ -13,7 +13,7 @@
           <TabItem Header="认证"><StackPanel Spacing="12" Margin="8"><CheckBox IsChecked="{Binding FollowRedirects}" Content="自动跟随重定向" /><TextBlock Text="Bearer Token" /><c:CodeEditor Text="{Binding BearerToken}" SingleLine="True" /><TextBlock Text="支持 {{token}} 环境变量" Foreground="{DynamicResource TextMutedBrush}" /></StackPanel></TabItem>
         <TabItem Header="响应"><Grid RowDefinitions="Auto,*"><StackPanel Margin="8" Spacing="8"><TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{DynamicResource SuccessBrush}" /><TextBlock Text="{Binding ResolvedUrl}" TextWrapping="Wrap" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" /><Button Content="保存响应" Command="{Binding SaveResponseCommand}" IsEnabled="{Binding CanSaveResponse}" HorizontalAlignment="Left" /></StackPanel><TabControl Grid.Row="1"><TabItem Header="Body"><c:CodeEditor Text="{Binding ResponseBody, Mode=OneWay}" Language="{Binding ResponseFormat}" IsReadOnly="True" /></TabItem><TabItem Header="Headers"><c:CodeEditor Text="{Binding ResponseHeaders, Mode=OneWay}" IsReadOnly="True" /></TabItem></TabControl></Grid></TabItem>
       </TabControl></DataTemplate>
-      <DataTemplate DataType="vm:WebSocketTabViewModel" x:DataType="vm:WebSocketTabViewModel"><views:WebSocketView /></DataTemplate>
+      <DataTemplate DataType="vm:WebSocketTabViewModel" x:DataType="vm:WebSocketTabViewModel"><mobile:MobileWebSocketView /></DataTemplate>
     </ContentControl.DataTemplates></ContentControl>
   </Grid>
 </UserControl>

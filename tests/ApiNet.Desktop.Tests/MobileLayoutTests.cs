@@ -46,6 +46,15 @@ public class MobileLayoutTests
             window.Width = 1024; window.Height = 768; Save(window, "android-tablet.png");
             Assert.False(shell.IsCompact); Assert.True(shell.SidebarVisible); Assert.Equal(330, shell.ContentMargin.Left);
             window.Width = 800; window.Height = 400; Save(window, "android-landscape.png"); Assert.True(shell.IsCompact);
+            main.OpenRequest(main.Workspace.Requests.Single(x => x.Protocol == "WebSocket"));
+            main.SelectedTab!.Body = "{\"message\":\"你好 Android\"}";
+            window.Width = 390; window.Height = 844; window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
+            var socket = view.GetVisualDescendants().OfType<MobileWebSocketView>().Single();
+            socket.FindControl<TabControl>("SocketTabs")!.SelectedIndex = 1;
+            Save(window, "android-websocket.png");
+            Assert.InRange(socket.FindControl<CodeEditor>("MessageEditor")!.Bounds.Width, 250, 390);
+            window.Width = 800; window.Height = 400; Save(window, "android-websocket-landscape.png");
+            Assert.True(socket.FindControl<CodeEditor>("MessageEditor")!.Bounds.Height >= 50);
         }
         finally { ThemeService.Apply("Dark"); await main.ShutdownAsync(); window.Close(); }
     }
