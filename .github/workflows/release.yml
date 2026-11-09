@@ -39,8 +39,10 @@ jobs:
           - { os: windows-latest, rid: win-arm64 }
           - { os: ubuntu-24.04, rid: linux-x64 }
           - { os: ubuntu-24.04-arm, rid: linux-arm64 }
-          - { os: macos-15, rid: osx-x64 }
-          - { os: macos-15, rid: osx-arm64 }
+          # Native AOT supports both macOS architectures on an Intel host.
+          # Use the explicit label to avoid hosted ARM runner capacity queues.
+          - { os: macos-15-intel, rid: osx-x64 }
+          - { os: macos-15-intel, rid: osx-arm64 }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
