@@ -25,6 +25,10 @@ Windows 从 0.1.1 起，再次运行 Setup.exe 会直接覆盖安装/修复，�
 
 Android 使用 Avalonia.Android 的独立启动入口，手机提供抽屉导航、请求切换、Params/Headers/Body/认证/响应分区，WebSocket 提供消息/发送/握手分区，平板停靠左侧导航。工具面板在窄屏上下排列，支持深浅主题、横竖屏和 44dp 触控按钮。
 
+![平板布局（Avalonia Headless 渲染）](docs/images/android-tablet.png)
+
+<img src="docs/images/android-websocket.png" width="320" alt="手机 WebSocket 消息编辑（Avalonia Headless 渲染）" />
+
 支持 HTTP/WebSocket、文件夹、环境变量、历史、JSON/在线 Swagger 导入、OpenAPI 导出、文件上传和响应保存。文件通过 Android 系统选择器访问，不需要读取整个存储的权限；选择的上传文件复制到应用私有目录，保存的请求可在重启后继续使用。Android 沙箱无法读取其他应用的本地数据库，Postman/ApiPost 请先导出 JSON 再导入。同一文档重新选择可增量合并；文件导入的“刷新”读取已导入副本，在线来源刷新会重新下载。
 
 Android 抓包使用前台显式 HTTP 代理，不提供 VPN 全局抓包或后台常驻；HTTPS 解密仍需要客户端信任 CA。移动端提供证书另存为。Android 更新从同一 GitHub Release 下载对应 APK，校验 SHA256 后调用系统安装界面，需要用户允许此应用安装更新。没有桌面托盘和“退出时替换程序”的流程。

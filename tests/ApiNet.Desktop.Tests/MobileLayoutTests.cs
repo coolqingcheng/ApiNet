@@ -54,7 +54,9 @@ public class MobileLayoutTests
             Save(window, "android-websocket.png");
             Assert.InRange(socket.FindControl<CodeEditor>("MessageEditor")!.Bounds.Width, 250, 390);
             window.Width = 800; window.Height = 400; Save(window, "android-websocket-landscape.png");
-            Assert.True(socket.FindControl<CodeEditor>("MessageEditor")!.Bounds.Height >= 50);
+            Assert.True(socket.FindControl<CodeEditor>("MessageEditor")!.Bounds.Height >= 50, "Landscape editor bounds: " + socket.FindControl<CodeEditor>("MessageEditor")!.Bounds);
+            window.Width = 390; Save(window, "android-keyboard-layout.png");
+            Assert.True(socket.FindControl<CodeEditor>("MessageEditor")!.Bounds.Height >= 50, "Short portrait editor bounds: " + socket.FindControl<CodeEditor>("MessageEditor")!.Bounds);
         }
         finally { ThemeService.Apply("Dark"); await main.ShutdownAsync(); window.Close(); }
     }
