@@ -9,11 +9,11 @@ public partial class MobileShellViewModel : ViewModelBase
 {
     public MainWindowViewModel Main { get; }
     [ObservableProperty][NotifyPropertyChangedFor(nameof(IsCompact), nameof(SidebarVisible), nameof(SidebarWidth), nameof(ContentMargin), nameof(ShowShade))] private double _viewportWidth = 390;
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsShort), nameof(ShowContext))] private double _viewportHeight = 844;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsShort), nameof(ShowContext), nameof(IsCompact), nameof(SidebarVisible), nameof(ContentMargin), nameof(ShowShade))] private double _viewportHeight = 844;
     public bool IsShort => ViewportHeight < 550;
     public bool ShowContext => !IsShort;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(SidebarVisible), nameof(ShowShade))] private bool _drawerOpen;
-    public bool IsCompact => ViewportWidth < 850;
+    public bool IsCompact => ViewportWidth < 850 || IsShort;
     public bool SidebarVisible => !IsCompact || DrawerOpen;
     public bool ShowShade => IsCompact && DrawerOpen;
     public double SidebarWidth => Math.Clamp(ViewportWidth - 32, 240, 330);

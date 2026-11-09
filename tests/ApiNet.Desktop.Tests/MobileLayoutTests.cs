@@ -45,7 +45,12 @@ public class MobileLayoutTests
             Save(window, "android-phone-light.png");
             window.Width = 1024; window.Height = 768; Save(window, "android-tablet.png");
             Assert.False(shell.IsCompact); Assert.True(shell.SidebarVisible); Assert.Equal(330, shell.ContentMargin.Left);
-            window.Width = 800; window.Height = 400; Save(window, "android-landscape.png"); Assert.True(shell.IsCompact);
+            window.Width = 914; window.Height = 400; Save(window, "android-landscape.png"); Assert.True(shell.IsCompact);
+            Assert.False(shell.SidebarVisible); Assert.Equal(0, shell.ContentMargin.Left);
+            shell.ToggleDrawerCommand.Execute(null); Save(window, "android-landscape-drawer.png");
+            Assert.True(shell.ShowShade);
+            var tree = view.GetVisualDescendants().OfType<TreeView>().Single(); Assert.True(tree.Bounds.Height >= 50);
+            shell.CloseDrawerCommand.Execute(null);
             main.OpenRequest(main.Workspace.Requests.Single(x => x.Protocol == "WebSocket"));
             main.SelectedTab!.Body = "{\"message\":\"你好 Android\"}";
             window.Width = 390; window.Height = 844; window.UpdateLayout(); Dispatcher.UIThread.RunJobs();
