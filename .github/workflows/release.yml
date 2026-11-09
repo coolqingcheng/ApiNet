@@ -5,7 +5,7 @@ on:
       version:
         description: SemVer version
         required: true
-        default: 0.1.0
+        default: 0.1.1
 permissions:
   contents: read
 concurrency:
@@ -47,6 +47,12 @@ jobs:
         env:
           APINET_RELEASE_VERSION: ${{ inputs.version }}
         run: ./scripts/publish.ps1 -Rid '${{ matrix.rid }}' -Version $env:APINET_RELEASE_VERSION
+      - name: Verify Windows install, upgrade and repair
+        if: matrix.rid == 'win-x64'
+        shell: pwsh
+        env:
+          APINET_RELEASE_VERSION: ${{ inputs.version }}
+        run: ./scripts/test-windows-installer.ps1 -Version $env:APINET_RELEASE_VERSION
       - uses: actions/upload-artifact@v4
         with:
           name: ApiNet-${{ matrix.rid }}

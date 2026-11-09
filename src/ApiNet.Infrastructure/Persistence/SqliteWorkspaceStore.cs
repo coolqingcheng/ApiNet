@@ -3,6 +3,7 @@ using ApiNet.Core.Interfaces;
 using ApiNet.Core.Models;
 using ApiNet.Core.Serialization;
 using Microsoft.Data.Sqlite;
+using ApiNet.Core;
 
 namespace ApiNet.Infrastructure.Persistence;
 
@@ -17,7 +18,9 @@ public sealed class SqliteWorkspaceStore : IWorkspaceStore
 
     public SqliteWorkspaceStore(string? directory = null)
     {
-        DataDirectory = directory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ApiNet");
+        DataDirectory = directory ?? WorkspaceDataPaths.DefaultDirectory;
+        if (directory is null && OperatingSystem.IsWindows())
+            WorkspaceDataPaths.MigrateLegacyData(WorkspaceDataPaths.LegacyDirectory, DataDirectory);
         Directory.CreateDirectory(DataDirectory);
         _connectionString = new SqliteConnectionStringBuilder { DataSource = Path.Combine(DataDirectory, "workspace.db") }.ToString();
         using var connection = Open();

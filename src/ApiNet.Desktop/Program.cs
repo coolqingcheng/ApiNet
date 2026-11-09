@@ -1,6 +1,7 @@
 using Avalonia;
 using System;
 using Velopack;
+using ApiNet.Core;
 
 namespace ApiNet.Desktop;
 
@@ -15,7 +16,7 @@ sealed class Program
         VelopackApp.Build().SetAutoApplyOnStartup(false).Run();
         AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
         {
-            var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ApiNet");
+            var directory = Environment.GetEnvironmentVariable("APINET_DATA_DIR") ?? WorkspaceDataPaths.DefaultDirectory;
             Directory.CreateDirectory(directory);
             File.AppendAllText(Path.Combine(directory, "error.log"), $"{DateTimeOffset.Now:O} {eventArgs.ExceptionObject}\n");
         };

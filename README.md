@@ -18,6 +18,8 @@
 
 安装包自带运行时，无需安装 .NET。所有包均未签名，不通过应用商店分发。macOS 首次打开时，在“系统设置 → 隐私与安全性”中允许打开；应用应放在当前用户可写的位置，以便更新。Linux 的 CI 构建基线为 Ubuntu 24.04；部分发行版运行 AppImage 需要 FUSE。
 
+Windows 从 0.1.1 起，再次运行 Setup.exe 会直接覆盖安装/修复，同版本也可修复缺失的程序文件，不再弹出“已经安装”的确认。安装时会关闭已有实例，完成后打开应用；工作区、环境、历史和本地 CA 保留在独立的数据目录。命令行支持 `--silent`（不自动启动）、`--no-start`、`--installto <目录>` 和 `--log <文件>`。
+
 ## 启动
 
 安装 .NET 10 SDK 后，在项目目录运行：
@@ -86,7 +88,9 @@ HTTP 抓包和主动 HTTP 调试分别保留至多 1 MB、4 MB 的响应预览�
 
 ## 数据目录
 
-默认使用系统 LocalApplicationData 下的 `ApiNet`，其中 `workspace.db` 保存配置、草稿和历史。环境变量中的敏感值保存在本机数据库，历史中的常见认证头及标记为敏感的变量值会脱敏。可用 `APINET_DATA_DIR` 环境变量指定隔离的开发数据目录。
+Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDATA%/ApiNet` 中的安装文件分开。0.1.0 的工作区数据库、待提交的 SQLite WAL 和 `certificates` 会自动迁移；迁移不覆盖已有新版数据库，源文件保留到覆盖安装或用户自行清理。其他系统继续使用系统 LocalApplicationData 下的 `ApiNet`。
+
+`workspace.db` 保存配置、草稿和历史。环境变量中的敏感值保存在本机数据库，历史中的常见认证头及标记为敏感的变量值会脱敏。可用 `APINET_DATA_DIR` 环境变量指定独立的数据目录，该目录应位于安装目录之外。Windows 安装日志默认保存在 `%LOCALAPPDATA%/ApiNetSetupLogs/setup.log`。
 
 ## Native AOT 发布
 
@@ -129,6 +133,7 @@ src/ApiNet.Desktop          Views / ViewModels / Services / Styles / Assets
 src/ApiNet.Core             模型、接口、源生成 JSON 上下文
 src/ApiNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、更新
 src/ApiNet.Proxy            正向代理、HTTP 协议读写、本地 CA
+src/ApiNet.Setup            Windows 原生安装入口、覆盖修复和旧数据迁移
 tests/ApiNet.Tests          服务与网络集成测试
 tests/ApiNet.Desktop.Tests  MVVM 交互及 XAML 渲染测试
 ```

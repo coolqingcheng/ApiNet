@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)][ValidateSet('win-x64','win-arm64','linux-x64','linux-arm64','osx-x64','osx-arm64')][string]$Rid,
-    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$')][string]$Version = '0.1.0',
+    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$')][string]$Version = '0.1.1',
     [switch]$PublishOnly
 )
 $ErrorActionPreference = 'Stop'
@@ -41,6 +41,14 @@ try {
     if ($IsMacOS) { $packArguments += '--noInst' }
     & dotnet @packArguments
     if ($LASTEXITCODE -ne 0) { throw 'Velopack 打包失败。' }
+    if ($IsWindows) {
+        $nativeInstaller = Get-ChildItem -LiteralPath $releaseDirectory -Filter '*Setup.exe' | Select-Object -First 1
+        if (!$nativeInstaller) { throw '未找到 Velopack Windows 安装包。' }
+        $installerDirectory = Join-Path $projectRoot "artifacts/installer/$Rid"
+        dotnet publish src/ApiNet.Setup/ApiNet.Setup.csproj -c Release -r $Rid -p:Version=$Version "-p:InstallerPayload=$($nativeInstaller.FullName)" -o $installerDirectory
+        if ($LASTEXITCODE -ne 0) { throw '覆盖安装器构建失败。' }
+        Copy-Item -LiteralPath (Join-Path $installerDirectory 'ApiNet.Setup.exe') -Destination $nativeInstaller.FullName -Force
+    }
     if ($IsMacOS) {
         $portable = Get-ChildItem -LiteralPath $releaseDirectory -Filter '*Portable*.zip' | Select-Object -First 1
         if (!$portable) { throw '未找到 macOS 便携应用包。' }

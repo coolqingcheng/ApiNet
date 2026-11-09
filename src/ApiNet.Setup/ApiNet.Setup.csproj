@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <IsAotCompatible>true</IsAotCompatible>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>../ApiNet.Desktop/Assets/app.ico</ApplicationIcon>
+    <AssemblyName>ApiNet.Setup</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishAot>true</PublishAot>
+    <RuntimeFrameworkVersion>10.0.14</RuntimeFrameworkVersion>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../ApiNet.Core/ApiNet.Core.csproj" />
+    <EmbeddedResource Include="$(InstallerPayload)" LogicalName="ApiNet.Setup.Payload.exe" Condition="'$(InstallerPayload)' != ''" />
+  </ItemGroup>
+  <Target Name="ValidateInstallerPayload" BeforeTargets="Publish" Condition="'$(InstallerPayload)' == '' Or !Exists('$(InstallerPayload)')">
+    <Error Text="发布安装器必须通过 InstallerPayload 指定 Velopack Setup.exe。" />
+  </Target>
+</Project>
