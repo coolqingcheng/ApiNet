@@ -6,7 +6,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <IsAotCompatible>true</IsAotCompatible>
-    <ApplicationIcon>Assets/app.ico</ApplicationIcon>
+    <ApplicationIcon>../ApiNet.UI/Assets/app.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishAot>true</PublishAot>
@@ -15,8 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <AvaloniaResource Include="Assets\**" />
+    <ProjectReference Include="../ApiNet.UI/ApiNet.UI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

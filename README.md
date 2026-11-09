@@ -12,13 +12,31 @@
 
 | 系统 | 架构 | 下载文件 |
 | --- | --- | --- |
+| Android 8.0+ | ARM64 / x86_64 | `ApiNet-android-arm64.apk` / `ApiNet-android-x64.apk` |
 | Windows | x64 / ARM64 | 对应架构的 `Setup.exe` |
 | Linux | x64 / ARM64 | 对应架构的 `.AppImage`，执行前使用 `chmod +x` |
 | macOS | Intel / Apple Silicon | 对应架构的 `.dmg` 或 `Portable.zip`，将应用复制到 Applications |
 
-安装包自带运行时，无需安装 .NET。所有包均未签名，不通过应用商店分发。macOS 首次打开时，在“系统设置 → 隐私与安全性”中允许打开；应用应放在当前用户可写的位置，以便更新。Linux 的 CI 构建基线为 Ubuntu 24.04；部分发行版运行 AppImage 需要 FUSE。
+安装包自带运行时，无需安装 .NET。桌面包均未签名，不通过应用商店分发；Android APK 使用项目签名密钥，安装时由系统确认。macOS 首次打开时，在“系统设置 → 隐私与安全性”中允许打开；应用应放在当前用户可写的位置，以便更新。Linux 的 CI 构建基线为 Ubuntu 24.04；部分发行版运行 AppImage 需要 FUSE。
 
 Windows 从 0.1.1 起，再次运行 Setup.exe 会直接覆盖安装/修复，同版本也可修复缺失的程序文件，不再弹出“已经安装”的确认。安装时会关闭已有实例，完成后打开应用；工作区、环境、历史和本地 CA 保留在独立的数据目录。命令行支持 `--silent`（不自动启动）、`--no-start`、`--installto <目录>` 和 `--log <文件>`。
+
+## Android 手机和平板
+
+Android 使用 Avalonia.Android 的独立启动入口，手机提供抽屉导航、请求切换、Params/Headers/Body/认证/响应分区，平板停靠左侧导航。工具面板在窄屏上下排列，支持深浅主题、横竖屏和 44dp 触控按钮。
+
+支持 HTTP/WebSocket、文件夹、环境变量、历史、JSON/在线 Swagger 导入、OpenAPI 导出、文件上传和响应保存。文件通过 Android 系统选择器访问，不需要读取整个存储的权限；选择的上传文件复制到应用私有目录，保存的请求可在重启后继续使用。Android 沙箱无法读取其他应用的本地数据库，Postman/ApiPost 请先导出 JSON 再导入。同一文档重新选择可增量合并；文件导入的“刷新”读取已导入副本，在线来源刷新会重新下载。
+
+Android 抓包使用前台显式 HTTP 代理，不提供 VPN 全局抓包或后台常驻；HTTPS 解密仍需要客户端信任 CA。移动端提供证书另存为。Android 更新从同一 GitHub Release 下载对应 APK，校验 SHA256 后调用系统安装界面，需要用户允许此应用安装更新。没有桌面托盘和“退出时替换程序”的流程。
+
+桌面继续使用 Native AOT；Android 使用 .NET for Android 与 Profiled AOT。手机使用 ARM64 包，x86_64 包适用于相应设备和模拟器。Android 项目单独构建，因此运行桌面解决方案测试无需安装 Android workload。
+
+```sh
+dotnet workload install android
+dotnet build src/ApiNet.Android/ApiNet.Android.csproj -r android-arm64
+```
+
+发布需要 Android SDK 36、JDK 21 与私有签名密钥，运行 `scripts/publish-android.ps1`。GitHub Actions 使用 `ANDROID_KEYSTORE_BASE64`、`ANDROID_SIGN_PASSWORD` 两个仓库 Secret；密钥不进入仓库。后续版本必须沿用同一密钥才能覆盖安装。APK 和桌面包统一发布到 Releases。
 
 ## 启动
 
@@ -134,14 +152,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.3
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.4
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.3`）。工作流先运行测试，再并行构建六个平台，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需配置签名密钥或个人访问令牌，发布使用工作流内置的 `GITHUB_TOKEN`。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.4`）。工作流先运行测试，再并行构建六个平台，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需配置签名密钥或个人访问令牌，发布使用工作流内置的 `GITHUB_TOKEN`。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
@@ -166,7 +184,9 @@ Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Acti
 ## 代码结构
 
 ```text
-src/ApiNet.Desktop          Views / ViewModels / Services / Styles / Assets
+src/ApiNet.Desktop          桌面启动入口、托盘与生命周期
+src/ApiNet.UI               共享 Views / ViewModels / Services / Styles / Assets
+src/ApiNet.Android          Android Activity、文件/更新与移动端启动
 src/ApiNet.Core             模型、接口、源生成 JSON 上下文
 src/ApiNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、集合/本机导入、更新
 src/ApiNet.Proxy            正向代理、HTTP 协议读写、本地 CA

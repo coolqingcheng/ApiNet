@@ -5,13 +5,18 @@ on:
       version:
         description: SemVer version
         required: true
-        default: 0.1.3
+        default: 0.1.4
 permissions:
   contents: read
 concurrency:
   group: release-${{ inputs.version }}
   cancel-in-progress: false
 jobs:
+  android:
+    uses: ./.github/workflows/android.yml
+    with:
+      version: ${{ inputs.version }}
+    secrets: inherit
   validate:
     runs-on: ubuntu-24.04
     steps:
@@ -62,7 +67,7 @@ jobs:
           path: artifacts/releases/${{ matrix.rid }}
           if-no-files-found: error
   release:
-    needs: package
+    needs: [package, android]
     runs-on: ubuntu-24.04
     permissions:
       contents: write

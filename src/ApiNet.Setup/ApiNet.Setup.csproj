@@ -3,7 +3,7 @@
     <OutputType>WinExe</OutputType>
     <IsAotCompatible>true</IsAotCompatible>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ApplicationIcon>../ApiNet.Desktop/Assets/app.ico</ApplicationIcon>
+    <ApplicationIcon>../ApiNet.UI/Assets/app.ico</ApplicationIcon>
     <AssemblyName>ApiNet.Setup</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

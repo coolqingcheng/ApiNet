@@ -13,6 +13,7 @@ sealed class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        App.StartLifetime = application => new DesktopLifetime().Initialize(application);
         VelopackApp.Build().SetAutoApplyOnStartup(false).Run();
         AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
         {

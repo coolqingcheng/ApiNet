@@ -1,18 +1,13 @@
-ApiNet 0.1.3：文件上传、双向参数同步、深浅主题与常用工具。
+ApiNet 0.1.4：新增 Android APK 与手机、平板界面适配。
 
-- URL 查询参数与 Params 表格双向同步；保留重复字段、空值、变量和片段，禁用参数保留在表格，发送时不重复追加。
-- Query、Headers、表单参数采用 KEY / VALUE 表格，统一表头、行列分隔线与输入留白。
-- Multipart 支持 Text / File、系统文件选择、混合字段和同名多文件，以流方式上传；支持变量路径和缺失文件提示。
-- Postman / ApiPost 与 Swagger/OpenAPI 导入可识别文件字段；导入后重新选择本地文件启用，导出使用 binary schema 并清空本机文件路径。
-- 新增深色/浅色主题，左侧按钮一键切换，也可在设置中选择；保存选择，代码编辑器、表格、输入框和对话框同步变化。
-- 新增工具面板：JSON 格式化/压缩、URL 编码/解码、UTF-8 Base64 编码/解码，支持复制结果与结果填回输入。
-- 修复 URL 被渲染成低对比度超链接和焦点输入框黑底问题，统一输入框左右内边距与焦点边框。
-- 发送时显示旋转动画和“发送中…”，保留取消并防止重复发送。
-- 支持在线 Swagger/OpenAPI JSON 链接导入到指定文件夹，保存来源地址并支持重新下载、增量刷新和冲突预览；HTTP/HTTPS、30 秒超时、16 MB 上限。
-- 更新检查、最新版状态和下载进度移到底部状态栏；仅更新就绪后弹出立即升级/退出时升级/稍后，稍后仍可从底部安装。
+- 新增 Android 8.0+ ARM64 / x86_64 APK，支持系统安装和同一签名的覆盖更新。
+- 手机采用抽屉导航、请求切换与分区编辑；平板停靠导航，横屏收起重复上下文区域，触控按钮最小 44dp。
+- 移动端支持 HTTP/WebSocket、文件夹、环境变量、历史、在线 Swagger/OpenAPI 导入、JSON 导入导出、文件上传、响应保存、深浅主题及常用工具。
+- Android 文件选择器通过流读写文档 URI，上传文件保留在应用私有目录；无需请求整个存储的访问权限。
+- Android 从 GitHub Release 下载 APK，校验 SHA256，再由系统确认安装。签名密钥保存在仓库 Secrets，后续升级沿用。
+- 将共享 UI/MVVM 拆入 ApiNet.UI，桌面和 Android 保持独立启动及更新实现。桌面 Native AOT 和 Velopack 升级继续保留。
+- Android 显式 HTTP 代理仅在前台使用，暂不提供 VPN 全局抓包、后台常驻或读取其他应用数据库；Postman/ApiPost 使用 JSON 导入。
 
-继续保留 HTTP/WebSocket、多标签、多级文件夹、环境变量、文件响应保存、历史筛选、代理抓包、HTTPS 解密和自动升级。
+桌面包仍提供 Windows/Linux/macOS x64 + ARM64。Android 使用 .NET for Android Profiled AOT，桌面使用 Native AOT。APK 由项目密钥签名；桌面安装包仍未签名。
 
-Windows Setup.exe 直接覆盖安装/修复并保留工作区数据。Windows 选择对应架构的 Setup.exe；Linux 使用 AppImage（需赋执行权限）；macOS 使用 DMG 或 Portable.zip。所有包均未签名，macOS 首次启动需允许打开。
-
-`*.nupkg`、`releases.*.json` 用于在线更新，请保留原始文件名。SHA256SUMS.txt 提供下载校验。六个平台由 CI 进行 Native AOT 构建；自动化测试及无窗口渲染截图不代表全部架构已完成安装和连续升级实机验证。
+`*.nupkg`、`releases.*.json` 用于桌面在线更新；Android 使用对应架构的 APK。SHA256SUMS.txt 提供校验。

@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)][ValidateSet('win-x64','win-arm64','linux-x64','linux-arm64','osx-x64','osx-arm64')][string]$Rid,
-    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$')][string]$Version = '0.1.3',
+    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$')][string]$Version = '0.1.4',
     [switch]$PublishOnly
 )
 $ErrorActionPreference = 'Stop'
@@ -20,8 +20,8 @@ try {
     dotnet tool restore
     if ($LASTEXITCODE -ne 0) { throw 'Velopack 工具恢复失败。' }
     $mainExe = if ($IsWindows) { 'ApiNet.Desktop.exe' } else { 'ApiNet.Desktop' }
-    $icon = Join-Path $projectRoot 'src/ApiNet.Desktop/Assets/app.png'
-    if ($IsWindows) { $icon = Join-Path $projectRoot 'src/ApiNet.Desktop/Assets/app.ico' }
+    $icon = Join-Path $projectRoot 'src/ApiNet.UI/Assets/app.png'
+    if ($IsWindows) { $icon = Join-Path $projectRoot 'src/ApiNet.UI/Assets/app.ico' }
     if ($IsMacOS) {
         $iconSet = Join-Path $projectRoot 'artifacts/ApiNet.iconset'
         New-Item -ItemType Directory -Path $iconSet -Force | Out-Null
