@@ -19,7 +19,7 @@ public sealed class AndroidLifetime(MainActivity activity)
     private MainWindowViewModel? _main;
     private MobileMainView? _view;
     private AndroidUpdateService? _updates;
-    public void Initialize(Application app)
+    public void Initialize(Avalonia.Application app)
     {
         if (app.ApplicationLifetime is not ISingleViewApplicationLifetime lifetime) return;
         var directory = Path.Combine(activity.FilesDir!.AbsolutePath, "workspace");
