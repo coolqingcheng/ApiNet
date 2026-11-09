@@ -18,6 +18,7 @@ public partial class MainWindowViewModel
     private void RefreshTree()
     {
         var selectedId = SelectedNode?.Id;
+        _exportSelectionIds.RemoveWhere(id => Workspace.Folders.All(x => x.Id != id) && Workspace.Requests.All(x => x.Id != id));
         var expanded = Flatten(Nodes).ToDictionary(x => x.Id, x => x.IsExpanded);
         var visited = new HashSet<string>();
         List<WorkspaceNodeViewModel> Build(string? parent)
@@ -27,19 +28,21 @@ public partial class MainWindowViewModel
             {
                 if (!visited.Add(folder.Id))
                     continue;
-                var node = new WorkspaceNodeViewModel(folder) { IsExpanded = Search.Length > 0 || !expanded.TryGetValue(folder.Id, out var value) || value };
+                var node = TrackExportSelection(new WorkspaceNodeViewModel(folder) { IsExpanded = Search.Length > 0 || !expanded.TryGetValue(folder.Id, out var value) || value });
                 foreach (var child in Build(folder.Id))
                     node.Children.Add(child);
                 if (Search.Length == 0 || node.Children.Count > 0 || folder.Name.Contains(Search, StringComparison.OrdinalIgnoreCase))
                     nodes.Add(node);
             }
-            nodes.AddRange(Workspace.Requests.Where(x => x.FolderId == parent && (Search.Length == 0 || (x.Name + x.Url + x.Method).Contains(Search, StringComparison.OrdinalIgnoreCase))).Select(x => new WorkspaceNodeViewModel(x)));
+            nodes.AddRange(Workspace.Requests.Where(x => x.FolderId == parent && (Search.Length == 0 || (x.Name + x.Url + x.Method).Contains(Search, StringComparison.OrdinalIgnoreCase))).Select(x => TrackExportSelection(new WorkspaceNodeViewModel(x))));
             return nodes;
         }
         Nodes.Clear();
         foreach (var node in Build(null))
             Nodes.Add(node);
         SelectedNode = Flatten(Nodes).FirstOrDefault(x => x.Id == selectedId);
+        OnPropertyChanged(nameof(ExportSelectionSummary));
+        OnPropertyChanged(nameof(HasExportSelection));
     }
     private static IEnumerable<WorkspaceNodeViewModel> Flatten(IEnumerable<WorkspaceNodeViewModel> nodes)
     {
@@ -91,7 +94,11 @@ public partial class MainWindowViewModel
         SelectedNode = Flatten(Nodes).FirstOrDefault(x => x.Id == folder.Id);
         await PersistSafelyAsync();
     }
-    [RelayCommand] private void SelectRoot() => SelectedNode = null;
+    [RelayCommand] private void SelectRoot()
+    {
+        SelectedNode = null;
+        ClearExportSelection();
+    }
     [RelayCommand]
     private async Task RenameAsync()
     {

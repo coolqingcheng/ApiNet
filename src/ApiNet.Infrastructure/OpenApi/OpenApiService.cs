@@ -195,26 +195,7 @@ public sealed partial class OpenApiService : IOpenApiService
         var sockets = new JsonArray();
         foreach (var request in requests)
         {
-            var clean = ModelCopy.Request(request);
-            clean.ImportBaselineJson = null;
-            clean.Headers = string.Join('\n', clean.Headers.Split('\n').Where(x => !x.StartsWith("Authorization:", StringComparison.OrdinalIgnoreCase) && !x.StartsWith("Cookie:", StringComparison.OrdinalIgnoreCase) && !x.StartsWith("X-Api-Key:", StringComparison.OrdinalIgnoreCase)));
-            clean.HeaderParameters.RemoveAll(x => new[] { "authorization", "proxy-authorization", "cookie", "x-api-key" }.Contains(x.Key.Trim().ToLowerInvariant()));
-            foreach (var file in clean.BodyParameters.Where(x => x.Type == "File"))
-            {
-                file.Value = "";
-                file.Enabled = false;
-            }
-            foreach (var secret in workspace.SharedVariables.Concat(workspace.Environments.SelectMany(x => x.Variables)).Where(x => x.IsSecret && x.Value.Length > 0).OrderByDescending(x => x.Value.Length))
-            {
-                clean.Url = clean.Url.Replace(secret.Value, "{{" + secret.Key + "}}");
-                clean.Body = clean.Body.Replace(secret.Value, "{{" + secret.Key + "}}");
-                clean.Headers = clean.Headers.Replace(secret.Value, "{{" + secret.Key + "}}");
-                foreach (var parameter in clean.HeaderParameters.Concat(clean.QueryParameters).Concat(clean.BodyParameters))
-                {
-                    parameter.Key = parameter.Key.Replace(secret.Value, "{{" + secret.Key + "}}");
-                    parameter.Value = parameter.Value.Replace(secret.Value, "{{" + secret.Key + "}}");
-                }
-            }
+            var clean = Documents.RequestExportSanitizer.Clean(request, workspace);
             if (request.Protocol == "WebSocket")
             {
                 sockets.Add(JsonSerializer.SerializeToNode(clean, AppJsonContext.Default.RequestDefinition));

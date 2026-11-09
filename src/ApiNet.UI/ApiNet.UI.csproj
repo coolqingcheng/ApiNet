@@ -10,6 +10,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.22" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.4.1" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
     <ProjectReference Include="../ApiNet.Core/ApiNet.Core.csproj" />
     <ProjectReference Include="../ApiNet.Infrastructure/ApiNet.Infrastructure.csproj" />
     <ProjectReference Include="../ApiNet.Proxy/ApiNet.Proxy.csproj" />

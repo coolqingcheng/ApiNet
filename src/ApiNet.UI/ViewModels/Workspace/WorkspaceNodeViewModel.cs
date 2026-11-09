@@ -32,6 +32,7 @@ public partial class WorkspaceNodeViewModel : ViewModelBase
     }
     public ObservableCollection<WorkspaceNodeViewModel> Children { get; } = [];
     [ObservableProperty] private bool _isExpanded = true;
+    [ObservableProperty] private bool _isExportSelected;
     public WorkspaceNodeViewModel(FolderDefinition folder)
     {
         Id = folder.Id;

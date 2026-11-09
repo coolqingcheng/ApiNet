@@ -14,6 +14,12 @@ public interface IDialogService
     Task<string?> OpenUploadFileAsync();
     Task<string?> SaveJsonAsync(string name);
     Task<string?> SaveResponseAsync(string name);
+    async Task<string?> WriteDocumentAsync(string name, byte[] content)
+    {
+        var path = await SaveResponseAsync(name);
+        if (path is not null) await File.WriteAllBytesAsync(path, content);
+        return path;
+    }
     async Task<string?> WriteJsonAsync(string name, string json)
     {
         var path = await SaveJsonAsync(name);

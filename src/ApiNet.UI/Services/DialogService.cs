@@ -29,6 +29,17 @@ public sealed class DialogService(Func<Window> owner) : IDialogService
         var file = await owner().StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions { Title = "导出 OpenAPI", SuggestedFileName = name, DefaultExtension = "json", ShowOverwritePrompt = true, FileTypeChoices = [new FilePickerFileType("JSON") { Patterns = ["*.json"] }] });
         return file?.TryGetLocalPath();
     }
+    public async Task<string?> WriteDocumentAsync(string name, byte[] content)
+    {
+        var extension = Path.GetExtension(name).TrimStart('.');
+        var label = extension switch { "md" => "Markdown 文档", "pdf" => "PDF 文档", _ => "OpenAPI JSON" };
+        using var file = await owner().StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions { Title = "导出 " + label, SuggestedFileName = name, DefaultExtension = extension, ShowOverwritePrompt = true, FileTypeChoices = [new FilePickerFileType(label) { Patterns = ["*." + extension] }] });
+        if (file is null) return null;
+        await using var output = await file.OpenWriteAsync();
+        if (output.CanSeek) output.SetLength(0);
+        await output.WriteAsync(content);
+        return file.TryGetLocalPath() ?? file.Name;
+    }
     public async Task<string?> OpenUploadFileAsync()
     {
         var files = await owner().StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = "选择要上传的文件", AllowMultiple = false });

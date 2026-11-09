@@ -20,7 +20,7 @@
   <Grid RowDefinitions="54,*,28">
     <Border Background="{DynamicResource HeaderBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
       <Grid ColumnDefinitions="64,*,Auto" Margin="0,0,16,0">
-        <Border Background="{DynamicResource AccentBrush}" CornerRadius="8" Width="30" Height="30"><TextBlock Text="↗" FontSize="25" FontWeight="Bold" Foreground="{DynamicResource HeaderBackgroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+        <Image Source="avares://ApiNet.UI/Assets/app.png" Width="34" Height="34" Stretch="Uniform" />
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center"><TextBlock Text="API.NET" FontSize="16" FontWeight="Bold" LetterSpacing="2" /><Border Width="1" Height="18" Background="{DynamicResource SubtleBorderBrush}" /><TextBlock Text="个人工作区" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /><Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="4" Padding="6,3"><TextBlock Text="本地" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" /></Border></StackPanel>
         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
           <TextBlock Text="环境" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,5,0" />
@@ -50,7 +50,7 @@
       <GridSplitter Grid.Column="2" Background="{DynamicResource SubtleBorderBrush}" ResizeDirection="Columns" />
       <Grid Grid.Column="3">
         <Grid IsVisible="{Binding ShowEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" RowDefinitions="Auto,Auto,Auto,Auto">
-          <Border Background="{DynamicResource AccentSurfaceBrush}" CornerRadius="20" Width="84" Height="84"><TextBlock Text="↗" FontSize="52" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+          <Image Source="avares://ApiNet.UI/Assets/app.png" Width="84" Height="84" Stretch="Uniform" />
           <TextBlock Grid.Row="1" Text="从一个请求开始" FontSize="26" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,26,0,10" />
           <TextBlock Grid.Row="2" Text="调试接口、连接 WebSocket，或导入你的 OpenAPI 文档。" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" />
           <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10" Margin="0,24,0,0"><Button Content="＋ HTTP 请求" Classes="primary" Command="{Binding NewHttpCommand}" /><Button Content="导入 OpenAPI" Command="{Binding ImportCommand}" /></StackPanel>

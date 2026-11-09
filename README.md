@@ -1,3 +1,5 @@
+<img src="src/ApiNet.UI/Assets/app.png" width="80" alt="ApiNet Logo" />
+
 # ApiNet
 
 基于 .NET 10、Avalonia 和 CommunityToolkit.Mvvm 的跨平台网络调试工作台。布局参考 Postman，采用 VS Code 风格的紧凑界面，提供深色和浅色主题。
@@ -12,41 +14,13 @@
 
 | 系统 | 架构 | 下载文件 |
 | --- | --- | --- |
-| Android 8.0+ | ARM64 / x86_64 | `ApiNet-android-arm64.apk` / `ApiNet-android-x64.apk` |
 | Windows | x64 / ARM64 | 对应架构的 `Setup.exe` |
 | Linux | x64 / ARM64 | 对应架构的 `.AppImage`，执行前使用 `chmod +x` |
 | macOS | Intel / Apple Silicon | 对应架构的 `.dmg` 或 `Portable.zip`，将应用复制到 Applications |
 
-安装包自带运行时，无需安装 .NET。桌面包均未签名，不通过应用商店分发；Android APK 使用项目签名密钥，安装时由系统确认。macOS 首次打开时，在“系统设置 → 隐私与安全性”中允许打开；应用应放在当前用户可写的位置，以便更新。Linux 的 CI 构建基线为 Ubuntu 24.04；部分发行版运行 AppImage 需要 FUSE。
+安装包自带运行时，无需安装 .NET。安装包均未签名，不通过应用商店分发。macOS 首次打开时，在“系统设置 → 隐私与安全性”中允许打开；应用应放在当前用户可写的位置，以便更新。Linux 的 CI 构建基线为 Ubuntu 24.04；部分发行版运行 AppImage 需要 FUSE。
 
 Windows 从 0.1.1 起，再次运行 Setup.exe 会直接覆盖安装/修复，同版本也可修复缺失的程序文件，不再弹出“已经安装”的确认。安装时会关闭已有实例，完成后打开应用；工作区、环境、历史和本地 CA 保留在独立的数据目录。命令行支持 `--silent`（不自动启动）、`--no-start`、`--installto <目录>` 和 `--log <文件>`。
-
-## Android 手机和平板
-
-Android 使用 Avalonia.Android 的独立启动入口，手机提供抽屉导航、请求切换、Params/Headers/Body/认证/响应分区，WebSocket 提供消息/发送/握手分区，平板停靠左侧导航。工具面板在窄屏上下排列，支持深浅主题、横竖屏和 44dp 触控按钮。
-
-![平板布局（Avalonia Headless 渲染）](docs/images/android-tablet.png)
-
-<img src="docs/images/android-phone.png" width="320" alt="Android 35 模拟器中的手机界面" /> <img src="docs/images/android-websocket.png" width="320" alt="手机 WebSocket 消息编辑（Avalonia Headless 渲染）" />
-
-左图为 Android 35 x86_64 模拟器实际截图，右图为 WebSocket 的 Avalonia Headless 渲染。
-
-![Android 模拟器横屏实际截图](docs/images/android-landscape.png)
-
-手机横屏或软键盘缩小可用高度时，导航保持抽屉模式，URL、方法与发送按钮合并为一行。导航内容可滚动；状态栏与系统导航栏跟随应用主题。
-
-支持 HTTP/WebSocket、文件夹、环境变量、历史、JSON/在线 Swagger 导入、OpenAPI 导出、文件上传和响应保存。文件通过 Android 系统选择器访问，不需要读取整个存储的权限；选择的上传文件复制到应用私有目录，保存的请求可在重启后继续使用。Android 沙箱无法读取其他应用的本地数据库，Postman/ApiPost 请先导出 JSON 再导入。同一文档重新选择可增量合并；文件导入的“刷新”读取已导入副本，在线来源刷新会重新下载。
-
-Android 抓包使用前台显式 HTTP 代理，不提供 VPN 全局抓包或后台常驻；HTTPS 解密仍需要客户端信任 CA。移动端提供证书另存为。Android 更新从同一 GitHub Release 下载对应 APK，校验 SHA256 后调用系统安装界面，需要用户允许此应用安装更新。没有桌面托盘和“退出时替换程序”的流程。
-
-桌面继续使用 Native AOT；Android 使用 .NET for Android 与 Profiled AOT。手机使用 ARM64 包，x86_64 包适用于相应设备和模拟器。Android 项目单独构建，因此运行桌面解决方案测试无需安装 Android workload。
-
-```sh
-dotnet workload install android
-dotnet build src/ApiNet.Android/ApiNet.Android.csproj -r android-arm64
-```
-
-发布需要 Android SDK 36、JDK 21 与私有签名密钥，运行 `scripts/publish-android.ps1`。GitHub Actions 使用 `ANDROID_KEYSTORE_BASE64`、`ANDROID_SIGN_PASSWORD` 两个仓库 Secret；密钥不进入仓库。后续版本必须沿用同一密钥才能覆盖安装。APK 和桌面包统一发布到 Releases。
 
 ## 启动
 
@@ -80,11 +54,9 @@ v0.1.2 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 v0.1.3 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42603067258)在 Windows/Linux/macOS 均通过 69 项自动化测试（51 项服务/网络 + 18 项桌面），覆盖文件上传、在线文档、双向参数同步、深浅主题和文本工具。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42603098585)已完成六个平台的 Native AOT 打包和发布，Windows x64 的 0.1.0 → 0.1.3 覆盖升级、重复修复及数据库/WAL/CA 保留验证均通过。六个公开更新索引已核对为 0.1.3，并使用模拟旧版本定位器，从 GitHub 无令牌下载并校验 Windows x64 更新包；这项客户端验证不执行应用替换或重启。
 
-v0.1.4 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42621120142)在 Windows/Linux/macOS 均通过 71 项测试（51 项服务/网络 + 20 项界面/MVVM）。移动界面测试覆盖手机深浅主题、抽屉导航、平板侧栏、横屏、可用高度缩小时的 WebSocket 编辑，以及移动弹窗与设置保存。
+v0.1.4 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42621120142)在 Windows/Linux/macOS 均通过 71 项测试，六个桌面 Native AOT 目标构建及发布成功。Windows x64 的覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。
 
-Android x86_64 APK 已在 Android 35 模拟器中验证安装、启动、工作区加载、中文字体、横竖屏截图及旋转后的应用焦点；截图检查验证实际方向，防止将未完成旋转的截图误判为横屏。ARM64 APK 已构建，尚未进行 ARM64 真机验证。构建及安装记录见 [v0.1.4 发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42621122011)。
-
-v0.1.4 已完成六个桌面目标及两个 Android 目标的构建和发布。Windows x64 的 0.1.0 → 0.1.4 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留测试通过。六个公开桌面更新索引均已核对为 0.1.4；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，这项客户端验证不执行应用替换或重启。公开 ARM64 APK 也已实际下载，SHA256 与发布校验文件一致，并检查包含 ARM64 本机库。
+从 v0.1.5 起只构建和发布 Windows、Linux、macOS 六个桌面目标，停止 Android 打包。
 
 ## 已实现
 
@@ -102,7 +74,7 @@ v0.1.4 已完成六个桌面目标及两个 Android 目标的构建和发布。W
 - Swagger 2.0、OpenAPI 3.0/3.1 JSON 支持从本地文件或在线 HTTP/HTTPS 链接导入到选定文件夹；按首个 tag 分组；导入源绑定、增量更新、字段冲突预览、来源移除标记。
 - Postman Collection v2 / v2.1、旧版自动备份、环境/公共变量，以及 ApiPost 项目/单请求 JSON 导入；保留目录、请求、启用状态、原始请求体和表单文本/文件字段。
 - 检测本机 ApiPost / Postman，在导入窗口选择后直接读取本地数据副本；支持本地导入源刷新及增量合并。
-- 导出 OpenAPI 3.0.3，保留相关模型引用，通过 `x-apinet-*` 扩展恢复文件夹及 WebSocket 配置。
+- 文档导出支持 Markdown、PDF 和 OpenAPI JSON；勾选多个文件夹/请求，文件夹递归包含全部子项，重叠选择自动去重。PDF 内置中文字体，长参数表格自动分页。OpenAPI 3.0.3 保留模型引用，通过 `x-apinet-*` 扩展恢复文件夹及 WebSocket 配置。
 - 本地 HTTP/1.1 正向代理、HTTPS CONNECT 隧道、可选 HTTPS 解密、WebSocket 帧转发及查看、抓包转调试。
 - 关闭时退出或隐藏到托盘；Windows/macOS 提供托盘菜单，Linux 关闭到托盘选项当前回退为最小化窗口。
 - Velopack 检查更新、后台自动下载、立即重启升级/退出时升级；检查及下载状态显示在底部状态栏，仅更新下载就绪后弹出升级选择。开发运行不会尝试安装更新。
@@ -110,6 +82,20 @@ v0.1.4 已完成六个桌面目标及两个 Android 目标的构建和发布。W
 ## 基本使用
 
 左侧选择文件夹后新建请求，或点击“导入”/右键“导入到此文件夹”。选择“工作区根目录”后，可在根目录新建文件夹或导出整个工作区。每个导入源保存文件路径、在线 JSON 地址或本机数据目录，再次导入同一来源到同一文件夹会增量更新；文件迁移时需重新选择导入源。
+
+### 选择文档范围并导出
+
+在左侧集合树中勾选文件夹或请求，再点“导出文档”。可以跨目录多选；勾选父文件夹会包含全部下级请求，即使它们当前被折叠或搜索隐藏；重复选择只导出一次。底部显示勾选项数和实际请求数，支持一键清空。
+
+未勾选时，默认导出当前选中的文件夹/请求；点击“工作区根目录”会清空勾选并切换为整个工作区。格式选择窗口确认范围和请求数量，然后在系统保存窗口选择本地目录。
+
+- **Markdown (.md)**：按文件夹路径分组，包含 URL、Query、Headers、表单字段、请求体、WebSocket 子协议，以及导入源中可用的描述、响应定义和引用模型。
+- **PDF (.pdf)**：与 Markdown 使用相同内容，内置中文字体；长 URL、长参数和表格自动换行/分页，跨页表格重复表头。
+- **OpenAPI JSON (.json)**：适合继续导入 Swagger 等工具；保留相关模型引用和 ApiNet 文件夹/WebSocket 扩展。
+
+导出使用已打开标签页的当前编辑内容，无需先保存；变量保留为占位符，标记为敏感的值脱敏，常见认证/Cookie 头和本机上传路径不写入文档。历史记录、抓包和实际响应内容不参与文档导出；普通手动请求未定义的响应结构不会自动推断。
+
+![多选导出文档](docs/images/document-export-selection.png)
 
 在顶部“管理变量”中配置公共变量和开发/测试等环境。当前环境覆盖公共变量。导入的新服务会在需要时创建独立的 `import_xxxxxx.baseUrl`，避免复用已有服务地址。路径参数如 `{{id}}` 需要在变量中配置。
 
@@ -168,14 +154,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.4
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.5
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.4`）。工作流运行测试，构建六个桌面目标和两个 Android 目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。桌面无需签名密钥；Android 需要上文说明的两个签名 Secret。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.5`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
@@ -202,13 +188,14 @@ Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Acti
 ```text
 src/ApiNet.Desktop          桌面启动入口、托盘与生命周期
 src/ApiNet.UI               共享 Views / ViewModels / Services / Styles / Assets
-src/ApiNet.Android          Android Activity、文件/更新与移动端启动
 src/ApiNet.Core             模型、接口、源生成 JSON 上下文
-src/ApiNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、集合/本机导入、更新
+src/ApiNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、文档导出、集合/本机导入、更新
 src/ApiNet.Proxy            正向代理、HTTP 协议读写、本地 CA
 src/ApiNet.Setup            Windows 原生安装入口、覆盖修复和旧数据迁移
 tests/ApiNet.Tests          服务与网络集成测试
 tests/ApiNet.Desktop.Tests  MVVM 交互及 XAML 渲染测试
 ```
 
-窗口只组合视图，功能按目录拆分；MainWindowViewModel 的协调命令按 Workspace、History、Capture、OpenApi、Updates 分文件，工具与设置使用独立 View/ViewModel，深浅主题色集中在 ThemePalette.axaml。各请求 Tab 维护自己的状态，网络与存储实现不依赖 Avalonia。
+窗口只组合视图，功能按目录拆分；MainWindowViewModel 的协调命令按 Workspace、History、Capture、OpenApi、Documents、Updates 分文件，工具与设置使用独立 View/ViewModel，深浅主题色集中在 ThemePalette.axaml。各请求 Tab 维护自己的状态，网络与存储实现不依赖 Avalonia。
+
+Logo 使用透明底 SVG/PNG 和多尺寸 ICO，窗口、托盘和安装包共用图标。修改后可用 `python scripts/generate-icons.py` 重新生成（需要 Python 3 和 Pillow）。

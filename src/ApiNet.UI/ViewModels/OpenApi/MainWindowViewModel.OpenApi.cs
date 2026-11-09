@@ -96,19 +96,5 @@ public partial class MainWindowViewModel
         catch (Exception exception) { Status = "刷新失败：" + exception.Message; }
         finally { IsImporting = false; }
     }
-    [RelayCommand]
-    private async Task ExportAsync()
-    {
-        try
-        {
-            var json = _openApi.Export(Workspace, TargetFolder);
-            var path = await _dialogs.WriteJsonAsync("openapi.json", json);
-            if (path is not null)
-            {
-                Status = "OpenAPI 已导出";
-            }
-        }
-        catch (Exception exception) { Status = "导出失败：" + exception.Message; }
-    }
 
 }
