@@ -30,15 +30,15 @@ public sealed class AndroidLifetime(MainActivity activity)
         var openApi = new OpenApiService();
         _main = new MainWindowViewModel(store, new VariableResolver(), new HttpRequestService(), openApi, new ForwardProxyService(directory), _updates, dialogs, new AndroidImportService(new WorkspaceImportService(openApi))) { IsMobile = true };
         _view.DataContext = new MobileShellViewModel(_main);
-        lifetime.MainView = _view;
         _main.ExitRequested += _ => _updates.Apply(true);
         _view.AttachedToVisualTree += InitializeOnce;
+        lifetime.MainView = _view;
     }
     private async void InitializeOnce(object? sender, VisualTreeAttachmentEventArgs args)
     {
         _view!.AttachedToVisualTree -= InitializeOnce;
-        try { await _main!.InitializeAsync(); }
-        catch (Exception exception) { _main!.Status = "加载失败：" + exception.Message; }
+        try { await _main!.InitializeAsync(); global::Android.Util.Log.Info("ApiNet", "Workspace initialized: " + _main.Workspace.Requests.Count + " requests"); }
+        catch (Exception exception) { _main!.Status = "加载失败：" + exception.Message; global::Android.Util.Log.Error("ApiNet", exception.ToString()); }
     }
     public void SaveDrafts() { if (_main is not null) Dispatcher.UIThread.Post(() => _ = _main.SaveDraftsAsync()); }
     public void ResumeInstall() => _updates?.ResumeInstall();

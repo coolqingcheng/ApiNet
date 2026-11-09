@@ -4,6 +4,7 @@ using Android.Content.PM;
 using Android.OS;
 using Avalonia;
 using Avalonia.Android;
+using Avalonia.Media;
 using ApiNet.Desktop;
 
 namespace ApiNet.Android;
@@ -17,7 +18,7 @@ public sealed class MainActivity : AvaloniaMainActivity<App>
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
         App.StartLifetime = app => { _lifetime = new AndroidLifetime(this); _lifetime.Initialize(app); };
-        return base.CustomizeAppBuilder(builder).WithInterFont();
+        return base.CustomizeAppBuilder(builder).WithInterFont().With(new FontManagerOptions { DefaultFamilyName = "avares://ApiNet.Android/Assets/Fonts#Noto Sans CJK SC" });
     }
     protected override void OnPause() { _lifetime?.SaveDrafts(); base.OnPause(); }
     protected override void OnResume() { base.OnResume(); _lifetime?.ResumeInstall(); }

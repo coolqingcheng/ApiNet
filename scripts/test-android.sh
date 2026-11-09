@@ -9,6 +9,10 @@ adb logcat -c
 adb shell monkey -p io.github.coolqingcheng.apinet -c android.intent.category.LAUNCHER 1
 sleep 12
 adb logcat -d > "$task_results/logcat.txt"
+if ! rg 'ApiNet.*Workspace initialized: [1-9][0-9]* requests' "$task_results/logcat.txt"; then
+  tail -n 160 "$task_results/logcat.txt"
+  exit 1
+fi
 task_pid="$(adb shell pidof io.github.coolqingcheng.apinet | tr -d '\r')"
 if [[ -z "$task_pid" ]]; then
   tail -n 160 "$task_results/logcat.txt"
