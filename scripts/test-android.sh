@@ -12,6 +12,7 @@ for task_attempt in {1..15}; do
   adb logcat -d > "$task_results/logcat.txt"
   if grep -Eq 'ApiNet.*Workspace initialized: [1-9][0-9]* requests' "$task_results/logcat.txt"; then break; fi
 done
+sleep 10
 # The stock launcher can show an ANR while a fresh CI emulator indexes packages.
 # Close only the emulator launcher so it cannot obscure the application's screenshots.
 adb shell am force-stop com.android.launcher3
@@ -19,10 +20,30 @@ sleep 3
 adb shell screencap -p /sdcard/apinet-phone.png
 adb pull /sdcard/apinet-phone.png "$task_results/android-phone.png"
 adb shell settings put system accelerometer_rotation 0
-adb shell settings put system user_rotation 1
-sleep 3
-adb shell screencap -p /sdcard/apinet-landscape.png
-adb pull /sdcard/apinet-landscape.png "$task_results/android-landscape.png"
+adb shell wm user-rotation lock 1
+for task_attempt in {1..10}; do
+  sleep 3
+  adb shell screencap -p /sdcard/apinet-landscape.png
+  adb pull /sdcard/apinet-landscape.png "$task_results/android-landscape.png"
+  if python3 - "$task_results/android-landscape.png" <<'PY'
+import struct, sys
+with open(sys.argv[1], 'rb') as png:
+    png.seek(16)
+    width, height = struct.unpack('>II', png.read(8))
+print(f'Landscape screenshot: {width} x {height}')
+sys.exit(0 if width > height else 1)
+PY
+  then break; fi
+done
+python3 - "$task_results" <<'PY'
+import pathlib, struct, sys
+root = pathlib.Path(sys.argv[1])
+for name, landscape in [('android-phone.png', False), ('android-landscape.png', True)]:
+    with (root / name).open('rb') as png:
+        png.seek(16)
+        width, height = struct.unpack('>II', png.read(8))
+    assert (width > height) == landscape, f'{name}: {width} x {height}'
+PY
 adb logcat -d > "$task_results/logcat.txt"
 adb shell dumpsys window > "$task_results/windows.txt"
 if ! grep -E 'mCurrentFocus=.*io.github.coolqingcheng.apinet/' "$task_results/windows.txt"; then

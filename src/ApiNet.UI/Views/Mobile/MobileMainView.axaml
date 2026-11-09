@@ -1,5 +1,5 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Mobile" xmlns:tabs="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:m="using:ApiNet.Core.Models" xmlns:workspace="using:ApiNet.Desktop.Views.Workspace" xmlns:history="using:ApiNet.Desktop.Views.History" xmlns:capture="using:ApiNet.Desktop.Views.Capture" xmlns:tools="using:ApiNet.Desktop.Views.Tools" xmlns:mobile="using:ApiNet.Desktop.Views.Mobile"
-             x:Class="ApiNet.Desktop.Views.Mobile.MobileMainView" x:DataType="vm:MobileShellViewModel" TopLevel.AutoSafeAreaPadding="True" Background="{DynamicResource WindowBackgroundBrush}">
+             x:Class="ApiNet.Desktop.Views.Mobile.MobileMainView" x:DataType="vm:MobileShellViewModel" TopLevel.AutoSafeAreaPadding="True" TopLevel.SystemBarColor="{DynamicResource WindowBackgroundBrush}" Background="{DynamicResource WindowBackgroundBrush}">
   <UserControl.Styles>
     <Style Selector="Button"><Setter Property="MinHeight" Value="44" /><Setter Property="MinWidth" Value="44" /></Style>
     <Style Selector="ComboBox"><Setter Property="MinHeight" Value="44" /></Style>
