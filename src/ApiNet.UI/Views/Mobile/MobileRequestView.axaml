@@ -6,7 +6,7 @@
     <ProgressBar Grid.Row="1" Height="2" VerticalAlignment="Bottom" IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
     <ContentControl Grid.Row="3" Content="{Binding}"><ContentControl.DataTemplates>
       <DataTemplate DataType="vm:HttpRequestTabViewModel" x:DataType="vm:HttpRequestTabViewModel"><TabControl SelectedIndex="{Binding MobileSection}">
-        
+
           <TabItem Header="Params"><c:ParameterTable Rows="{Binding QueryRows}" AddCommand="{Binding AddQueryCommand}" MinTableWidth="480" /></TabItem>
           <TabItem Header="Headers"><c:ParameterTable Rows="{Binding HeaderRows}" AddCommand="{Binding AddHeaderCommand}" MinTableWidth="480" /></TabItem>
           <TabItem Header="Body"><Grid RowDefinitions="Auto,*"><Grid ColumnDefinitions="*,Auto" Margin="0,6"><ComboBox ItemsSource="{Binding BodyFormats}" SelectedItem="{Binding BodyFormat}" HorizontalAlignment="Stretch" /><Button Grid.Column="1" Content="格式化" Classes="ghost" Command="{Binding FormatBodyCommand}" IsVisible="{Binding IsRawBody}" /></Grid><c:CodeEditor Grid.Row="1" Text="{Binding Body}" Language="{Binding BodyFormat}" IsVisible="{Binding IsRawBody}" /><c:ParameterTable Grid.Row="1" Rows="{Binding BodyRows}" AddCommand="{Binding AddBodyParameterCommand}" AllowFiles="{Binding IsMultipartBody}" MinTableWidth="560" IsVisible="{Binding IsFormBody}" /></Grid></TabItem>
