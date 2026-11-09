@@ -199,8 +199,6 @@ public partial class MainWindowViewModel : ViewModelBase
             await tab.StopAsync();
         await _proxy.StopAsync();
         await PersistAsync();
-        foreach (var tab in Tabs.ToArray())
-            await tab.DisposeAsync();
     }
     public void ApplyUpdate(bool restart)
     {
