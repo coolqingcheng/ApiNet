@@ -1,6 +1,15 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <ResourceDictionary.ThemeDictionaries>
     <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="TableBackgroundBrush" Color="#212121" />
+      <SolidColorBrush x:Key="TableLineBrush" Color="#373737" />
+      <SolidColorBrush x:Key="TableHoverBrush" Color="#282828" />
+      <SolidColorBrush x:Key="TableTextBrush" Color="#E0E0E0" />
+      <SolidColorBrush x:Key="TableHeaderTextBrush" Color="#A6A6A6" />
+      <SolidColorBrush x:Key="TablePlaceholderBrush" Color="#858585" />
+      <SolidColorBrush x:Key="TableFocusBrush" Color="#969696" />
+      <SolidColorBrush x:Key="TableCheckedBackgroundBrush" Color="#777777" />
+      <SolidColorBrush x:Key="TableCheckedForegroundBrush" Color="#FFFFFF" />
       <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#1D1F26" />
       <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#191B20" />
       <SolidColorBrush x:Key="RailBackgroundBrush" Color="#17191E" />
@@ -47,6 +56,15 @@
       <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#606675" />
     </ResourceDictionary>
     <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="TableBackgroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="TableLineBrush" Color="#E6E6E6" />
+      <SolidColorBrush x:Key="TableHoverBrush" Color="#FAFAFA" />
+      <SolidColorBrush x:Key="TableTextBrush" Color="#212121" />
+      <SolidColorBrush x:Key="TableHeaderTextBrush" Color="#6B6B6B" />
+      <SolidColorBrush x:Key="TablePlaceholderBrush" Color="#999999" />
+      <SolidColorBrush x:Key="TableFocusBrush" Color="#A6A6A6" />
+      <SolidColorBrush x:Key="TableCheckedBackgroundBrush" Color="#EDEDED" />
+      <SolidColorBrush x:Key="TableCheckedForegroundBrush" Color="#383838" />
       <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFFFFF" />
       <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#F3F4F7" />
       <SolidColorBrush x:Key="RailBackgroundBrush" Color="#ECEEF3" />

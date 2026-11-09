@@ -20,6 +20,24 @@ public class CollectionImportTests
          ]}]}
         """;
     [Fact]
+    public void PostmanImportsStringAndRichDescriptionsForAllParameterTables()
+    {
+        const string json = """
+            {"info":{"name":"Descriptions"},"item":[{"name":"Upload","request":{"method":"POST",
+            "url":{"raw":"https://example.test/upload?page=2","query":[{"key":"page","value":"2","description":"页码"}]},
+            "header":[{"key":"X-Client","value":"ApiNet","description":{"content":"客户端标识","type":"text/plain"}}],
+            "body":{"mode":"formdata","formdata":[{"key":"avatar","type":"file","src":"avatar.png","description":"用户头像"},{"key":"name","value":"Alice","type":"text","description":"显示名称"}]}}}]}
+            """;
+        var workspace = new WorkspaceDocument();
+        _service.Apply(workspace, _service.Preview(workspace, json, null, "postman.json"), false);
+        var request = Assert.Single(workspace.Requests);
+        Assert.Equal("页码", Assert.Single(request.QueryParameters).Description);
+        Assert.Equal("客户端标识", Assert.Single(request.HeaderParameters).Description);
+        Assert.Equal("用户头像", request.BodyParameters.Single(x => x.Type == "File").Description);
+        Assert.Equal("显示名称", request.BodyParameters.Single(x => x.Key == "name").Description);
+    }
+
+    [Fact]
     public void PostmanKeepsNestedFoldersDuplicateUrlsVariablesAndDisabledParameters()
     {
         var workspace = new WorkspaceDocument { Folders = [new() { Id = "target" }] };

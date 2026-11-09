@@ -64,7 +64,7 @@ v0.1.5 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
 - 每个请求独立标签页；单击打开、保存、复制、关闭与草稿恢复；支持 Ctrl+N、Ctrl+S、Ctrl+W。
-- HTTP 方法、URL 与 Params 双向同步，Query/Header/Form 参数采用 KEY/VALUE 表格，可增删和启用；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
+- HTTP 方法、URL 与 Params 双向同步，Query/Header/Form 参数采用 Postman 风格的 KEY / VALUE / DESCRIPTION 表格，底部空行新增、悬停删除、全选启停和 Bulk Edit；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
 - URL、参数、Header、认证和请求体中的 `{{变量}}` 高亮；JSON/XML/HTML 语法高亮和 JSON/XML 格式化，支持 JSON、XML、Text、HTML、JavaScript 请求体类型。显式填写的 Content-Type 优先于类型默认值；Multipart 保留客户端生成的边界。
 - Multipart 混合文本与文件上传，支持同名字段上传多个文件、变量文件路径、文件选择与流式发送。
 - 深色/浅色主题，一键切换并记住选择；输入框、参数表格和代码高亮随主题变化。
@@ -101,13 +101,19 @@ v0.1.5 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 在顶部“管理变量”中配置公共变量和开发/测试等环境。当前环境覆盖公共变量。导入的新服务会在需要时创建独立的 `import_xxxxxx.baseUrl`，避免复用已有服务地址。路径参数如 `{{id}}` 需要在变量中配置。
 
-Query 和 Headers 使用带 KEY/VALUE 表头与分隔线的表格编辑，点击“添加参数”或每行的删除按钮增删。粘贴/编辑 URL 中的查询参数会自动填入 Params，编辑 Params 也会更新 URL；重复 key、空值、`{{变量}}` 和 `#fragment` 均保留。取消勾选会从 URL 中移除此项，但在表格中保留供再次启用，实际发送不会重复追加。Query 值在解析变量后进行 URL 编码。
+Query、Headers 和表单参数使用 Postman 风格的 KEY / VALUE / DESCRIPTION 三列表格。直接在底部空行输入即可新增，悬停行时显示删除按钮；左侧勾选启停，表头支持全选，Tab / Shift+Tab 切换单元格。细分隔线、占位提示、灰色焦点边框及参数描述均适配深色/浅色主题。
+
+右上角 `Bulk Edit` 可按每行 `key: value` 批量编辑，`// ` 开头表示停用；保留重复 key、顺序以及匹配行的描述和文件类型。发送、保存和草稿持久化会使用有效的批量修改，无需先切回表格；格式错误直接显示在编辑区，发送/保存前需修正，点击“取消”可丢弃尚未应用的批量文本。描述会随 Postman / ApiPost / OpenAPI 导入，保存到本机并包含在文档导出中。
+
+![Headers 参数表格（深色）](docs/images/postman-headers-dark.png)
+
+粘贴/编辑 URL 中的查询参数会自动填入 Params，编辑 Params 也会更新 URL；重复 key、空值、`{{变量}}` 和 `#fragment` 均保留。取消勾选会从 URL 中移除此项，但在表格中保留供再次启用，实际发送不会重复追加。Query 值在解析变量后进行 URL 编码。自动跟随重定向位于请求的 `Settings` 标签页。
 
 Body 类型会自动设置默认 Content-Type，Headers 中手动指定的值会覆盖默认值；Multipart 的 Content-Type 和 boundary 统一由客户端生成，避免导入的裸 Content-Type 破坏上传。JSON/XML 高亮在编辑期间生效，`{{变量}}` 单独以橙色突出显示。输入框具有一致的左右留白和焦点边框。
 
-Body 另支持 `Form URL Encoded` 和 `Multipart`。选择 Multipart 后，每行可在 `Text` / `File` 间切换；File 行点击“选择文件…”选择本机文件。相同 key 添加多条 File 行即可上传多个文件，也可与文本字段混合。文件按流读取，变量在读取/编码前解析；文件不存在会提示重新选择，取消请求会停止上传。Form URL Encoded 不支持文件，选中 File 行时会提示改用 Multipart。
+Body 另支持 `Form URL Encoded` 和 `Multipart`。选择 Multipart 后，在 KEY 列内切换 `Text` / `File`；File 行点击 VALUE 列的“选择文件”选择本机文件。相同 key 添加多条 File 行即可上传多个文件，也可与文本字段混合。文件按流读取，变量在读取/编码前解析；文件不存在会提示重新选择，取消请求会停止上传。Form URL Encoded 不支持文件，选中 File 行时会提示改用 Multipart。
 
-![参数表格与浅色主题](docs/images/light-theme.png)
+![Headers 参数表格（浅色）](docs/images/postman-headers-light.png)
 
 左侧 `◐` 按钮可立即切换深色/浅色，或在设置中选择主题，重启后恢复。左侧“工具”提供 JSON 格式化/压缩、URL 编码/解码和 Base64 编码/解码，支持复制结果、清空与结果填回输入，切换工具不会关闭请求标签页。URL 工具按参数组件编码，解码时将 `+` 还原为空格。
 
@@ -156,14 +162,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.5
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.6
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.5`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.6`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 

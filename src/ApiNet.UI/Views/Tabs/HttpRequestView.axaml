@@ -1,11 +1,12 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs"
              xmlns:c="using:ApiNet.Desktop.Controls" x:Class="ApiNet.Desktop.Views.Tabs.HttpRequestView" x:DataType="vm:HttpRequestTabViewModel">
-  <Grid RowDefinitions="2*,5,3*">
+  <Grid RowDefinitions="3*,5,2*">
     <TabControl Margin="12,0">
-      <TabItem Header="Params"><Grid RowDefinitions="*,Auto"><c:ParameterTable Rows="{Binding QueryRows}" AddCommand="{Binding AddQueryCommand}" /><CheckBox Grid.Row="1" IsChecked="{Binding FollowRedirects}" Content="自动跟随重定向" Margin="12,8" /></Grid></TabItem>
-      <TabItem Header="Headers"><c:ParameterTable Rows="{Binding HeaderRows}" AddCommand="{Binding AddHeaderCommand}" /></TabItem>
-      <TabItem Header="Body"><Grid RowDefinitions="Auto,*"><Grid ColumnDefinitions="Auto,*,Auto" Margin="8,4"><ComboBox ItemsSource="{Binding BodyFormats}" SelectedItem="{Binding BodyFormat}" MinWidth="130" /><TextBlock Grid.Column="1" Text="Multipart 支持文本与文件上传" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="12,0" /><Button Grid.Column="2" Classes="ghost" Content="格式化" Command="{Binding FormatBodyCommand}" IsVisible="{Binding IsRawBody}" /></Grid><c:CodeEditor Grid.Row="1" Text="{Binding Body}" Language="{Binding BodyFormat}" IsVisible="{Binding IsRawBody}" /><c:ParameterTable Grid.Row="1" Rows="{Binding BodyRows}" AllowFiles="{Binding IsMultipartBody}" AddCommand="{Binding AddBodyParameterCommand}" IsVisible="{Binding IsFormBody}" /></Grid></TabItem>
+      <TabItem Header="Params"><c:ParameterTable Title="Query Params" Model="{Binding QueryTable}" /></TabItem>
+      <TabItem Header="{Binding HeaderTabTitle}"><c:ParameterTable Title="Headers" Model="{Binding HeaderTable}" /></TabItem>
+      <TabItem Header="Body"><Grid RowDefinitions="Auto,*"><Grid ColumnDefinitions="Auto,*,Auto" Margin="8,4"><ComboBox ItemsSource="{Binding BodyFormats}" SelectedItem="{Binding BodyFormat}" MinWidth="130" /><TextBlock Grid.Column="1" Text="Multipart 支持文本与文件上传" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="12,0" /><Button Grid.Column="2" Classes="ghost" Content="格式化" Command="{Binding FormatBodyCommand}" IsVisible="{Binding IsRawBody}" /></Grid><c:CodeEditor Grid.Row="1" Text="{Binding Body}" Language="{Binding BodyFormat}" IsVisible="{Binding IsRawBody}" /><c:ParameterTable Grid.Row="1" Title="Body Parameters" Model="{Binding BodyTable}" AllowFiles="{Binding IsMultipartBody}" IsVisible="{Binding IsFormBody}" /></Grid></TabItem>
       <TabItem Header="Authorization"><StackPanel Margin="16" Spacing="14"><TextBlock Text="Bearer Token" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding BearerToken}" SingleLine="True" /><TextBlock Text="发送时追加 Authorization: Bearer …；支持 {{token}}。其他认证方式可在 Headers 中配置。" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
+      <TabItem Header="Settings"><CheckBox IsChecked="{Binding FollowRedirects}" Content="自动跟随重定向" Margin="12,12" /></TabItem>
     </TabControl>
     <GridSplitter Grid.Row="1" Background="{DynamicResource SubtleBorderBrush}" ResizeDirection="Rows" />
     <Grid Grid.Row="2" RowDefinitions="Auto,*">

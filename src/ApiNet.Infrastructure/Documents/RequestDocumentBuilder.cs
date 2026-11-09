@@ -80,6 +80,8 @@ public static class RequestDocumentBuilder
             rows.Insert(0, ["状态", "KEY", "类型", "VALUE"]);
             blocks.Add(new(DocumentBlockKind.Paragraph, name));
             blocks.Add(new(DocumentBlockKind.Table, Rows: rows));
+            foreach (var parameter in parameters.Where(x => x.Description.Length > 0))
+                blocks.Add(new(DocumentBlockKind.Paragraph, parameter.Key + "：" + parameter.Description));
         }
     }
     private static string Pretty(JsonNode node) => node.ToJsonString(new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping, TypeInfoResolver = Core.Serialization.AppJsonContext.Default });

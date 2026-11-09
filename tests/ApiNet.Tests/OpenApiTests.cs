@@ -7,6 +7,42 @@ public class OpenApiTests
 {
     private readonly OpenApiService _service = new();
     [Fact]
+    public void ParameterDescriptionsSurviveStandardOpenApiAndApiNetRoundTrips()
+    {
+        const string spec = """
+            {"openapi":"3.0.3","info":{"title":"Descriptions","version":"1"},"paths":{"/upload":{"post":{
+              "parameters":[{"in":"query","name":"page","example":"2","description":"页码"},{"in":"header","name":"X-Client","example":"ApiNet","description":"客户端标识"}],
+              "requestBody":{"content":{"multipart/form-data":{"schema":{"type":"object","properties":{"name":{"type":"string","example":"Alice","description":"显示名称"},"avatar":{"type":"string","format":"binary","description":"用户头像"}}}}}},
+              "responses":{"200":{"description":"OK"}}
+            }}}}
+            """;
+        var workspace = new WorkspaceDocument();
+        _service.Apply(workspace, _service.Preview(workspace, spec, null, "descriptions.json"), false);
+        AssertDescriptions(Assert.Single(workspace.Requests));
+        var exported = JsonNode.Parse(_service.Export(workspace, null))!;
+        var operation = exported["paths"]!["/upload"]!["post"]!;
+        Assert.Contains(operation["parameters"]!.AsArray(), x => x?["in"]?.GetValue<string>() == "header" && x["description"]?.GetValue<string>() == "客户端标识");
+        Assert.Equal("用户头像", operation["requestBody"]!["content"]!["multipart/form-data"]!["schema"]!["properties"]!["avatar"]!["description"]!.GetValue<string>());
+        foreach (var keepExtension in new[] { true, false })
+        {
+            var document = exported.DeepClone();
+            if (!keepExtension) document["paths"]!["/upload"]!["post"]!.AsObject().Remove("x-apinet-request");
+            var restored = new WorkspaceDocument();
+            _service.Apply(restored, _service.Preview(restored, document.ToJsonString(), null, "roundtrip.json"), false);
+            AssertDescriptions(Assert.Single(restored.Requests));
+        }
+
+        static void AssertDescriptions(RequestDefinition request)
+        {
+            Assert.Equal("页码", Assert.Single(request.QueryParameters).Description);
+            Assert.Equal("客户端标识", request.HeaderParameters.Single(x => x.Key == "X-Client").Description);
+            Assert.Equal("显示名称", request.BodyParameters.Single(x => x.Key == "name").Description);
+            var file = request.BodyParameters.Single(x => x.Key == "avatar");
+            Assert.Equal("用户头像", file.Description); Assert.Equal("File", file.Type); Assert.False(file.Enabled);
+        }
+    }
+
+    [Fact]
     public void SavingParsedQueryDoesNotCreateImportConflictsAndRemoteQueriesStillRefresh()
     {
         const string json = """{"openapi":"3.0.3","info":{"title":"Test","version":"1"},"paths":{"/v1":{"get":{"operationId":"same","parameters":[{"in":"query","name":"page","example":1}],"responses":{"200":{"description":"OK"}}}}}}""";

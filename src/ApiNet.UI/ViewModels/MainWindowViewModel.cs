@@ -190,7 +190,7 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var tab in Tabs) tab.RefreshTheme();
     }
     private static bool SameContent(RequestDefinition? left, RequestDefinition right) => left is not null && left.Name == right.Name && QueryUrl.WithoutQuery(left.Url) == QueryUrl.WithoutQuery(right.Url) && left.Method == right.Method && left.Body == right.Body && left.BodyFormat == right.BodyFormat && left.Headers == right.Headers && left.Subprotocol == right.Subprotocol && left.FollowRedirects == right.FollowRedirects && SameParameters(left.BodyParameters, right.BodyParameters) && SameParameters(QueryUrl.Parameters(left), QueryUrl.Parameters(right)) && SameParameters(left.HeaderParameters, right.HeaderParameters);
-    private static bool SameParameters(IEnumerable<RequestParameter> left, IEnumerable<RequestParameter> right) => left.Select(x => (x.Enabled, x.Key, x.Value, x.Type)).SequenceEqual(right.Select(x => (x.Enabled, x.Key, x.Value, x.Type)));
+    private static bool SameParameters(IEnumerable<RequestParameter> left, IEnumerable<RequestParameter> right) => left.Select(x => (x.Enabled, x.Key, x.Value, x.Type, x.Description)).SequenceEqual(right.Select(x => (x.Enabled, x.Key, x.Value, x.Type, x.Description)));
     private Task PersistAsync()
     {
         Workspace.OpenTabs = Tabs.Select(x => x.Snapshot()).ToList();

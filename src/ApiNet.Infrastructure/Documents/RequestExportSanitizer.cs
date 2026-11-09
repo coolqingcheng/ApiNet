@@ -24,6 +24,7 @@ public static class RequestExportSanitizer
         foreach (var parameter in clean.QueryParameters.Concat(clean.HeaderParameters).Concat(clean.BodyParameters))
         {
             parameter.Key = Text(parameter.Key, workspace);
+            parameter.Description = Text(parameter.Description, workspace);
             parameter.Value = parameter.Type == "File" ? "" : Text(parameter.Value, workspace);
             if (parameter.Type == "File") parameter.Enabled = false;
         }

@@ -18,9 +18,14 @@ public abstract partial class RequestTabViewModel
         _syncingRows = true;
         try
         {
+            var descriptions = QueryRows.Where(x => x.Enabled).GroupBy(x => x.Key, StringComparer.Ordinal).ToDictionary(x => x.Key, x => new Queue<string>(x.Select(row => row.Description)), StringComparer.Ordinal);
             var retained = QueryRows.Select((row, index) => (row, index)).Where(x => !x.row.Enabled || string.IsNullOrWhiteSpace(x.row.Key)).ToArray();
             foreach (var row in QueryRows.ToArray()) QueryRows.Remove(row);
-            foreach (var parameter in QueryUrl.Parse(value)) AddRow(QueryRows, parameter);
+            foreach (var parameter in QueryUrl.Parse(value))
+            {
+                if (descriptions.TryGetValue(parameter.Key, out var values) && values.Count > 0) parameter.Description = values.Dequeue();
+                AddRow(QueryRows, parameter);
+            }
             foreach (var (row, index) in retained) QueryRows.Insert(Math.Min(index, QueryRows.Count), row);
         }
         finally { _syncingRows = false; }

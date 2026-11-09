@@ -33,7 +33,7 @@
         <Grid RowDefinitions="Auto,Auto,*" Margin="4">
           <TextBlock Text="子协议（可选）" Margin="4,4,4,8" Foreground="{DynamicResource TextMutedBrush}" />
           <c:CodeEditor Grid.Row="1" Text="{Binding Subprotocol}" SingleLine="True" MinHeight="44" />
-          <c:ParameterTable Grid.Row="2" Rows="{Binding HeaderRows}" AddCommand="{Binding AddHeaderCommand}" MinTableWidth="320" />
+          <c:ParameterTable Grid.Row="2" Title="Headers" Model="{Binding HeaderTable}" MinTableWidth="320" />
         </Grid>
       </TabItem>
     </TabControl>

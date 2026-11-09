@@ -9,6 +9,8 @@ public partial class ParameterRowViewModel : ViewModelBase
     [ObservableProperty] private bool _enabled;
     [ObservableProperty] private string _key;
     [ObservableProperty] private string _value;
+    [ObservableProperty] private string _description;
+    [ObservableProperty] private bool _isDraft;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(IsFile))] private string _type;
     private readonly Func<Task<string?>>? _pickFile;
     public static string[] TypeOptions { get; } = ["Text", "File"];
@@ -19,6 +21,7 @@ public partial class ParameterRowViewModel : ViewModelBase
         _enabled = parameter.Enabled;
         _key = parameter.Key;
         _value = parameter.Value;
+        _description = parameter.Description;
         _type = parameter.Type;
         _pickFile = pickFile;
         RemoveCommand = new RelayCommand(() => remove(this));
@@ -28,5 +31,5 @@ public partial class ParameterRowViewModel : ViewModelBase
     {
         if (_pickFile is not null && await _pickFile() is { } path) { Value = path; Type = "File"; Enabled = true; }
     }
-    public RequestParameter Snapshot() => new() { Enabled = Enabled, Key = Key, Value = Value, Type = Type };
+    public RequestParameter Snapshot() => new() { Enabled = Enabled, Key = Key, Value = Value, Type = Type, Description = Description };
 }

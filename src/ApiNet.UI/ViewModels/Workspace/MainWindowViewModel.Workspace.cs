@@ -168,6 +168,7 @@ public partial class MainWindowViewModel
 
     public async Task SaveTabAsync(RequestTabViewModel tab)
     {
+        if (!tab.TryCommitParameterEdits()) { Status = tab.Status; return; }
         var request = tab.Snapshot();
         var existing = Workspace.Requests.FindIndex(x => x.Id == request.Id);
         if (existing < 0)
@@ -188,6 +189,7 @@ public partial class MainWindowViewModel
     }
     public async Task DuplicateTabAsync(RequestTabViewModel tab)
     {
+        if (!tab.TryCommitParameterEdits()) { Status = tab.Status; return; }
         var request = tab.Snapshot();
         request.Id = Guid.NewGuid().ToString("N");
         request.Name += " 副本";
@@ -216,6 +218,7 @@ public partial class MainWindowViewModel
             }
         }
         await tab.DisposeAsync();
+        tab.DisposeParameterTables();
         var index = Tabs.IndexOf(tab);
         var selected = SelectedTab == tab;
         Tabs.Remove(tab);

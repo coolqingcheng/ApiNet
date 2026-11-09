@@ -21,7 +21,7 @@ public sealed partial class OpenApiService
                     var schema = Dereference(root, property.Value);
                     var file = Text(schema, "format") == "binary" || Text(Dereference(root, schema?["items"]), "format") == "binary";
                     var sample = media["example"]?[property.Key] ?? Example(root, schema, 0);
-                    request.BodyParameters.Add(new() { Key = property.Key, Type = file ? "File" : "Text", Value = file || sample is null ? "" : Scalar(sample), Enabled = !file });
+                    request.BodyParameters.Add(new() { Key = property.Key, Type = file ? "File" : "Text", Value = file || sample is null ? "" : Scalar(sample), Enabled = !file, Description = Text(schema, "description") ?? "" });
                 }
         }
         else if (parameters.Where(x => Text(x, "in") == "formData").ToList() is { Count: > 0 } form)
@@ -34,7 +34,7 @@ public sealed partial class OpenApiService
             {
                 var file = Text(parameter, "type") == "file";
                 var sample = parameter["example"] ?? parameter["default"];
-                request.BodyParameters.Add(new() { Key = Text(parameter, "name") ?? "", Type = file ? "File" : "Text", Value = file || sample is null ? "" : Scalar(sample), Enabled = !file });
+                request.BodyParameters.Add(new() { Key = Text(parameter, "name") ?? "", Type = file ? "File" : "Text", Value = file || sample is null ? "" : Scalar(sample), Enabled = !file, Description = Text(parameter, "description") ?? "" });
             }
         }
     }

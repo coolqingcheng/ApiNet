@@ -35,6 +35,10 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     public ObservableCollection<ParameterRowViewModel> BodyRows { get; } = [];
     public ObservableCollection<ParameterRowViewModel> QueryRows { get; } = [];
     public ObservableCollection<ParameterRowViewModel> HeaderRows { get; } = [];
+    public ParameterTableViewModel QueryTable { get; }
+    public ParameterTableViewModel HeaderTable { get; }
+    public ParameterTableViewModel BodyTable { get; }
+    public string HeaderTabTitle => HeaderRows.Count(x => x.Key.Length > 0) is var count && count > 0 ? $"Headers ({count})" : "Headers";
     private bool _syncingRows;
     [ObservableProperty] private string _subprotocol;
     [ObservableProperty] private string _query = "";
@@ -66,6 +70,11 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     protected RequestTabViewModel(RequestDefinition request, MainWindowViewModel owner)
     {
         Owner = owner;
+        QueryTable = new ParameterTableViewModel(() => Owner.Dialogs.OpenUploadFileAsync()); QueryTable.SetRows(QueryRows);
+        HeaderTable = new ParameterTableViewModel(() => Owner.Dialogs.OpenUploadFileAsync()); HeaderTable.SetRows(HeaderRows);
+        BodyTable = new ParameterTableViewModel(() => Owner.Dialogs.OpenUploadFileAsync()); BodyTable.SetRows(BodyRows);
+        foreach (var table in new[] { QueryTable, HeaderTable, BodyTable })
+            table.PropertyChanged += (_, args) => { if (args.PropertyName == nameof(ParameterTableViewModel.HasPendingBulkChanges)) IsDirty = HasChanges(); };
         request = NormalizeQuery(request);
         Original = ModelCopy.Request(request);
         _name = request.Name;
@@ -97,6 +106,9 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
 
     public RequestDefinition Snapshot()
     {
+        // Background draft persistence also includes valid edits still open in Bulk Edit.
+        // Invalid input stays in the editor; explicit save/send validates it separately.
+        foreach (var table in new[] { QueryTable, HeaderTable, BodyTable }) table.TryApplyBulk();
         var request = ModelCopy.Request(Original);
         request.Name = Name;
         request.Method = IsWebSocket ? "WS" : Method;
@@ -123,9 +135,9 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         return request;
     }
 
-    private bool HasChanges() => Owner.Workspace.Requests.All(x => x.Id != Id) || Name != Original.Name || Method != Original.Method || QueryUrl.WithoutQuery(Url) != Original.Url || Headers != Original.Headers || Body != Original.Body || BodyFormat != Original.BodyFormat || Subprotocol != Original.Subprotocol || FollowRedirects != Original.FollowRedirects || !string.IsNullOrEmpty(Query) || !string.IsNullOrEmpty(BearerToken) || !SameRows(BodyRows, Original.BodyParameters) || !SameRows(QueryRows, Original.QueryParameters) || !SameRows(HeaderRows, HeaderValues(Original));
+    private bool HasChanges() => QueryTable.HasPendingBulkChanges || HeaderTable.HasPendingBulkChanges || BodyTable.HasPendingBulkChanges || Owner.Workspace.Requests.All(x => x.Id != Id) || Name != Original.Name || Method != Original.Method || QueryUrl.WithoutQuery(Url) != Original.Url || Headers != Original.Headers || Body != Original.Body || BodyFormat != Original.BodyFormat || Subprotocol != Original.Subprotocol || FollowRedirects != Original.FollowRedirects || !string.IsNullOrEmpty(Query) || !string.IsNullOrEmpty(BearerToken) || !SameRows(BodyRows, Original.BodyParameters) || !SameRows(QueryRows, Original.QueryParameters) || !SameRows(HeaderRows, HeaderValues(Original));
 
-    private static bool SameRows(IEnumerable<ParameterRowViewModel> rows, IEnumerable<RequestParameter> values) => rows.Select(x => (x.Enabled, x.Key, x.Value, x.Type)).SequenceEqual(values.Select(x => (x.Enabled, x.Key, x.Value, x.Type)));
+    private static bool SameRows(IEnumerable<ParameterRowViewModel> rows, IEnumerable<RequestParameter> values) => rows.Select(x => (x.Enabled, x.Key, x.Value, x.Type, x.Description)).SequenceEqual(values.Select(x => (x.Enabled, x.Key, x.Value, x.Type, x.Description)));
     private static IEnumerable<RequestParameter> HeaderValues(RequestDefinition request) => request.HeaderParameters.Count > 0 ? request.HeaderParameters : request.Headers.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(line => { var index = line.IndexOf(':'); return new RequestParameter { Key = index < 0 ? line.Trim() : line[..index].Trim(), Value = index < 0 ? "" : line[(index + 1)..].Trim() }; });
     private void LoadRows(RequestDefinition request)
     {
@@ -149,6 +161,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     private void RowChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args) => UpdateRows(sender is ParameterRowViewModel row && QueryRows.Contains(row));
     private void UpdateRows(bool queryChanged)
     {
+        OnPropertyChanged(nameof(HeaderTabTitle));
         if (_syncingRows) return;
         _syncingRows = true;
         Headers = string.Join('\n', HeaderRows.Where(x => x.Enabled && !string.IsNullOrWhiteSpace(x.Key)).Select(x => x.Key.Trim() + ": " + x.Value));
@@ -231,6 +244,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     }
     public RequestDefinition Resolve(WorkspaceDocument? context = null)
     {
+        if (!TryCommitParameterEdits()) throw new InvalidOperationException(Status);
         var request = Owner.Variables.ResolveRequest(Snapshot(), context ?? Owner.Workspace);
         ResolvedUrl = request.Url;
         return request;
@@ -266,5 +280,12 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         catch (Exception exception) when (exception is JsonException or System.Xml.XmlException) { Status = "格式错误：" + exception.Message; }
     }
     public virtual Task StopAsync() => Task.CompletedTask;
+    public bool TryCommitParameterEdits()
+    {
+        foreach (var table in new[] { QueryTable, HeaderTable, BodyTable })
+            if (!table.TryApplyBulk()) { Status = "参数批量编辑无效：" + table.BulkError; return false; }
+        return true;
+    }
+    public void DisposeParameterTables() { QueryTable.Dispose(); HeaderTable.Dispose(); BodyTable.Dispose(); }
     public abstract ValueTask DisposeAsync();
 }

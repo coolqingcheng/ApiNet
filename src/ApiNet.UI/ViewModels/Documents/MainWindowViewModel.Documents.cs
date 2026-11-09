@@ -39,6 +39,9 @@ public partial class MainWindowViewModel
         try
         {
             var selectedIds = HasExportSelection ? _exportSelectionIds.ToArray() : SelectedNode is { } node ? [node.Id] : null;
+            var includedIds = WorkspaceExportSelection.Create(Workspace, selectedIds).Requests.Select(x => x.Id).ToHashSet(StringComparer.Ordinal);
+            foreach (var tab in Tabs.Where(x => includedIds.Contains(x.Id)))
+                if (!tab.TryCommitParameterEdits()) { Status = tab.Name + "：" + tab.Status; return; }
             var snapshot = new WorkspaceDocument
             {
                 Folders = Workspace.Folders, ImportSources = Workspace.ImportSources,

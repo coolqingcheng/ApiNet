@@ -52,7 +52,7 @@ internal sealed class ImportContext(WorkspaceDocument workspace, ImportPlan plan
     public static List<RequestParameter> Parameters(JsonNode? node, bool apiPost = false)
     {
         if (node is JsonObject obj) node = obj["parameter"];
-        return Objects(node).Select(x => new RequestParameter { Key = Text(x, "key", Text(x, "name")), Value = Text(x, "value"), Enabled = apiPost ? x["is_checked"] is null || Flag(x["is_checked"]) : !Flag(x["disabled"]) && (x["enabled"] is null || Flag(x["enabled"])) }).ToList();
+        return Objects(node).Select(x => new RequestParameter { Key = Text(x, "key", Text(x, "name")), Value = Text(x, "value"), Description = Text(x, "description", Text(x["description"], "content", Text(x, "desc"))), Enabled = apiPost ? x["is_checked"] is null || Flag(x["is_checked"]) : !Flag(x["disabled"]) && (x["enabled"] is null || Flag(x["enabled"])) }).ToList();
     }
     public static IEnumerable<VariableDefinition> VariableList(JsonNode? node, bool apiPost = false) => Parameters(node, apiPost).Where(x => x.Enabled).Select(x => new VariableDefinition { Key = x.Key, Value = x.Value, IsSecret = x.Key.Contains("token", StringComparison.OrdinalIgnoreCase) || x.Key.Contains("password", StringComparison.OrdinalIgnoreCase) || x.Key.Contains("secret", StringComparison.OrdinalIgnoreCase) });
     public static string BodyFormat(string type) => type.ToLowerInvariant() switch { "json" => "JSON", "xml" => "XML", "html" => "HTML", "javascript" => "JavaScript", _ => "Text" };
@@ -71,7 +71,7 @@ internal sealed class ImportContext(WorkspaceDocument workspace, ImportPlan plan
             {
                 // Re-select imported file paths explicitly before uploading.
                 // Exports often point to another computer's local directory.
-                result.Add(new RequestParameter { Type = "File", Key = parameter.Key, Value = path, Enabled = false });
+                result.Add(new RequestParameter { Type = "File", Key = parameter.Key, Value = path, Enabled = false, Description = parameter.Description });
             }
             Warn("导入的文件上传项已停用，请点击“选择文件”确认本机文件后再发送。");
         }

@@ -120,6 +120,14 @@ public sealed partial class OpenApiService : IOpenApiService
                     OperationId = Text(operation, "operationId")
                 };
                 ReadForm(root, operation, parameters, request);
+                QueryUrl.Normalize(request);
+                foreach (var parameter in request.QueryParameters)
+                    parameter.Description = Text(parameters.FirstOrDefault(x => Text(x, "in") == "query" && Text(x, "name") == parameter.Key), "description") ?? "";
+                request.HeaderParameters = Http.HeaderParser.Parse(request.Headers).Select(x => new RequestParameter
+                {
+                    Key = x.Key, Value = x.Value,
+                    Description = Text(parameters.FirstOrDefault(p => Text(p, "in") == "header" && string.Equals(Text(p, "name"), x.Key, StringComparison.OrdinalIgnoreCase)), "description") ?? ""
+                }).ToList();
                 if (operation["x-apinet-request"] is JsonObject extension)
                 {
                     request.Url = Text(extension, "url") ?? request.Url;
@@ -252,12 +260,17 @@ public sealed partial class OpenApiService : IOpenApiService
                         operationParameters.Add((JsonNode)new JsonObject { ["name"] = name, ["in"] = "query", ["schema"] = new JsonObject { ["type"] = "string" }, ["example"] = pair.Length > 1 ? Uri.UnescapeDataString(pair[1]) : "" });
                 }
             operation["parameters"] = operationParameters.Parent is null ? operationParameters : operationParameters.DeepClone();
-            foreach (var parameter in clean.QueryParameters.Where(x => x.Enabled && !string.IsNullOrWhiteSpace(x.Key)))
+            foreach (var (parameter, kind) in clean.QueryParameters.Select(x => (Parameter: x, Kind: "query")).Concat(clean.HeaderParameters.Select(x => (Parameter: x, Kind: "header"))).Where(x => x.Parameter.Enabled && !string.IsNullOrWhiteSpace(x.Parameter.Key)))
             {
                 var list = operation["parameters"]!.AsArray();
-                var existing = list.OfType<JsonObject>().FirstOrDefault(x => Text(x, "in") == "query" && Text(x, "name") == parameter.Key);
-                if (existing is not null) existing["example"] = parameter.Value;
-                else list.Add((JsonNode)new JsonObject { ["name"] = parameter.Key, ["in"] = "query", ["schema"] = new JsonObject { ["type"] = "string" }, ["example"] = parameter.Value });
+                var existing = list.OfType<JsonObject>().FirstOrDefault(x => Text(x, "in") == kind && string.Equals(Text(x, "name"), parameter.Key, kind == "header" ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
+                if (existing is null)
+                {
+                    existing = new JsonObject { ["name"] = parameter.Key, ["in"] = kind, ["schema"] = new JsonObject { ["type"] = "string" } };
+                    list.Add((JsonNode)existing);
+                }
+                existing["example"] = parameter.Value;
+                if (parameter.Description.Length > 0) existing["description"] = parameter.Description;
             }
             operation["x-apinet-folder"] = request.FolderId;
             operation["x-apinet-request"] = new JsonObject { ["url"] = clean.Url, ["headers"] = clean.Headers, ["body"] = clean.Body, ["bodyFormat"] = clean.BodyFormat, ["queryParameters"] = JsonSerializer.SerializeToNode(clean.QueryParameters, AppJsonContext.Default.ListRequestParameter), ["bodyParameters"] = JsonSerializer.SerializeToNode(clean.BodyParameters, AppJsonContext.Default.ListRequestParameter), ["headerParameters"] = JsonSerializer.SerializeToNode(clean.HeaderParameters, AppJsonContext.Default.ListRequestParameter) };
@@ -283,6 +296,7 @@ public sealed partial class OpenApiService : IOpenApiService
                             ? new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string", ["format"] = "binary" } }
                             : new JsonObject { ["type"] = "string", ["format"] = "binary" }
                         : new JsonObject { ["type"] = "string", ["example"] = parameter.Value };
+                    if (parameter.Description.Length > 0) properties[group.Key]!["description"] = parameter.Description;
                 }
                 operation["requestBody"] = new JsonObject { ["content"] = new JsonObject { [Http.HttpRequestService.BodyContentType(clean.BodyFormat)] = new JsonObject { ["schema"] = new JsonObject { ["type"] = "object", ["properties"] = properties } } } };
             }
