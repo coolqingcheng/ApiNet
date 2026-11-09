@@ -27,7 +27,13 @@ Android 使用 Avalonia.Android 的独立启动入口，手机提供抽屉导航
 
 ![平板布局（Avalonia Headless 渲染）](docs/images/android-tablet.png)
 
-<img src="docs/images/android-websocket.png" width="320" alt="手机 WebSocket 消息编辑（Avalonia Headless 渲染）" />
+<img src="docs/images/android-phone.png" width="320" alt="Android 35 模拟器中的手机界面" /> <img src="docs/images/android-websocket.png" width="320" alt="手机 WebSocket 消息编辑（Avalonia Headless 渲染）" />
+
+左图为 Android 35 x86_64 模拟器实际截图，右图为 WebSocket 的 Avalonia Headless 渲染。
+
+![Android 模拟器横屏实际截图](docs/images/android-landscape.png)
+
+手机横屏或软键盘缩小可用高度时，导航保持抽屉模式，URL、方法与发送按钮合并为一行。导航内容可滚动；状态栏与系统导航栏跟随应用主题。
 
 支持 HTTP/WebSocket、文件夹、环境变量、历史、JSON/在线 Swagger 导入、OpenAPI 导出、文件上传和响应保存。文件通过 Android 系统选择器访问，不需要读取整个存储的权限；选择的上传文件复制到应用私有目录，保存的请求可在重启后继续使用。Android 沙箱无法读取其他应用的本地数据库，Postman/ApiPost 请先导出 JSON 再导入。同一文档重新选择可增量合并；文件导入的“刷新”读取已导入副本，在线来源刷新会重新下载。
 
@@ -73,6 +79,12 @@ v0.1.1 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 v0.1.2 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42597343331)已完成六个平台的 Native AOT 打包及发布；Windows/Linux/macOS 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42597319162)均通过 51 项测试（41 项服务/网络 + 10 项桌面）。Windows x64 另通过从 0.1.0 覆盖升级、同版本修复及数据库/WAL/CA 保留测试。六个架构的公开更新索引均指向 0.1.2，使用模拟旧版本定位器已从 GitHub 无令牌检查、下载并校验 Windows x64 更新包；该下载验证不执行应用替换或重启。
 
 v0.1.3 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42603067258)在 Windows/Linux/macOS 均通过 69 项自动化测试（51 项服务/网络 + 18 项桌面），覆盖文件上传、在线文档、双向参数同步、深浅主题和文本工具。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42603098585)已完成六个平台的 Native AOT 打包和发布，Windows x64 的 0.1.0 → 0.1.3 覆盖升级、重复修复及数据库/WAL/CA 保留验证均通过。六个公开更新索引已核对为 0.1.3，并使用模拟旧版本定位器，从 GitHub 无令牌下载并校验 Windows x64 更新包；这项客户端验证不执行应用替换或重启。
+
+v0.1.4 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42621120142)在 Windows/Linux/macOS 均通过 71 项测试（51 项服务/网络 + 20 项界面/MVVM）。移动界面测试覆盖手机深浅主题、抽屉导航、平板侧栏、横屏、可用高度缩小时的 WebSocket 编辑，以及移动弹窗与设置保存。
+
+Android x86_64 APK 已在 Android 35 模拟器中验证安装、启动、工作区加载、中文字体、横竖屏截图及旋转后的应用焦点；截图检查验证实际方向，防止将未完成旋转的截图误判为横屏。ARM64 APK 已构建，尚未进行 ARM64 真机验证。构建及安装记录见 [v0.1.4 发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42621122011)。
+
+v0.1.4 已完成六个桌面目标及两个 Android 目标的构建和发布。Windows x64 的 0.1.0 → 0.1.4 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留测试通过。六个公开桌面更新索引均已核对为 0.1.4；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，这项客户端验证不执行应用替换或重启。公开 ARM64 APK 也已实际下载，SHA256 与发布校验文件一致，并检查包含 ARM64 本机库。
 
 ## 已实现
 
