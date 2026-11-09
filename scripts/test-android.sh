@@ -7,9 +7,21 @@ mkdir -p "$task_results"
 adb install -r "$task_apk"
 adb logcat -c
 adb shell monkey -p io.github.coolqingcheng.apinet -c android.intent.category.LAUNCHER 1
-sleep 12
+for task_attempt in {1..15}; do
+  sleep 2
+  adb logcat -d > "$task_results/logcat.txt"
+  if grep -Eq 'ApiNet.*Workspace initialized: [1-9][0-9]* requests' "$task_results/logcat.txt"; then break; fi
+done
+sleep 3
+adb shell screencap -p /sdcard/apinet-phone.png
+adb pull /sdcard/apinet-phone.png "$task_results/android-phone.png"
+adb shell settings put system accelerometer_rotation 0
+adb shell settings put system user_rotation 1
+sleep 3
+adb shell screencap -p /sdcard/apinet-landscape.png
+adb pull /sdcard/apinet-landscape.png "$task_results/android-landscape.png"
 adb logcat -d > "$task_results/logcat.txt"
-if ! rg 'ApiNet.*Workspace initialized: [1-9][0-9]* requests' "$task_results/logcat.txt"; then
+if ! grep -E 'ApiNet.*Workspace initialized: [1-9][0-9]* requests' "$task_results/logcat.txt"; then
   tail -n 160 "$task_results/logcat.txt"
   exit 1
 fi
@@ -18,12 +30,5 @@ if [[ -z "$task_pid" ]]; then
   tail -n 160 "$task_results/logcat.txt"
   exit 1
 fi
-adb shell screencap -p /sdcard/apinet-phone.png
-adb pull /sdcard/apinet-phone.png "$task_results/android-phone.png"
-adb shell settings put system accelerometer_rotation 0
-adb shell settings put system user_rotation 1
-sleep 3
-adb shell screencap -p /sdcard/apinet-landscape.png
-adb pull /sdcard/apinet-landscape.png "$task_results/android-landscape.png"
-if rg 'FATAL EXCEPTION|FATAL UNHANDLED EXCEPTION|Unhandled Exception:' "$task_results/logcat.txt"; then exit 1; fi
+if grep -E 'FATAL EXCEPTION|FATAL UNHANDLED EXCEPTION|Unhandled Exception:' "$task_results/logcat.txt"; then exit 1; fi
 echo 'Android APK installed and remained running in portrait and landscape.'
