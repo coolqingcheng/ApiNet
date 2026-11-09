@@ -107,7 +107,11 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
             request.Url += (request.Url.Contains('?') ? "&" : "?") + string.Join('&', extra);
         }
         if (!string.IsNullOrWhiteSpace(BearerToken))
-            request.Headers += "\nAuthorization: Bearer " + BearerToken;
+        {
+            request.HeaderParameters.RemoveAll(x => x.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase));
+            request.HeaderParameters.Add(new RequestParameter { Key = "Authorization", Value = "Bearer " + BearerToken });
+            request.Headers = string.Join('\n', request.HeaderParameters.Where(x => x.Enabled && !string.IsNullOrWhiteSpace(x.Key)).Select(x => x.Key.Trim() + ": " + x.Value));
+        }
         return request;
     }
 

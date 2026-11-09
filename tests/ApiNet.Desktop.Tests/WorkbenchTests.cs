@@ -39,10 +39,10 @@ public class TestAppBuilder
 }
 public class WorkbenchTests
 {
-    private static MainWindowViewModel CreateModel()
+    private static MainWindowViewModel CreateModel(TestDialogs? dialogs = null)
     {
         var store = new SqliteWorkspaceStore(Path.Combine(Path.GetTempPath(), "apinet-ui-" + Guid.NewGuid().ToString("N")));
-        return new MainWindowViewModel(store, new VariableResolver(), new HttpRequestService(), new OpenApiService(), new ForwardProxyService(store.DataDirectory), new VelopackUpdateService(), new TestDialogs());
+        return new MainWindowViewModel(store, new VariableResolver(), new HttpRequestService(), new OpenApiService(), new ForwardProxyService(store.DataDirectory), new VelopackUpdateService(), dialogs ?? new TestDialogs());
     }
     [AvaloniaFact]
     public async Task WorkbenchRendersAndTabStateIsIndependent()
@@ -102,6 +102,33 @@ public class WorkbenchTests
         window.Close();
     }
     [AvaloniaFact]
+    public async Task FileResponsePromptsForLocalSaveWithoutSendingAgain()
+    {
+        var destination = Path.Combine(Path.GetTempPath(), "apinet-save-" + Guid.NewGuid().ToString("N") + ".bin");
+        var dialogs = new TestDialogs { ResponseDestination = destination };
+        var model = CreateModel(dialogs);
+        await model.InitializeAsync();
+        var builder = WebApplication.CreateSlimBuilder();
+        builder.Logging.ClearProviders();
+        builder.WebHost.UseUrls("http://127.0.0.1:0");
+        await using var server = builder.Build();
+        var calls = 0;
+        byte[] expected = [0, 255, 1, 2, 3, 128];
+        server.MapGet("/file", () => { calls++; return Results.File(expected, "application/octet-stream", "sample.bin"); });
+        await server.StartAsync();
+        var tab = (HttpRequestTabViewModel)model.SelectedTab!;
+        tab.Url = server.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single() + "/file";
+        try
+        {
+            await tab.SendCommand.ExecuteAsync(null);
+            Assert.Equal(1, calls);
+            Assert.Equal(1, dialogs.ResponsePrompts);
+            Assert.Equal(expected, await File.ReadAllBytesAsync(destination));
+            Assert.Contains("已保存", tab.Status);
+        }
+        finally { await model.ShutdownAsync(); File.Delete(destination); }
+    }
+    [AvaloniaFact]
     public async Task ParameterRowsPersistDisabledValuesAndKeepSaveStateClean()
     {
         var model = CreateModel();
@@ -129,6 +156,11 @@ public class WorkbenchTests
         tab.HeaderRows.Single().RemoveCommand.Execute(null);
         Assert.Empty(tab.HeaderRows);
         Assert.True(tab.IsDirty);
+        tab.BearerToken = "{{baseUrl}}";
+        await tab.SaveCommand.ExecuteAsync(null);
+        Assert.Equal("Authorization", Assert.Single(tab.HeaderRows).Key);
+        Assert.Equal("Bearer {{baseUrl}}", tab.HeaderRows[0].Value);
+        Assert.False(tab.IsDirty);
         await model.ShutdownAsync();
     }
     [AvaloniaFact]
@@ -217,12 +249,14 @@ public class WorkbenchTests
     }
     private sealed class TestDialogs : IDialogService
     {
+        public string? ResponseDestination { get; init; }
+        public int ResponsePrompts { get; private set; }
         public Task<string?> PromptAsync(string title, string initial = "") => Task.FromResult<string?>(null);
         public Task<bool> ConfirmAsync(string title, string message) => Task.FromResult(false);
         public Task<int> ChooseAsync(string title, string message, string[] choices) => Task.FromResult(-1);
         public Task<string?> OpenJsonAsync() => Task.FromResult<string?>(null);
         public Task<string?> SaveJsonAsync(string name) => Task.FromResult<string?>(null);
-        public Task<string?> SaveResponseAsync(string name) => Task.FromResult<string?>(null);
+        public Task<string?> SaveResponseAsync(string name) { ResponsePrompts++; return Task.FromResult(ResponseDestination); }
         public Task EditEnvironmentsAsync(WorkspaceDocument workspace) => Task.CompletedTask;
         public Task EditSettingsAsync(WorkspaceDocument workspace) => Task.CompletedTask;
     }
