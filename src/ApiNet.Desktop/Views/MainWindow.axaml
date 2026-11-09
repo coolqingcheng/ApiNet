@@ -68,7 +68,7 @@
       </Grid>
     </Grid>
     <Border Grid.Row="3" Background="#242731" BorderBrush="#343640" BorderThickness="0,1,0,0" Padding="12,4">
-      <Grid ColumnDefinitions="Auto,*,Auto,Auto"><TextBlock Text="ApiNet 0.1.0" FontSize="11" Foreground="#9EA6BB" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="#B6BECE" /><TextBlock Grid.Column="2" Text="{Binding ProxyText}" Foreground="#8BD7B2" FontSize="11" /><Button Grid.Column="3" Classes="ghost" Content="设置" FontSize="10" Padding="8,0" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto"><TextBlock Text="{Binding ApplicationVersion}" FontSize="11" Foreground="#9EA6BB" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="#B6BECE" /><TextBlock Grid.Column="2" Text="{Binding ProxyText}" Foreground="#8BD7B2" FontSize="11" /><Button Grid.Column="3" Classes="ghost" Content="设置" FontSize="10" Padding="8,0" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
     </Border>
   </Grid>
 </Window>

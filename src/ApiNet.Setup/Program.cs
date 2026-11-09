@@ -13,6 +13,7 @@ internal static partial class Program
     {
         if (!OperatingSystem.IsWindows()) return 1;
         string? temporaryDirectory = null;
+        var silent = args.TakeWhile(x => x != "--").Any(x => x is "--silent" or "-s");
         var log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ApiNetSetupLogs", "setup.log");
         try
         {
@@ -64,7 +65,7 @@ internal static partial class Program
         catch (Exception exception)
         {
             try { Directory.CreateDirectory(Path.GetDirectoryName(log)!); File.AppendAllText(log, $"\n{DateTimeOffset.Now:O} ApiNet Setup: {exception}\n"); } catch (IOException) { } catch (UnauthorizedAccessException) { }
-            MessageBox(0, $"{exception.Message}\n\n安装日志：{log}", "ApiNet 安装未完成", 0x10);
+            if (!silent) MessageBox(0, $"{exception.Message}\n\n安装日志：{log}", "ApiNet 安装未完成", 0x10);
             return 1;
         }
         finally

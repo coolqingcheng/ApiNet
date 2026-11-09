@@ -14,6 +14,7 @@ namespace ApiNet.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
+    public string ApplicationVersion => "ApiNet " + typeof(MainWindowViewModel).Assembly.GetName().Version?.ToString(3);
     private readonly IWorkspaceStore _store;
     private readonly IHttpRequestService _http;
     private readonly IOpenApiService _openApi;
