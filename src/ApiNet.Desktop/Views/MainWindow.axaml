@@ -7,54 +7,55 @@
         xmlns:workspace="using:ApiNet.Desktop.Views.Workspace"
         xmlns:history="using:ApiNet.Desktop.Views.History"
         xmlns:capture="using:ApiNet.Desktop.Views.Capture"
+        xmlns:tools="using:ApiNet.Desktop.Views.Tools"
         x:Class="ApiNet.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel" Icon="/Assets/app.ico"
         Title="{Binding WindowTitle}" Width="1420" Height="920" MinWidth="1100" MinHeight="700"
-        WindowStartupLocation="CenterScreen" Background="#1D1F26">
+        WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}">
   <Window.KeyBindings>
     <KeyBinding Gesture="Ctrl+S" Command="{Binding SelectedTab.SaveCommand}" />
     <KeyBinding Gesture="Ctrl+W" Command="{Binding SelectedTab.CloseCommand}" />
     <KeyBinding Gesture="Ctrl+N" Command="{Binding NewHttpCommand}" />
   </Window.KeyBindings>
-  <Grid RowDefinitions="54,Auto,*,28">
-    <Border Background="#191B20" BorderBrush="#343640" BorderThickness="0,0,0,1">
+  <Grid RowDefinitions="54,*,28">
+    <Border Background="{DynamicResource HeaderBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
       <Grid ColumnDefinitions="64,*,Auto" Margin="0,0,16,0">
-        <Border Background="#F48655" CornerRadius="8" Width="30" Height="30"><TextBlock Text="↗" FontSize="25" FontWeight="Bold" Foreground="#191B20" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center"><TextBlock Text="API.NET" FontSize="16" FontWeight="Bold" LetterSpacing="2" /><Border Width="1" Height="18" Background="#393C46" /><TextBlock Text="个人工作区" Foreground="#B1B5C4" VerticalAlignment="Center" /><Border Background="#2B2E37" CornerRadius="4" Padding="6,3"><TextBlock Text="本地" FontSize="10" Foreground="#A4ABBE" /></Border></StackPanel>
+        <Border Background="{DynamicResource AccentBrush}" CornerRadius="8" Width="30" Height="30"><TextBlock Text="↗" FontSize="25" FontWeight="Bold" Foreground="{DynamicResource HeaderBackgroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center"><TextBlock Text="API.NET" FontSize="16" FontWeight="Bold" LetterSpacing="2" /><Border Width="1" Height="18" Background="{DynamicResource SubtleBorderBrush}" /><TextBlock Text="个人工作区" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /><Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="4" Padding="6,3"><TextBlock Text="本地" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" /></Border></StackPanel>
         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-          <TextBlock Text="环境" Foreground="#8D94A7" VerticalAlignment="Center" Margin="0,0,5,0" />
+          <TextBlock Text="环境" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,5,0" />
           <ComboBox Width="180" ItemsSource="{Binding Environments}" SelectedItem="{Binding SelectedEnvironment}"><ComboBox.ItemTemplate><DataTemplate x:DataType="m:EnvironmentDefinition"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
           <Button Content="管理变量" Classes="ghost" Command="{Binding ManageEnvironmentsCommand}" />
         </StackPanel>
       </Grid>
     </Border>
-    <Border Grid.Row="1" Background="#373027" Padding="16,8" IsVisible="{Binding HasUpdateStatus}">
-      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto"><TextBlock Text="{Binding UpdateStatus}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0" /><ProgressBar Grid.Column="1" Width="120" Height="4" Value="{Binding UpdateProgress}" IsIndeterminate="{Binding UpdateBusy}" IsVisible="{Binding UpdateBusy}" Margin="0,0,12,0" /><Button Grid.Column="2" Content="立即重启升级" IsVisible="{Binding UpdateReady}" Classes="primary" Command="{Binding UpgradeNowCommand}" /><Button Grid.Column="3" Content="退出时升级" IsVisible="{Binding UpdateReady}" Margin="8,0,0,0" Command="{Binding UpgradeOnExitCommand}" /><Button Grid.Column="4" Content="×" Classes="ghost" Command="{Binding DismissUpdateCommand}" Margin="8,0,0,0" /></Grid>
-    </Border>
-    <Grid Grid.Row="2" ColumnDefinitions="64,300,5,*">
-      <Border Background="#17191E" BorderBrush="#32343D" BorderThickness="0,0,1,0">
-        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto" Margin="3,8">
+    <Grid Grid.Row="1" ColumnDefinitions="64,300,5,*">
+      <Border Background="{DynamicResource RailBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto" Margin="3,8">
           <Button Classes="rail" Classes.active="{Binding IsWorkspace}" Command="{Binding NavigateCommand}" CommandParameter="工作区"><StackPanel Spacing="6"><TextBlock Text="▤" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="工作区" FontSize="10" /></StackPanel></Button>
           <Button Grid.Row="1" Classes="rail" Classes.active="{Binding IsHistory}" Command="{Binding NavigateCommand}" CommandParameter="历史记录"><StackPanel Spacing="6"><TextBlock Text="◷" FontSize="25" HorizontalAlignment="Center" /><TextBlock Text="历史" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
           <Button Grid.Row="2" Classes="rail" Classes.active="{Binding IsCapture}" Command="{Binding NavigateCommand}" CommandParameter="代理抓包"><StackPanel Spacing="6"><TextBlock Text="⇄" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="抓包" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
-          <Button Grid.Row="4" Classes="rail" ToolTip.Tip="检查更新" Command="{Binding CheckUpdatesCommand}" Content="↥" FontSize="24" />
-          <Button Grid.Row="5" Classes="rail" ToolTip.Tip="设置" Command="{Binding SettingsCommand}" Content="⚙" FontSize="23" />
+          <Button Grid.Row="3" Classes="rail" Classes.active="{Binding IsTools}" Command="{Binding NavigateCommand}" CommandParameter="工具"><StackPanel Spacing="6"><TextBlock Text="⌘" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="工具" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="5" Classes="rail" ToolTip.Tip="切换深色 / 浅色主题" Command="{Binding ToggleThemeCommand}" Content="◐" FontSize="24" />
+          <Button Grid.Row="6" Classes="rail" ToolTip.Tip="检查更新" Command="{Binding CheckUpdatesCommand}" Content="↥" FontSize="24" />
+          <Button Grid.Row="7" Classes="rail" ToolTip.Tip="设置" Command="{Binding SettingsCommand}" Content="⚙" FontSize="23" />
         </Grid>
       </Border>
-      <Grid Grid.Column="1" Background="#22242C">
+      <Grid Grid.Column="1" Background="{DynamicResource SidebarBackgroundBrush}">
         <workspace:WorkspaceExplorerView IsVisible="{Binding IsWorkspace}" />
         <history:HistoryPanelView IsVisible="{Binding IsHistory}" />
         <capture:CapturePanelView IsVisible="{Binding IsCapture}" />
+        <StackPanel IsVisible="{Binding IsTools}" Margin="18,22" Spacing="18"><TextBlock Text="常用工具" FontSize="16" FontWeight="SemiBold" /><TextBlock Text="所有内容仅在本地处理" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" /><ListBox ItemsSource="{Binding Tools.Kinds}" SelectedItem="{Binding Tools.SelectedTool}" Background="Transparent" /></StackPanel>
       </Grid>
-      <GridSplitter Grid.Column="2" Background="#30323B" ResizeDirection="Columns" />
+      <GridSplitter Grid.Column="2" Background="{DynamicResource SubtleBorderBrush}" ResizeDirection="Columns" />
       <Grid Grid.Column="3">
-        <Grid IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" RowDefinitions="Auto,Auto,Auto,Auto">
-          <Border Background="#2C2927" CornerRadius="20" Width="84" Height="84"><TextBlock Text="↗" FontSize="52" Foreground="#F48655" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+        <Grid IsVisible="{Binding ShowEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" RowDefinitions="Auto,Auto,Auto,Auto">
+          <Border Background="{DynamicResource AccentSurfaceBrush}" CornerRadius="20" Width="84" Height="84"><TextBlock Text="↗" FontSize="52" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
           <TextBlock Grid.Row="1" Text="从一个请求开始" FontSize="26" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,26,0,10" />
-          <TextBlock Grid.Row="2" Text="调试接口、连接 WebSocket，或导入你的 OpenAPI 文档。" Foreground="#959DAF" HorizontalAlignment="Center" />
+          <TextBlock Grid.Row="2" Text="调试接口、连接 WebSocket，或导入你的 OpenAPI 文档。" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" />
           <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10" Margin="0,24,0,0"><Button Content="＋ HTTP 请求" Classes="primary" Command="{Binding NewHttpCommand}" /><Button Content="导入 OpenAPI" Command="{Binding ImportCommand}" /></StackPanel>
         </Grid>
-        <TabControl x:Name="RequestTabs" ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" IsVisible="{Binding HasTabs}">
+        <TabControl x:Name="RequestTabs" ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" IsVisible="{Binding ShowRequests}">
           <TabControl.ItemTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel">
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" MinWidth="140" MaxWidth="270">
               <TextBlock Text="{Binding Badge}" Foreground="{Binding BadgeColor}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
@@ -65,10 +66,17 @@
           </DataTemplate></TabControl.ItemTemplate>
           <TabControl.ContentTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel"><views:RequestTabView /></DataTemplate></TabControl.ContentTemplate>
         </TabControl>
+        <Border IsVisible="{Binding IsTools}"><tools:ToolsView DataContext="{Binding Tools}" /></Border>
       </Grid>
     </Grid>
-    <Border Grid.Row="3" Background="#242731" BorderBrush="#343640" BorderThickness="0,1,0,0" Padding="12,4">
-      <Grid ColumnDefinitions="Auto,*,Auto,Auto"><TextBlock Text="{Binding ApplicationVersion}" FontSize="11" Foreground="#9EA6BB" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="#B6BECE" /><TextBlock Grid.Column="2" Text="{Binding ProxyText}" Foreground="#8BD7B2" FontSize="11" /><Button Grid.Column="3" Classes="ghost" Content="设置" FontSize="10" Padding="8,0" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
+    <Border Grid.Row="2" Background="{DynamicResource RaisedBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="12,4">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto"><TextBlock Text="{Binding ApplicationVersion}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextSecondaryBrush}" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" Margin="0,0,16,0" IsVisible="{Binding HasUpdateStatus}">
+          <TextBlock x:Name="UpdateStatusText" Text="{Binding UpdateStatus}" ToolTip.Tip="{Binding UpdateStatus}" MaxWidth="320" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" />
+          <ProgressBar Width="48" Height="3" Value="{Binding UpdateProgress}" IsIndeterminate="{Binding IsUpdateIndeterminate}" IsVisible="{Binding UpdateBusy}" VerticalAlignment="Center" />
+          <Button Content="安装更新" Classes="ghost" FontSize="10" Padding="6,0" Command="{Binding ShowUpdatePromptCommand}" IsVisible="{Binding UpdateReady}" />
+        </StackPanel>
+        <TextBlock Grid.Column="3" Text="{Binding ProxyText}" Foreground="{DynamicResource SuccessBrush}" FontSize="11" /><Button Grid.Column="4" Classes="ghost" Content="设置" FontSize="10" Padding="8,0" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
     </Border>
   </Grid>
 </Window>

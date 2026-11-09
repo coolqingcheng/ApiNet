@@ -56,4 +56,25 @@ internal sealed class ImportContext(WorkspaceDocument workspace, ImportPlan plan
     }
     public static IEnumerable<VariableDefinition> VariableList(JsonNode? node, bool apiPost = false) => Parameters(node, apiPost).Where(x => x.Enabled).Select(x => new VariableDefinition { Key = x.Key, Value = x.Value, IsSecret = x.Key.Contains("token", StringComparison.OrdinalIgnoreCase) || x.Key.Contains("password", StringComparison.OrdinalIgnoreCase) || x.Key.Contains("secret", StringComparison.OrdinalIgnoreCase) });
     public static string BodyFormat(string type) => type.ToLowerInvariant() switch { "json" => "JSON", "xml" => "XML", "html" => "HTML", "javascript" => "JavaScript", _ => "Text" };
+    public List<RequestParameter> FormParameters(JsonNode? node, bool apiPost = false)
+    {
+        if (node is JsonObject obj) node = obj["parameter"];
+        var result = new List<RequestParameter>();
+        foreach (var entry in Objects(node))
+        {
+            var parameter = Parameters(new JsonArray(entry.DeepClone()), apiPost).Single();
+            if (Text(entry, "type") != "file" && Text(entry, "field_type") != "file") { result.Add(parameter); continue; }
+            var source = entry["src"] ?? entry["value"];
+            var paths = source is JsonArray files ? files.Select(x => Scalar(x)).ToList() : new List<string> { Scalar(source) };
+            if (paths.Count == 0) paths.Add("");
+            foreach (var path in paths)
+            {
+                // Re-select imported file paths explicitly before uploading.
+                // Exports often point to another computer's local directory.
+                result.Add(new RequestParameter { Type = "File", Key = parameter.Key, Value = path, Enabled = false });
+            }
+            Warn("导入的文件上传项已停用，请点击“选择文件”确认本机文件后再发送。");
+        }
+        return result;
+    }
 }

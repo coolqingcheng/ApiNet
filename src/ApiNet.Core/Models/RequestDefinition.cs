@@ -47,6 +47,7 @@ public sealed class RequestDefinition
 
 public sealed class RequestParameter
 {
+    public string Type { get; set; } = "Text";
     public bool Enabled { get; set; } = true;
     public string Key { get; set; } = "";
     public string Value { get; set; } = "";

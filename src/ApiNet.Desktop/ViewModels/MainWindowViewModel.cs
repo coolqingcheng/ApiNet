@@ -42,7 +42,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public static string[] HistoryMethods { get; } = ["全部方法", "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "WS"];
     public static string[] HistoryResults { get; } = ["全部结果", "成功", "HTTP 错误", "网络错误"];
     public static string[] HistoryPeriods { get; } = ["全部时间", "今天", "最近 7 天", "最近 30 天"];
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsWorkspace), nameof(IsHistory), nameof(IsCapture))] private string _activePanel = "工作区";
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsWorkspace), nameof(IsHistory), nameof(IsCapture), nameof(IsTools), nameof(ShowRequests), nameof(ShowEmpty))] private string _activePanel = "工作区";
     [ObservableProperty] private string _search = "";
     [ObservableProperty] private WorkspaceNodeViewModel? _selectedNode;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(HasTabs), nameof(IsEmpty))] private RequestTabViewModel? _selectedTab;
@@ -60,16 +60,21 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private CaptureRecord? _selectedCapture;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(ProxyText))] private bool _proxyRunning;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(HasUpdateStatus))] private string _updateStatus = "";
-    [ObservableProperty] private double _updateProgress;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsUpdateIndeterminate))] private double _updateProgress;
     [ObservableProperty] private bool _updateReady;
-    [ObservableProperty] private bool _updateBusy;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsUpdateIndeterminate))] private bool _updateBusy;
     [ObservableProperty] private bool _updateOnExit;
     public bool IsWorkspace => ActivePanel == "工作区";
     public bool IsHistory => ActivePanel == "历史记录";
     public bool IsCapture => ActivePanel == "代理抓包";
+    public bool IsTools => ActivePanel == "工具";
+    public bool ShowRequests => HasTabs && !IsTools;
+    public bool ShowEmpty => IsEmpty && !IsTools;
+    public ApiNet.Desktop.ViewModels.Tools.ToolsViewModel Tools { get; } = new();
     public bool HasTabs => Tabs.Count > 0;
     public bool IsEmpty => Tabs.Count == 0;
     public bool HasUpdateStatus => UpdateStatus.Length > 0;
+    public bool IsUpdateIndeterminate => UpdateBusy && UpdateProgress <= 0;
     public string ProxyText => ProxyRunning ? $"● 代理 127.0.0.1:{Workspace.Settings.ProxyPort}" : "○ 代理未启动";
     public event Action<bool>? ExitRequested;
 
@@ -92,9 +97,9 @@ public partial class MainWindowViewModel : ViewModelBase
             if (args.PropertyName == nameof(CaptureSearch))
                 FilterCaptures();
         };
-        Tabs.CollectionChanged += (_, _) => { OnPropertyChanged(nameof(HasTabs)); OnPropertyChanged(nameof(IsEmpty)); };
+        Tabs.CollectionChanged += (_, _) => { OnPropertyChanged(nameof(HasTabs)); OnPropertyChanged(nameof(IsEmpty)); OnPropertyChanged(nameof(ShowRequests)); OnPropertyChanged(nameof(ShowEmpty)); };
         _proxy.Captured += record => Dispatcher.UIThread.Post(() => { _allCaptures.Insert(0, record); if (_allCaptures.Count > 1000) _allCaptures.RemoveAt(_allCaptures.Count - 1); FilterCaptures(); });
-        _updates.StateChanged += state => Dispatcher.UIThread.Post(() => { UpdateStatus = state.Version is null ? state.Status : $"v{state.Version} · {state.Status}"; UpdateProgress = state.Progress; UpdateReady = state.Ready; UpdateBusy = state.Busy; });
+        _updates.StateChanged += OnUpdateStateChanged;
     }
 
     public async Task InitializeAsync()
@@ -103,6 +108,7 @@ public partial class MainWindowViewModel : ViewModelBase
         try
         {
             Workspace = await _store.LoadAsync() ?? CreateWorkspace();
+            ThemeService.Apply(Workspace.Settings.Theme);
             RefreshEnvironments();
             RefreshTree();
             _allHistory.AddRange(await _store.GetHistoryAsync());
@@ -165,26 +171,25 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task SettingsAsync()
     {
         await _dialogs.EditSettingsAsync(Workspace);
+        ApplyTheme();
         OnPropertyChanged(nameof(ProxyText));
         await PersistSafelyAsync();
     }
-    [RelayCommand] private Task CheckUpdatesAsync() => _updates.CheckAndDownloadAsync(AppSettings.UpdateRepository);
     [RelayCommand]
-    private void UpgradeNow()
+    private async Task ToggleThemeAsync()
     {
-        if (_updates.IsReady)
-            ExitRequested?.Invoke(true);
+        Workspace.Settings.Theme = Workspace.Settings.Theme == "Light" ? "Dark" : "Light";
+        ApplyTheme();
+        await PersistSafelyAsync();
     }
-    [RelayCommand]
-    private void UpgradeOnExit()
+    private void ApplyTheme()
     {
-        UpdateOnExit = true;
-        UpdateStatus = "将在真正退出应用时安装更新；隐藏到托盘会继续运行。";
+        ThemeService.Apply(Workspace.Settings.Theme);
+        RefreshTree();
+        foreach (var tab in Tabs) tab.RefreshTheme();
     }
-    [RelayCommand] private void DismissUpdate() => UpdateStatus = "";
-
-    private static bool SameContent(RequestDefinition? left, RequestDefinition right) => left is not null && left.Name == right.Name && left.Url == right.Url && left.Method == right.Method && left.Body == right.Body && left.BodyFormat == right.BodyFormat && left.Headers == right.Headers && left.Subprotocol == right.Subprotocol && left.FollowRedirects == right.FollowRedirects && SameParameters(left.BodyParameters, right.BodyParameters) && SameParameters(left.QueryParameters, right.QueryParameters) && SameParameters(left.HeaderParameters, right.HeaderParameters);
-    private static bool SameParameters(IEnumerable<RequestParameter> left, IEnumerable<RequestParameter> right) => left.Select(x => (x.Enabled, x.Key, x.Value)).SequenceEqual(right.Select(x => (x.Enabled, x.Key, x.Value)));
+    private static bool SameContent(RequestDefinition? left, RequestDefinition right) => left is not null && left.Name == right.Name && QueryUrl.WithoutQuery(left.Url) == QueryUrl.WithoutQuery(right.Url) && left.Method == right.Method && left.Body == right.Body && left.BodyFormat == right.BodyFormat && left.Headers == right.Headers && left.Subprotocol == right.Subprotocol && left.FollowRedirects == right.FollowRedirects && SameParameters(left.BodyParameters, right.BodyParameters) && SameParameters(QueryUrl.Parameters(left), QueryUrl.Parameters(right)) && SameParameters(left.HeaderParameters, right.HeaderParameters);
+    private static bool SameParameters(IEnumerable<RequestParameter> left, IEnumerable<RequestParameter> right) => left.Select(x => (x.Enabled, x.Key, x.Value, x.Type)).SequenceEqual(right.Select(x => (x.Enabled, x.Key, x.Value, x.Type)));
     private Task PersistAsync()
     {
         Workspace.OpenTabs = Tabs.Select(x => x.Snapshot()).ToList();

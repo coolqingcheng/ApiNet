@@ -26,11 +26,12 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     [ObservableProperty] private string _url;
     [ObservableProperty] private string _headers;
     [ObservableProperty] private string _body;
-    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsFormBody), nameof(IsRawBody))] private string _bodyFormat;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsFormBody), nameof(IsRawBody), nameof(IsMultipartBody))] private string _bodyFormat;
     [ObservableProperty] private string _responseFormat = "Text";
     public static string[] BodyFormats { get; } = ["JSON", "XML", "Text", "HTML", "JavaScript", "Form URL Encoded", "Multipart"];
     public bool IsFormBody => BodyFormat is "Form URL Encoded" or "Multipart";
     public bool IsRawBody => !IsFormBody;
+    public bool IsMultipartBody => BodyFormat == "Multipart";
     public ObservableCollection<ParameterRowViewModel> BodyRows { get; } = [];
     public ObservableCollection<ParameterRowViewModel> QueryRows { get; } = [];
     public ObservableCollection<ParameterRowViewModel> HeaderRows { get; } = [];
@@ -47,7 +48,8 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     [ObservableProperty] private bool _followRedirects;
     public string Title => Name + (IsDirty ? " ●" : "");
     public string Badge => IsWebSocket ? "WS" : Method;
-    public string BadgeColor => IsWebSocket ? "#BBA3FF" : Method switch { "GET" => "#7CD9B2", "POST" => "#F1CA76", "DELETE" => "#F18B96", _ => "#8CB8F8" };
+    public string BadgeColor => ApiNet.Desktop.Services.ThemeService.MethodColor(Badge);
+    public void RefreshTheme() => OnPropertyChanged(nameof(BadgeColor));
     public IAsyncRelayCommand SaveCommand
     {
         get;
@@ -64,6 +66,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     protected RequestTabViewModel(RequestDefinition request, MainWindowViewModel owner)
     {
         Owner = owner;
+        request = NormalizeQuery(request);
         Original = ModelCopy.Request(request);
         _name = request.Name;
         _method = request.Method;
@@ -97,7 +100,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         var request = ModelCopy.Request(Original);
         request.Name = Name;
         request.Method = IsWebSocket ? "WS" : Method;
-        request.Url = Url;
+        request.Url = QueryUrl.WithoutQuery(Url);
         request.Headers = Headers;
         request.Body = Body;
         request.BodyFormat = BodyFormat;
@@ -120,9 +123,9 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         return request;
     }
 
-    private bool HasChanges() => Owner.Workspace.Requests.All(x => x.Id != Id) || Name != Original.Name || Method != Original.Method || Url != Original.Url || Headers != Original.Headers || Body != Original.Body || BodyFormat != Original.BodyFormat || Subprotocol != Original.Subprotocol || FollowRedirects != Original.FollowRedirects || !string.IsNullOrEmpty(Query) || !string.IsNullOrEmpty(BearerToken) || !SameRows(BodyRows, Original.BodyParameters) || !SameRows(QueryRows, Original.QueryParameters) || !SameRows(HeaderRows, HeaderValues(Original));
+    private bool HasChanges() => Owner.Workspace.Requests.All(x => x.Id != Id) || Name != Original.Name || Method != Original.Method || QueryUrl.WithoutQuery(Url) != Original.Url || Headers != Original.Headers || Body != Original.Body || BodyFormat != Original.BodyFormat || Subprotocol != Original.Subprotocol || FollowRedirects != Original.FollowRedirects || !string.IsNullOrEmpty(Query) || !string.IsNullOrEmpty(BearerToken) || !SameRows(BodyRows, Original.BodyParameters) || !SameRows(QueryRows, Original.QueryParameters) || !SameRows(HeaderRows, HeaderValues(Original));
 
-    private static bool SameRows(IEnumerable<ParameterRowViewModel> rows, IEnumerable<RequestParameter> values) => rows.Select(x => (x.Enabled, x.Key, x.Value)).SequenceEqual(values.Select(x => (x.Enabled, x.Key, x.Value)));
+    private static bool SameRows(IEnumerable<ParameterRowViewModel> rows, IEnumerable<RequestParameter> values) => rows.Select(x => (x.Enabled, x.Key, x.Value, x.Type)).SequenceEqual(values.Select(x => (x.Enabled, x.Key, x.Value, x.Type)));
     private static IEnumerable<RequestParameter> HeaderValues(RequestDefinition request) => request.HeaderParameters.Count > 0 ? request.HeaderParameters : request.Headers.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(line => { var index = line.IndexOf(':'); return new RequestParameter { Key = index < 0 ? line.Trim() : line[..index].Trim(), Value = index < 0 ? "" : line[(index + 1)..].Trim() }; });
     private void LoadRows(RequestDefinition request)
     {
@@ -131,23 +134,25 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         foreach (var parameter in request.QueryParameters) AddRow(QueryRows, parameter);
         foreach (var parameter in HeaderValues(request)) AddRow(HeaderRows, parameter);
         foreach (var parameter in request.BodyParameters) AddRow(BodyRows, parameter);
+        Url = QueryUrl.WithQuery(request.Url, request.QueryParameters);
         _syncingRows = false;
     }
-    private void AddRow(ObservableCollection<ParameterRowViewModel> rows, RequestParameter parameter) => rows.Add(new ParameterRowViewModel(parameter, row => rows.Remove(row)));
+    private void AddRow(ObservableCollection<ParameterRowViewModel> rows, RequestParameter parameter) => rows.Add(new ParameterRowViewModel(parameter, row => rows.Remove(row), () => Owner.Dialogs.OpenUploadFileAsync()));
     private void RowsChanged(object? sender, NotifyCollectionChangedEventArgs args)
     {
         if (args.NewItems is not null)
             foreach (ParameterRowViewModel row in args.NewItems) row.PropertyChanged += RowChanged;
         if (args.OldItems is not null)
             foreach (ParameterRowViewModel row in args.OldItems) row.PropertyChanged -= RowChanged;
-        UpdateRows();
+        UpdateRows(ReferenceEquals(sender, QueryRows));
     }
-    private void RowChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args) => UpdateRows();
-    private void UpdateRows()
+    private void RowChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs args) => UpdateRows(sender is ParameterRowViewModel row && QueryRows.Contains(row));
+    private void UpdateRows(bool queryChanged)
     {
         if (_syncingRows) return;
         _syncingRows = true;
         Headers = string.Join('\n', HeaderRows.Where(x => x.Enabled && !string.IsNullOrWhiteSpace(x.Key)).Select(x => x.Key.Trim() + ": " + x.Value));
+        if (queryChanged) Url = QueryUrl.WithQuery(Url, QueryRows.Select(x => x.Snapshot()));
         _syncingRows = false;
         IsDirty = HasChanges();
     }
@@ -165,6 +170,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
 
     public void MarkSaved(RequestDefinition request)
     {
+        request = NormalizeQuery(request);
         Original = ModelCopy.Request(request);
         Query = "";
         BearerToken = "";
@@ -175,12 +181,13 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     }
     public void ApplyImportedDefinition(RequestDefinition request)
     {
+        request = NormalizeQuery(request);
+        var baseUnchanged = QueryUrl.WithoutQuery(Url) == Original.Url;
+        var queryUnchanged = SameRows(QueryRows, Original.QueryParameters);
         if (Name == Original.Name)
             Name = request.Name;
         if (Method == Original.Method)
             Method = request.Method;
-        if (Url == Original.Url)
-            Url = request.Url;
         if (Headers == Original.Headers && SameRows(HeaderRows, HeaderValues(Original)))
         {
             Headers = request.Headers;
@@ -200,13 +207,16 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
             foreach (var parameter in request.BodyParameters) AddRow(BodyRows, parameter);
             _syncingRows = false;
         }
-        if (SameRows(QueryRows, Original.QueryParameters))
+        if (queryUnchanged)
         {
             _syncingRows = true;
             QueryRows.Clear();
             foreach (var parameter in request.QueryParameters) AddRow(QueryRows, parameter);
             _syncingRows = false;
         }
+        _syncingRows = true;
+        Url = QueryUrl.WithQuery(baseUnchanged ? request.Url : Url, QueryRows.Select(x => x.Snapshot()));
+        _syncingRows = false;
         if (Subprotocol == Original.Subprotocol)
             Subprotocol = request.Subprotocol;
         Original = ModelCopy.Request(request);

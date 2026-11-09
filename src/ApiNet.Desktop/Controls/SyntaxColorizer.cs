@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Avalonia.Media;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Rendering;
+using ApiNet.Desktop.Services;
 
 namespace ApiNet.Desktop.Controls;
 
@@ -22,18 +23,18 @@ public sealed partial class SyntaxColorizer(Func<string> language) : DocumentCol
             foreach (Match match in JsonTokens().Matches(text))
             {
                 var tail = text.AsSpan(match.Index + match.Length).TrimStart();
-                var color = match.Value.StartsWith('"') ? (tail.StartsWith(":" ) ? "#9CDCFE" : "#CE9178") : "#B5CEA8";
+                var color = match.Value.StartsWith('"') ? (tail.StartsWith(":" ) ? "SyntaxProperty" : "SyntaxString") : "SyntaxLiteral";
                 Paint(line, match, color);
             }
         else if (language() is "XML" or "HTML")
             foreach (Match match in XmlTokens().Matches(text))
-                Paint(line, match, match.Value.StartsWith('"') || match.Value.StartsWith('\'') ? "#CE9178" : "#569CD6");
+                Paint(line, match, match.Value.StartsWith('"') || match.Value.StartsWith('\'') ? "SyntaxString" : "SyntaxTag");
         foreach (Match match in Variables().Matches(text))
             ChangeLinePart(line.Offset + match.Index, line.Offset + match.Index + match.Length, element =>
             {
-                element.TextRunProperties.SetForegroundBrush(Brush.Parse("#FFAD7A"));
-                element.TextRunProperties.SetBackgroundBrush(Brush.Parse("#453126"));
+                element.TextRunProperties.SetForegroundBrush(ThemeService.Brush("VariableForeground"));
+                element.TextRunProperties.SetBackgroundBrush(ThemeService.Brush("VariableBackground"));
             });
     }
-    private void Paint(DocumentLine line, Match match, string color) => ChangeLinePart(line.Offset + match.Index, line.Offset + match.Index + match.Length, element => element.TextRunProperties.SetForegroundBrush(Brush.Parse(color)));
+    private void Paint(DocumentLine line, Match match, string color) => ChangeLinePart(line.Offset + match.Index, line.Offset + match.Index + match.Length, element => element.TextRunProperties.SetForegroundBrush(ThemeService.Brush(color)));
 }

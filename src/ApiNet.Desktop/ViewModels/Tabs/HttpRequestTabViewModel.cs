@@ -11,6 +11,7 @@ public partial class HttpRequestTabViewModel : RequestTabViewModel
     private readonly IHttpRequestService _http;
     private CancellationTokenSource? _request;
     private HttpResult? _lastResult;
+    public string SendLabel => IsBusy ? "发送中…" : "发送 ↗";
     [ObservableProperty] private bool _canSaveResponse;
     public HttpRequestTabViewModel(RequestDefinition request, MainWindowViewModel owner, IHttpRequestService http) : base(request, owner) => _http = http;
 
@@ -20,6 +21,7 @@ public partial class HttpRequestTabViewModel : RequestTabViewModel
         if (IsBusy)
             return;
         IsBusy = true;
+        OnPropertyChanged(nameof(SendLabel));
         try
         {
             var context = HistorySanitizer.SnapshotContext(Owner.Workspace);
@@ -39,7 +41,7 @@ public partial class HttpRequestTabViewModel : RequestTabViewModel
                 await SaveResponseAsync();
         }
         catch (Exception exception) { Status = exception.Message; }
-        finally { _request = null; IsBusy = false; }
+        finally { _request = null; IsBusy = false; OnPropertyChanged(nameof(SendLabel)); }
     }
     [RelayCommand] private void Cancel() => _request?.Cancel();
     [RelayCommand]

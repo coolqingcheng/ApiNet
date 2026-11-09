@@ -26,7 +26,15 @@ public partial class MainWindowViewModel
             Status = "正在检测本机 ApiPost / Postman…";
             var selection = await _dialogs.PickImportAsync(await _imports.DetectLocalAsync());
             if (selection is null) { Status = "已取消导入"; return; }
-            if (selection.Source is { } local)
+            if (selection.Online)
+            {
+                var url = await _dialogs.PromptAsync("在线 Swagger / OpenAPI JSON 链接");
+                if (string.IsNullOrWhiteSpace(url)) { Status = "已取消导入"; return; }
+                Status = "正在下载 Swagger / OpenAPI 文档…";
+                var json = await _imports.ReadUrlAsync(url.Trim());
+                await ImportDocumentAsync(json, folder, new Uri(url.Trim()).AbsoluteUri);
+            }
+            else if (selection.Source is { } local)
             {
                 Status = "正在读取 " + local.Name + " 本地数据副本…";
                 await ImportDocumentAsync(await _imports.ReadLocalAsync(local), folder, local.Location);
@@ -76,6 +84,11 @@ public partial class MainWindowViewModel
                 var local = (await _imports.DetectLocalAsync()).FirstOrDefault(x => x.Location == source.Location) ?? throw new InvalidOperationException("未找到原软件的本地数据目录，请重新选择导入源。");
                 Status = "正在读取本机数据副本…";
                 json = await _imports.ReadLocalAsync(local);
+            }
+            else if (Uri.TryCreate(source.Location, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https")
+            {
+                Status = "正在下载 Swagger / OpenAPI 文档…";
+                json = await _imports.ReadUrlAsync(source.Location);
             }
             else json = await File.ReadAllTextAsync(source.Location);
             await ImportDocumentAsync(json, source.FolderId, source.Location);

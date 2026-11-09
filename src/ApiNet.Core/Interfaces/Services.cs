@@ -58,6 +58,7 @@ public interface IWorkspaceImportService
     void Apply(WorkspaceDocument workspace, ImportPlan plan, bool overwriteConflicts);
     Task<IReadOnlyList<LocalImportSource>> DetectLocalAsync(CancellationToken cancellationToken = default);
     Task<string> ReadLocalAsync(LocalImportSource source, CancellationToken cancellationToken = default);
+    Task<string> ReadUrlAsync(string url, CancellationToken cancellationToken = default);
 }
 
 public interface IProxyService : IAsyncDisposable

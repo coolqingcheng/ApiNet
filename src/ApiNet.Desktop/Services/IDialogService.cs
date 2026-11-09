@@ -11,6 +11,7 @@ public interface IDialogService
     Task<bool> ConfirmAsync(string title, string message);
     Task<int> ChooseAsync(string title, string message, string[] choices);
     Task<string?> OpenJsonAsync();
+    Task<string?> OpenUploadFileAsync();
     Task<string?> SaveJsonAsync(string name);
     Task<string?> SaveResponseAsync(string name);
     Task EditEnvironmentsAsync(WorkspaceDocument workspace);

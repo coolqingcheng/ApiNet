@@ -2,22 +2,24 @@
         xmlns:vm="using:ApiNet.Desktop.ViewModels.Dialogs" xmlns:core="using:ApiNet.Core.Interfaces"
         x:Class="ApiNet.Desktop.Views.Dialogs.ImportPickerWindow" x:DataType="vm:ImportPickerViewModel"
         Title="导入请求和变量" Width="660" SizeToContent="Height" MaxHeight="700" CanResize="False"
-        WindowStartupLocation="CenterOwner" Background="#202127">
+        WindowStartupLocation="CenterOwner" Background="{DynamicResource SurfaceBackgroundBrush}">
   <StackPanel Margin="24" Spacing="18">
     <TextBlock Text="导入请求和变量" FontSize="20" FontWeight="SemiBold" />
-    <TextBlock Text="选择本机软件，读取已保存的数据并导入到当前文件夹。" TextWrapping="Wrap" Foreground="#B6BECE" />
+    <TextBlock Text="从本机软件、JSON 文件或在线 Swagger / OpenAPI 链接导入到当前文件夹。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
     <ListBox ItemsSource="{Binding Sources}" SelectedItem="{Binding SelectedSource}" IsVisible="{Binding HasSources}" MaxHeight="290">
       <ListBox.ItemTemplate><DataTemplate x:DataType="core:LocalImportSource">
-        <StackPanel Margin="8" Spacing="8"><TextBlock Text="{Binding Description}" FontWeight="SemiBold" /><TextBlock Text="{Binding DataDirectory}" Foreground="#8F99AF" FontSize="11" TextWrapping="Wrap" /></StackPanel>
+        <StackPanel Margin="8" Spacing="8"><TextBlock Text="{Binding Description}" FontWeight="SemiBold" /><TextBlock Text="{Binding DataDirectory}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" TextWrapping="Wrap" /></StackPanel>
       </DataTemplate></ListBox.ItemTemplate>
     </ListBox>
-    <Border IsVisible="{Binding NoSources}" Background="#282B34" Padding="16" CornerRadius="5"><TextBlock Text="未检测到可用的 ApiPost / Postman 本地数据。可以选择原软件导出的 JSON 文件。" TextWrapping="Wrap" Foreground="#B6BECE" /></Border>
-    <TextBlock Text="读取原软件数据的副本，不修改原数据。导入前可查看请求数量、变量和兼容性提示。" TextWrapping="Wrap" Foreground="#8F99AF" FontSize="12" />
-    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+    <Border IsVisible="{Binding NoSources}" Background="{DynamicResource RaisedBackgroundBrush}" Padding="16" CornerRadius="5"><TextBlock Text="未检测到可用的 ApiPost / Postman 本地数据。可以选择原软件导出的 JSON 文件。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /></Border>
+    <TextBlock Text="读取原软件数据的副本，不修改原数据。导入前可查看请求数量、变量和兼容性提示。" TextWrapping="Wrap" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
+    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
       <Button Content="选择 JSON 文件…" Command="{Binding ChooseFileCommand}" />
-      <Button Grid.Column="1" Content="取消" Command="{Binding CancelCommand}" />
-      <Button Grid.Column="2" Content="一键导入" Classes="primary" Command="{Binding ImportLocalCommand}" />
+      <Button Grid.Column="1" Content="在线 JSON 链接…" Command="{Binding ChooseUrlCommand}" HorizontalAlignment="Left" />
+      <Button Grid.Column="2" Content="取消" Command="{Binding CancelCommand}" />
+      <Button Grid.Column="3" Content="一键导入" Classes="primary" Command="{Binding ImportLocalCommand}" />
     </Grid>
-    <TextBlock Text="文件支持 OpenAPI / Swagger、Postman Collection / 环境 / 备份、ApiPost 项目。" Foreground="#8F99AF" FontSize="11" TextWrapping="Wrap" />
+    <TextBlock Text="文件支持 OpenAPI / Swagger、Postman Collection / 环境 / 备份、ApiPost 项目。" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" TextWrapping="Wrap" />
+    <TextBlock Text="在线链接请填写 swagger.json、/v3/api-docs 等 JSON 地址。" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" TextWrapping="Wrap" />
   </StackPanel>
 </Window>

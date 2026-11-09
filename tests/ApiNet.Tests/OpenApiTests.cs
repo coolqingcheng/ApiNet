@@ -7,6 +7,18 @@ public class OpenApiTests
 {
     private readonly OpenApiService _service = new();
     [Fact]
+    public void SavingParsedQueryDoesNotCreateImportConflictsAndRemoteQueriesStillRefresh()
+    {
+        const string json = """{"openapi":"3.0.3","info":{"title":"Test","version":"1"},"paths":{"/v1":{"get":{"operationId":"same","parameters":[{"in":"query","name":"page","example":1}],"responses":{"200":{"description":"OK"}}}}}}""";
+        var workspace = new WorkspaceDocument(); _service.Apply(workspace, _service.Preview(workspace, json, null, "online.json"), false);
+        var request = Assert.Single(workspace.Requests);
+        QueryUrl.Normalize(request); request.Name = "Local name";
+        var changed = json.Replace("/v1", "/v2").Replace("\"example\":1", "\"example\":2");
+        var plan = _service.Preview(workspace, changed, null, "online.json"); Assert.Empty(Assert.Single(plan.Changes).ConflictFields);
+        _service.Apply(workspace, plan, false);
+        Assert.Equal("Local name", request.Name); Assert.Equal("{{baseUrl}}/v2", request.Url); Assert.Equal("2", Assert.Single(request.QueryParameters).Value);
+    }
+    [Fact]
     public void ExportRoundTripsFormatsAndDisabledRowsWithoutExportingHeaderSecrets()
     {
         var request = new RequestDefinition { Method = "POST", Url = "https://example.com/xml", BodyFormat = "XML", Body = "<host>{{baseUrl}}</host>", QueryParameters = [new() { Key = "page", Value = "2" }, new() { Key = "draft", Value = "3", Enabled = false }], HeaderParameters = [new() { Key = "X-Sample", Value = "abc", Enabled = false }, new() { Key = "Authorization", Value = "secret" }] };

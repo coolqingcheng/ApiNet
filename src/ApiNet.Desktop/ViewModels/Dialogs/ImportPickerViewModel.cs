@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace ApiNet.Desktop.ViewModels.Dialogs;
 
-public sealed record ImportSelection(LocalImportSource? Source);
+public sealed record ImportSelection(LocalImportSource? Source, bool Online = false);
 
 public partial class ImportPickerViewModel : ViewModelBase
 {
@@ -17,5 +17,6 @@ public partial class ImportPickerViewModel : ViewModelBase
     private bool CanImportLocal() => SelectedSource is not null;
     [RelayCommand(CanExecute = nameof(CanImportLocal))] private void ImportLocal() => Completed?.Invoke(new(SelectedSource));
     [RelayCommand] private void ChooseFile() => Completed?.Invoke(new(null));
+    [RelayCommand] private void ChooseUrl() => Completed?.Invoke(new(null, Online: true));
     [RelayCommand] private void Cancel() => Completed?.Invoke(null);
 }

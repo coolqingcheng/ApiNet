@@ -257,6 +257,7 @@ public class WorkbenchTests
         public Task<bool> ConfirmAsync(string title, string message) => Task.FromResult(false);
         public Task<int> ChooseAsync(string title, string message, string[] choices) => Task.FromResult(-1);
         public Task<string?> OpenJsonAsync() => Task.FromResult<string?>(null);
+        public Task<string?> OpenUploadFileAsync() => Task.FromResult<string?>(null);
         public Task<string?> SaveJsonAsync(string name) => Task.FromResult<string?>(null);
         public Task<string?> SaveResponseAsync(string name) { ResponsePrompts++; return Task.FromResult(ResponseDestination); }
         public Task EditEnvironmentsAsync(WorkspaceDocument workspace) => Task.CompletedTask;

@@ -96,10 +96,7 @@ internal static class ApiPostImporter
                 else if (mode is "urlencoded" or "x-www-form-urlencoded" or "form-data" or "formdata")
                 {
                     request.BodyFormat = mode is "urlencoded" or "x-www-form-urlencoded" ? "Form URL Encoded" : "Multipart";
-                    request.BodyParameters = Parameters(body, true);
-                    var parameters = Objects(body["parameter"]).ToArray();
-                    for (var i = 0; i < parameters.Length; i++)
-                        if (Text(parameters[i], "field_type") == "file" || Text(parameters[i], "type") == "file") { request.BodyParameters[i].Enabled = false; request.BodyParameters[i].Value = ""; context.Warn("文件上传项已停用：当前仅导入表单文本字段，请手动配置文件上传。"); }
+                    request.BodyParameters = context.FormParameters(body, true);
                     request.HeaderParameters.RemoveAll(x => x.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase));
                 }
                 else if (mode != "none") context.Warn("未导入 ApiPost 请求体类型：" + mode);

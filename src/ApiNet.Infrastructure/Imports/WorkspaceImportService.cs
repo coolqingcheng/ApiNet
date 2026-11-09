@@ -53,4 +53,5 @@ public sealed class WorkspaceImportService(IOpenApiService openApi, LocalImportR
     }
     public Task<IReadOnlyList<LocalImportSource>> DetectLocalAsync(CancellationToken cancellationToken = default) => _local.DetectAsync(cancellationToken);
     public Task<string> ReadLocalAsync(LocalImportSource source, CancellationToken cancellationToken = default) => _local.ReadAsync(source, cancellationToken);
+    public Task<string> ReadUrlAsync(string url, CancellationToken cancellationToken = default) => new OpenApiDocumentDownloader().ReadAsync(url, cancellationToken);
 }

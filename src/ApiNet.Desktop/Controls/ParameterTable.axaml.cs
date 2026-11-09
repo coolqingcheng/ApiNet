@@ -10,7 +10,9 @@ public partial class ParameterTable : UserControl
 {
     public static readonly StyledProperty<ObservableCollection<ParameterRowViewModel>?> RowsProperty = AvaloniaProperty.Register<ParameterTable, ObservableCollection<ParameterRowViewModel>?>(nameof(Rows));
     public static readonly StyledProperty<ICommand?> AddCommandProperty = AvaloniaProperty.Register<ParameterTable, ICommand?>(nameof(AddCommand));
+    public static readonly StyledProperty<bool> AllowFilesProperty = AvaloniaProperty.Register<ParameterTable, bool>(nameof(AllowFiles));
     public ObservableCollection<ParameterRowViewModel>? Rows { get => GetValue(RowsProperty); set => SetValue(RowsProperty, value); }
     public ICommand? AddCommand { get => GetValue(AddCommandProperty); set => SetValue(AddCommandProperty, value); }
+    public bool AllowFiles { get => GetValue(AllowFilesProperty); set => SetValue(AllowFilesProperty, value); }
     public ParameterTable() => InitializeComponent();
 }

@@ -1,0 +1,96 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#1D1F26" />
+      <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#191B20" />
+      <SolidColorBrush x:Key="RailBackgroundBrush" Color="#17191E" />
+      <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#22242C" />
+      <SolidColorBrush x:Key="InputBackgroundBrush" Color="#191B21" />
+      <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#202127" />
+      <SolidColorBrush x:Key="RaisedBackgroundBrush" Color="#24262E" />
+      <SolidColorBrush x:Key="TableHeaderBackgroundBrush" Color="#252832" />
+      <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#2C2F38" />
+      <SolidColorBrush x:Key="BorderBrush" Color="#383B46" />
+      <SolidColorBrush x:Key="SubtleBorderBrush" Color="#343844" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#E4E6ED" />
+      <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A9ADBB" />
+      <SolidColorBrush x:Key="TextMutedBrush" Color="#8994AB" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#F48655" />
+      <SolidColorBrush x:Key="AccentTextBrush" Color="#FFAA83" />
+      <SolidColorBrush x:Key="AccentHoverBrush" Color="#FF9F74" />
+      <SolidColorBrush x:Key="AccentSurfaceBrush" Color="#2C2727" />
+      <SolidColorBrush x:Key="OnAccentBrush" Color="#18191E" />
+      <SolidColorBrush x:Key="SelectionBrush" Color="#3A4D68" />
+      <SolidColorBrush x:Key="SelectionTextBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="PurpleSurfaceBrush" Color="#302B41" />
+      <SolidColorBrush x:Key="PurpleBrush" Color="#BBA3FF" />
+      <SolidColorBrush x:Key="SuccessBrush" Color="#8BD7B2" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#F1CA76" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#F18B96" />
+      <SolidColorBrush x:Key="InfoBrush" Color="#8CB8F8" />
+      <SolidColorBrush x:Key="VariableForegroundBrush" Color="#FFAD7A" />
+      <SolidColorBrush x:Key="VariableBackgroundBrush" Color="#453126" />
+      <SolidColorBrush x:Key="CodeForegroundBrush" Color="#D4D4D4" />
+      <SolidColorBrush x:Key="SyntaxPropertyBrush" Color="#9CDCFE" />
+      <SolidColorBrush x:Key="SyntaxStringBrush" Color="#CE9178" />
+      <SolidColorBrush x:Key="SyntaxLiteralBrush" Color="#B5CEA8" />
+      <SolidColorBrush x:Key="SyntaxTagBrush" Color="#569CD6" />
+      <SolidColorBrush x:Key="BorderHoverBrush" Color="#606675" />
+      <SolidColorBrush x:Key="TextControlBackground" Color="#191B21" />
+      <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#191B21" />
+      <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#191B21" />
+      <SolidColorBrush x:Key="TextControlForeground" Color="#E4E6ED" />
+      <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#E4E6ED" />
+      <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#E4E6ED" />
+      <SolidColorBrush x:Key="TextControlBorderBrush" Color="#383B46" />
+      <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#F48655" />
+      <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#606675" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="#F3F4F7" />
+      <SolidColorBrush x:Key="RailBackgroundBrush" Color="#ECEEF3" />
+      <SolidColorBrush x:Key="SidebarBackgroundBrush" Color="#F5F6F9" />
+      <SolidColorBrush x:Key="InputBackgroundBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#FAFBFD" />
+      <SolidColorBrush x:Key="RaisedBackgroundBrush" Color="#EEF0F4" />
+      <SolidColorBrush x:Key="TableHeaderBackgroundBrush" Color="#ECEFF4" />
+      <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="#E5E9F0" />
+      <SolidColorBrush x:Key="BorderBrush" Color="#CBD2DD" />
+      <SolidColorBrush x:Key="SubtleBorderBrush" Color="#D8DDE6" />
+      <SolidColorBrush x:Key="TextPrimaryBrush" Color="#202735" />
+      <SolidColorBrush x:Key="TextSecondaryBrush" Color="#526077" />
+      <SolidColorBrush x:Key="TextMutedBrush" Color="#64748B" />
+      <SolidColorBrush x:Key="AccentBrush" Color="#C45120" />
+      <SolidColorBrush x:Key="AccentTextBrush" Color="#AF441B" />
+      <SolidColorBrush x:Key="AccentHoverBrush" Color="#B3461A" />
+      <SolidColorBrush x:Key="AccentSurfaceBrush" Color="#FFF0E8" />
+      <SolidColorBrush x:Key="OnAccentBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="SelectionBrush" Color="#D7E6FC" />
+      <SolidColorBrush x:Key="SelectionTextBrush" Color="#1E293B" />
+      <SolidColorBrush x:Key="PurpleSurfaceBrush" Color="#EEE8FC" />
+      <SolidColorBrush x:Key="PurpleBrush" Color="#7143B8" />
+      <SolidColorBrush x:Key="SuccessBrush" Color="#18764B" />
+      <SolidColorBrush x:Key="WarningBrush" Color="#94610A" />
+      <SolidColorBrush x:Key="DangerBrush" Color="#BF354B" />
+      <SolidColorBrush x:Key="InfoBrush" Color="#285CB0" />
+      <SolidColorBrush x:Key="VariableForegroundBrush" Color="#A74412" />
+      <SolidColorBrush x:Key="VariableBackgroundBrush" Color="#FFF0DC" />
+      <SolidColorBrush x:Key="CodeForegroundBrush" Color="#253046" />
+      <SolidColorBrush x:Key="SyntaxPropertyBrush" Color="#075DA8" />
+      <SolidColorBrush x:Key="SyntaxStringBrush" Color="#9B3C25" />
+      <SolidColorBrush x:Key="SyntaxLiteralBrush" Color="#2C6F30" />
+      <SolidColorBrush x:Key="SyntaxTagBrush" Color="#145CBD" />
+      <SolidColorBrush x:Key="BorderHoverBrush" Color="#8491A6" />
+      <SolidColorBrush x:Key="TextControlBackground" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="TextControlBackgroundPointerOver" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="TextControlBackgroundFocused" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="TextControlForeground" Color="#202735" />
+      <SolidColorBrush x:Key="TextControlForegroundPointerOver" Color="#202735" />
+      <SolidColorBrush x:Key="TextControlForegroundFocused" Color="#202735" />
+      <SolidColorBrush x:Key="TextControlBorderBrush" Color="#CBD2DD" />
+      <SolidColorBrush x:Key="TextControlBorderBrushFocused" Color="#C45120" />
+      <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#8491A6" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

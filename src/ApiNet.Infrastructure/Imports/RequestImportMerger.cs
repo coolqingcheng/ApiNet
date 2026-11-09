@@ -51,7 +51,8 @@ internal static class RequestImportMerger
                     existing.SourceRemoved = true;
                 continue;
             }
-            var incoming = change.Incoming;
+            var incoming = ModelCopy.Request(change.Incoming);
+            QueryUrl.Normalize(incoming);
             var baselineJson = JsonSerializer.Serialize(incoming, AppJsonContext.Default.RequestDefinition);
             if (existing is null)
             {
@@ -60,6 +61,8 @@ internal static class RequestImportMerger
                 continue;
             }
             var baseline = Baseline(existing);
+            QueryUrl.Normalize(baseline);
+            QueryUrl.Normalize(existing);
             foreach (var field in Fields)
                 if (Value(existing, field) == Value(baseline, field) || (overwriteConflicts && change.ConflictFields.Contains(field)))
                     SetValue(existing, field, Value(incoming, field));
@@ -72,7 +75,7 @@ internal static class RequestImportMerger
     }
     private static RequestDefinition Baseline(RequestDefinition request) => request.ImportBaselineJson is null ? ModelCopy.Request(request) : JsonSerializer.Deserialize(request.ImportBaselineJson, AppJsonContext.Default.RequestDefinition)!;
     private static List<RequestParameter> HeaderValues(RequestDefinition request) => request.HeaderParameters.Count > 0 ? request.HeaderParameters : Http.HeaderParser.Parse(request.Headers).Select(x => new RequestParameter { Key = x.Key, Value = x.Value }).ToList();
-    private static string Value(RequestDefinition request, string field) => field switch { "Protocol" => request.Protocol, "FolderId" => request.FolderId ?? "", "TimeoutSeconds" => request.TimeoutSeconds.ToString(), "FollowRedirects" => request.FollowRedirects.ToString(), "BodyParameters" => JsonSerializer.Serialize(request.BodyParameters, AppJsonContext.Default.ListRequestParameter), "Name" => request.Name, "Method" => request.Method, "Url" => request.Url, "Headers" => JsonSerializer.Serialize(HeaderValues(request), AppJsonContext.Default.ListRequestParameter), "QueryParameters" => JsonSerializer.Serialize(request.QueryParameters, AppJsonContext.Default.ListRequestParameter), "Body" => request.Body, "BodyFormat" => request.BodyFormat, "Subprotocol" => request.Subprotocol, _ => "" };
+    private static string Value(RequestDefinition request, string field) => field switch { "Protocol" => request.Protocol, "FolderId" => request.FolderId ?? "", "TimeoutSeconds" => request.TimeoutSeconds.ToString(), "FollowRedirects" => request.FollowRedirects.ToString(), "BodyParameters" => JsonSerializer.Serialize(request.BodyParameters, AppJsonContext.Default.ListRequestParameter), "Name" => request.Name, "Method" => request.Method, "Url" => QueryUrl.WithoutQuery(request.Url), "Headers" => JsonSerializer.Serialize(HeaderValues(request), AppJsonContext.Default.ListRequestParameter), "QueryParameters" => JsonSerializer.Serialize(QueryUrl.Parameters(request), AppJsonContext.Default.ListRequestParameter), "Body" => request.Body, "BodyFormat" => request.BodyFormat, "Subprotocol" => request.Subprotocol, _ => "" };
     private static void SetValue(RequestDefinition request, string field, string value)
     {
         switch (field)

@@ -143,7 +143,8 @@ public class CollectionImportTests
         var plan = _service.Preview(workspace, json, null, "form.json");
         var request = Assert.Single(plan.Changes).Incoming;
         Assert.False(request.BodyParameters[1].Enabled);
-        Assert.Empty(request.BodyParameters[1].Value);
+        Assert.Equal("File", request.BodyParameters[1].Type);
+        Assert.Equal("/private/file", request.BodyParameters[1].Value);
         Assert.Contains(plan.Warnings, x => x.Contains("文件上传"));
         _service.Apply(workspace, plan, false);
         var openApi = new OpenApiService();

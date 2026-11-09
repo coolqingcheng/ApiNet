@@ -36,9 +36,30 @@ public class ImportWorkflowTests
         model.SelectedSource = sources[1]; model.ImportLocalCommand.Execute(null);
         Assert.Same(sources[1], result!.Source);
         model.ChooseFileCommand.Execute(null); Assert.NotNull(result); Assert.Null(result.Source);
+        model.ChooseUrlCommand.Execute(null); Assert.True(result!.Online); Assert.Null(result.Source);
         model.CancelCommand.Execute(null); Assert.Null(result);
         var empty = new ImportPickerViewModel([]);
         Assert.False(empty.ImportLocalCommand.CanExecute(null));
+    }
+    [AvaloniaFact]
+    public async Task OnlineSelectionBindsUrlToChosenFolderAndRefreshesIncrementally()
+    {
+        var path = Path.Combine(Path.GetTempPath(), "apinet-online-ui-" + Guid.NewGuid().ToString("N"));
+        var imports = new TestImports(); var dialogs = new TestDialogs { Online = true };
+        var model = new MainWindowViewModel(new SqliteWorkspaceStore(path), new VariableResolver(), new HttpRequestService(), new OpenApiService(), new ForwardProxyService(path), new VelopackUpdateService(), dialogs, imports);
+        await model.InitializeAsync();
+        try
+        {
+            model.SelectedNode = model.Nodes.First(x => x.IsFolder); var folder = model.SelectedNode.Id;
+            await model.ImportCommand.ExecuteAsync(null);
+            Assert.Equal(1, imports.UrlReads); Assert.Equal(0, dialogs.FilePickers);
+            var source = Assert.Single(model.Workspace.ImportSources); Assert.Equal("https://example.test/v3/api-docs", source.Location); Assert.Equal(folder, source.FolderId);
+            var imported = model.Workspace.Requests.Single(x => x.SourceId == source.Id); imported.Name = "本地请求名";
+            await model.RefreshImportCommand.ExecuteAsync(null);
+            Assert.Equal(2, imports.UrlReads); Assert.Single(model.Workspace.Requests, x => x.SourceId == source.Id); Assert.Equal("本地请求名", imported.Name);
+            Assert.Contains("/v2", imported.Url); Assert.Contains(dialogs.Prompts, x => x.Contains("在线"));
+        }
+        finally { await model.ShutdownAsync(); }
     }
     [AvaloniaFact]
     public async Task LocalSelectionImportsIntoSelectedFolderAndRefreshesWithoutDuplicateRequests()
@@ -77,8 +98,14 @@ public class ImportWorkflowTests
     {
         private readonly WorkspaceImportService _real = new(new OpenApiService());
         public int Reads { get; private set; }
+        public int UrlReads { get; private set; }
         private readonly LocalImportSource _source = new("test", "Postman", "Postman", Path.Combine(Path.GetTempPath(), "synthetic-postman"));
         public Task<IReadOnlyList<LocalImportSource>> DetectLocalAsync(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyList<LocalImportSource>>([_source]);
+        public Task<string> ReadUrlAsync(string url, CancellationToken cancellationToken = default)
+        {
+            UrlReads++;
+            return Task.FromResult("{\"openapi\":\"3.0.3\",\"info\":{\"title\":\"Test\",\"version\":\"1\"},\"paths\":{\"/v" + UrlReads + "\":{\"get\":{\"operationId\":\"same\",\"summary\":\"Remote " + UrlReads + "\",\"responses\":{\"200\":{\"description\":\"OK\"}}}}}}");
+        }
         public Task<string> ReadLocalAsync(LocalImportSource source, CancellationToken cancellationToken = default)
         {
             Reads++;
@@ -89,12 +116,15 @@ public class ImportWorkflowTests
     }
     private sealed class TestDialogs : IDialogService
     {
+        public bool Online { get; set; }
+        public List<string> Prompts { get; } = [];
         public int FilePickers { get; private set; }
-        public Task<ImportSelection?> PickImportAsync(IReadOnlyList<LocalImportSource> sources) => Task.FromResult<ImportSelection?>(new(sources[0]));
+        public Task<ImportSelection?> PickImportAsync(IReadOnlyList<LocalImportSource> sources) => Task.FromResult<ImportSelection?>(Online ? new(null, true) : new(sources[0]));
         public Task<string?> OpenJsonAsync() { FilePickers++; return Task.FromResult<string?>(null); }
-        public Task<string?> PromptAsync(string title, string initial = "") => Task.FromResult<string?>(null);
+        public Task<string?> PromptAsync(string title, string initial = "") { Prompts.Add(title); return Task.FromResult<string?>(Online ? "https://example.test/v3/api-docs" : null); }
         public Task<bool> ConfirmAsync(string title, string message) => Task.FromResult(false);
         public Task<int> ChooseAsync(string title, string message, string[] choices) => Task.FromResult(0);
+        public Task<string?> OpenUploadFileAsync() => Task.FromResult<string?>(null);
         public Task<string?> SaveJsonAsync(string name) => Task.FromResult<string?>(null);
         public Task<string?> SaveResponseAsync(string name) => Task.FromResult<string?>(null);
         public Task EditEnvironmentsAsync(WorkspaceDocument workspace) => Task.CompletedTask;

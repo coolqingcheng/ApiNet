@@ -21,18 +21,36 @@ public sealed class HttpRequestService : IHttpRequestService
             using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(Math.Clamp(request.TimeoutSeconds, 1, 3600)) };
             using var message = new HttpRequestMessage(new HttpMethod(request.Method), uri);
             if (request.BodyFormat == "Form URL Encoded")
+            {
+                if (request.BodyParameters.Any(x => x.Enabled && x.Type == "File")) throw new FormatException("文件上传请选择 Multipart 请求体类型。");
                 message.Content = new FormUrlEncodedContent(request.BodyParameters.Where(x => x.Enabled && x.Key.Length > 0).Select(x => new KeyValuePair<string, string>(x.Key, x.Value)));
+            }
             else if (request.BodyFormat == "Multipart")
             {
                 var multipart = new MultipartFormDataContent();
                 message.Content = multipart;
                 foreach (var parameter in request.BodyParameters.Where(x => x.Enabled && x.Key.Length > 0))
-                    multipart.Add(new StringContent(parameter.Value, Encoding.UTF8), parameter.Key);
+                {
+                    if (parameter.Type == "File")
+                    {
+                        if (string.IsNullOrWhiteSpace(parameter.Value) || !File.Exists(parameter.Value)) throw new FormatException("上传文件不存在，请重新选择文件：" + parameter.Key);
+                        var file = new StreamContent(new FileStream(parameter.Value, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, FileOptions.Asynchronous | FileOptions.SequentialScan));
+                        try
+                        {
+                            file.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+                            multipart.Add(file, parameter.Key, Path.GetFileName(parameter.Value));
+                        }
+                        catch { file.Dispose(); throw; }
+                    }
+                    else multipart.Add(new StringContent(parameter.Value, Encoding.UTF8), parameter.Key);
+                }
             }
             else if (!string.IsNullOrEmpty(request.Body))
                 message.Content = new StringContent(request.Body, Encoding.UTF8, BodyContentType(request.BodyFormat));
             foreach (var header in HeaderParser.Parse(request.Headers))
             {
+                // MultipartFormDataContent owns the boundary; imported bare media types must not replace it.
+                if (message.Content is MultipartFormDataContent && header.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase)) continue;
                 if (!message.Headers.TryAddWithoutValidation(header.Key, header.Value))
                 {
                     message.Content ??= new ByteArrayContent([]);

@@ -9,7 +9,7 @@ using ApiNet.Infrastructure.Imports;
 
 namespace ApiNet.Infrastructure.OpenApi;
 
-public sealed class OpenApiService : IOpenApiService
+public sealed partial class OpenApiService : IOpenApiService
 {
     private static readonly string[] Methods = ["get", "post", "put", "patch", "delete", "head", "options", "trace"];
 
@@ -119,6 +119,7 @@ public sealed class OpenApiService : IOpenApiService
                     SourceKey = method.ToUpperInvariant() + " " + path.Key,
                     OperationId = Text(operation, "operationId")
                 };
+                ReadForm(root, operation, parameters, request);
                 if (operation["x-apinet-request"] is JsonObject extension)
                 {
                     request.Url = Text(extension, "url") ?? request.Url;
@@ -129,6 +130,8 @@ public sealed class OpenApiService : IOpenApiService
                     request.HeaderParameters = extension["headerParameters"]?.Deserialize(AppJsonContext.Default.ListRequestParameter) ?? [];
                     request.BodyParameters = extension["bodyParameters"]?.Deserialize(AppJsonContext.Default.ListRequestParameter) ?? [];
                 }
+                foreach (var file in request.BodyParameters.Where(x => x.Type == "File")) file.Enabled = false;
+                if (request.BodyParameters.Any(x => x.Type == "File") && !plan.Warnings.Contains("上传文件字段需在导入后重新选择本地文件。")) plan.Warnings.Add("上传文件字段需在导入后重新选择本地文件。");
                 incoming.Add(request);
             }
         }
@@ -196,6 +199,11 @@ public sealed class OpenApiService : IOpenApiService
             clean.ImportBaselineJson = null;
             clean.Headers = string.Join('\n', clean.Headers.Split('\n').Where(x => !x.StartsWith("Authorization:", StringComparison.OrdinalIgnoreCase) && !x.StartsWith("Cookie:", StringComparison.OrdinalIgnoreCase) && !x.StartsWith("X-Api-Key:", StringComparison.OrdinalIgnoreCase)));
             clean.HeaderParameters.RemoveAll(x => new[] { "authorization", "proxy-authorization", "cookie", "x-api-key" }.Contains(x.Key.Trim().ToLowerInvariant()));
+            foreach (var file in clean.BodyParameters.Where(x => x.Type == "File"))
+            {
+                file.Value = "";
+                file.Enabled = false;
+            }
             foreach (var secret in workspace.SharedVariables.Concat(workspace.Environments.SelectMany(x => x.Variables)).Where(x => x.IsSecret && x.Value.Length > 0).OrderByDescending(x => x.Value.Length))
             {
                 clean.Url = clean.Url.Replace(secret.Value, "{{" + secret.Key + "}}");
@@ -286,8 +294,15 @@ public sealed class OpenApiService : IOpenApiService
             if (clean.BodyFormat is "Form URL Encoded" or "Multipart" && method is not ("get" or "head"))
             {
                 var properties = new JsonObject();
-                foreach (var parameter in clean.BodyParameters.Where(x => x.Enabled && x.Key.Length > 0))
-                    properties[parameter.Key] = new JsonObject { ["type"] = "string", ["example"] = parameter.Value };
+                foreach (var group in clean.BodyParameters.Where(x => (x.Enabled || x.Type == "File") && x.Key.Length > 0).GroupBy(x => x.Key))
+                {
+                    var parameter = group.First();
+                    properties[group.Key] = parameter.Type == "File"
+                        ? group.Count() > 1
+                            ? new JsonObject { ["type"] = "array", ["items"] = new JsonObject { ["type"] = "string", ["format"] = "binary" } }
+                            : new JsonObject { ["type"] = "string", ["format"] = "binary" }
+                        : new JsonObject { ["type"] = "string", ["example"] = parameter.Value };
+                }
                 operation["requestBody"] = new JsonObject { ["content"] = new JsonObject { [Http.HttpRequestService.BodyContentType(clean.BodyFormat)] = new JsonObject { ["schema"] = new JsonObject { ["type"] = "object", ["properties"] = properties } } } };
             }
             if (parsed is not null && parsed.Host != "apinet.local")

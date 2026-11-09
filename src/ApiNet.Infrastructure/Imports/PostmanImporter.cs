@@ -128,10 +128,7 @@ internal static class PostmanImporter
             else if (mode is "urlencoded" or "formdata")
             {
                 request.BodyFormat = mode == "urlencoded" ? "Form URL Encoded" : "Multipart";
-                request.BodyParameters = Parameters(body[mode]);
-                var parameters = Objects(body[mode]).ToArray();
-                for (var i = 0; i < parameters.Length; i++)
-                    if (Text(parameters[i], "type") == "file") { request.BodyParameters[i].Enabled = false; request.BodyParameters[i].Value = ""; context.Warn("文件上传项已停用：当前仅导入表单文本字段，请手动配置文件上传。"); }
+                request.BodyParameters = context.FormParameters(body[mode]);
                 request.HeaderParameters.RemoveAll(x => x.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase));
             }
             else context.Warn("未导入请求体类型：" + mode + "。请检查 " + name);

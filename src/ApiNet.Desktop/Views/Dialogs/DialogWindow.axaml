@@ -1,10 +1,10 @@
 <Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ApiNet.Desktop.ViewModels.Dialogs" x:Class="ApiNet.Desktop.Views.Dialogs.DialogWindow"
         x:DataType="vm:DialogViewModel" Title="{Binding Title}" Width="600" SizeToContent="Height" MaxHeight="650"
-        WindowStartupLocation="CenterOwner" CanResize="False" Background="#202127">
+        WindowStartupLocation="CenterOwner" CanResize="False" Background="{DynamicResource SurfaceBackgroundBrush}">
   <StackPanel Margin="24" Spacing="18">
     <TextBlock Text="{Binding Title}" FontSize="19" FontWeight="SemiBold" />
-    <ScrollViewer MaxHeight="360"><TextBlock Text="{Binding Message}" TextWrapping="Wrap" Foreground="#C5C8D3" /></ScrollViewer>
+    <ScrollViewer MaxHeight="360"><TextBlock Text="{Binding Message}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /></ScrollViewer>
     <TextBox x:Name="Input" Text="{Binding Value}" IsVisible="{Binding ShowInput}" />
     <ItemsControl ItemsSource="{Binding Choices}" HorizontalAlignment="Right">
       <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>

@@ -1,19 +1,36 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:c="using:ApiNet.Desktop.Controls"
              x:Class="ApiNet.Desktop.Controls.ParameterTable" x:Name="Root" x:DataType="c:ParameterTable">
-  <Grid RowDefinitions="Auto,*,Auto" Margin="8,4">
-    <Grid ColumnDefinitions="32,2*,3*,36" Margin="0,5,0,8" ColumnSpacing="6"><TextBlock Grid.Column="1" Text="KEY" Foreground="#8994AB" FontSize="11" /><TextBlock Grid.Column="2" Text="VALUE · 支持 {{变量}}" Foreground="#8994AB" FontSize="11" /></Grid>
-    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
-      <ItemsControl ItemsSource="{Binding #Root.Rows}"><ItemsControl.ItemTemplate>
-        <DataTemplate x:DataType="vm:ParameterRowViewModel">
-          <Grid ColumnDefinitions="32,2*,3*,36" ColumnSpacing="6" Margin="0,0,0,6">
-            <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" ToolTip.Tip="启用此参数" />
-            <c:CodeEditor Grid.Column="1" Text="{Binding Key}" SingleLine="True" MinHeight="36" />
-            <c:CodeEditor Grid.Column="2" Text="{Binding Value}" SingleLine="True" MinHeight="36" />
-            <Button Grid.Column="3" Content="×" Command="{Binding RemoveCommand}" Classes="ghost" ToolTip.Tip="删除此参数" VerticalAlignment="Center" />
+  <UserControl.Styles>
+    <Style Selector="Border.parameter-cell"><Setter Property="BorderBrush" Value="{DynamicResource SubtleBorderBrush}" /><Setter Property="BorderThickness" Value="0,0,1,0" /></Style>
+  </UserControl.Styles>
+  <Grid RowDefinitions="*,Auto" Margin="8,4">
+    <Border Background="{DynamicResource WindowBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" ClipToBounds="True">
+      <Grid RowDefinitions="Auto,*">
+        <Border Background="{DynamicResource TableHeaderBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+          <Grid ColumnDefinitions="40,2*,Auto,3*,40" Height="32">
+            <Border Classes="parameter-cell"><TextBlock Text="✓" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+            <Border Grid.Column="1" Classes="parameter-cell"><TextBlock Text="KEY" Margin="13,0" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" /></Border>
+            <Border Grid.Column="2" Classes="parameter-cell" IsVisible="{Binding #Root.AllowFiles}" Width="84"><TextBlock Text="类型" Margin="10,0" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" /></Border>
+            <Border Grid.Column="3" Classes="parameter-cell"><TextBlock Text="VALUE · 支持 {{变量}}" Margin="13,0" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" /></Border>
           </Grid>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate></ItemsControl>
-    </ScrollViewer>
-    <Button Grid.Row="2" Content="＋ 添加参数" Classes="ghost" Command="{Binding #Root.AddCommand}" HorizontalAlignment="Left" Margin="0,6" />
+        </Border>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl ItemsSource="{Binding #Root.Rows}"><ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ParameterRowViewModel">
+              <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
+                <Grid ColumnDefinitions="40,2*,Auto,3*,40">
+                  <Border Classes="parameter-cell"><CheckBox IsChecked="{Binding Enabled}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip.Tip="启用此参数" /></Border>
+                  <Border Grid.Column="1" Classes="parameter-cell"><c:CodeEditor Text="{Binding Key}" SingleLine="True" IsTableCell="True" MinHeight="38" /></Border>
+                  <Border Grid.Column="2" Classes="parameter-cell" IsVisible="{Binding #Root.AllowFiles}" Width="84"><ComboBox ItemsSource="{Binding TypeOptions}" SelectedItem="{Binding Type}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Padding="6,5" Background="Transparent" BorderThickness="0" FontSize="11" /></Border>
+                  <Border Grid.Column="3" Classes="parameter-cell"><Grid ColumnDefinitions="*,Auto"><c:CodeEditor Text="{Binding Value}" SingleLine="True" IsTableCell="True" MinHeight="38" /><Button Grid.Column="1" Content="选择文件…" Classes="ghost" Command="{Binding BrowseFileCommand}" IsVisible="{Binding IsFile}" FontSize="11" Padding="8,4" Margin="0,0,4,0" /></Grid></Border>
+                  <Button Grid.Column="4" Content="×" Command="{Binding RemoveCommand}" Classes="ghost" ToolTip.Tip="删除此参数" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate></ItemsControl>
+        </ScrollViewer>
+      </Grid>
+    </Border>
+    <Button Grid.Row="1" Content="＋ 添加参数" Classes="ghost" Command="{Binding #Root.AddCommand}" HorizontalAlignment="Left" Margin="0,6" />
   </Grid>
 </UserControl>
