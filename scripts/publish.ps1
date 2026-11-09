@@ -34,8 +34,10 @@ try {
         iconutil -c icns $iconSet -o $icon
         if ($LASTEXITCODE -ne 0) { throw 'macOS 图标生成失败。' }
     }
-    $packArguments = @('vpk','pack','--packId','ApiNet','--packTitle','ApiNet','--packVersion',$Version,'--packDir',$publishDirectory,'--mainExe',$mainExe,'--runtime',$Rid,'--channel',$Rid,'--icon',$icon,'--outputDir',$releaseDirectory,'--skipVeloAppCheck')
-    # Native AOT 无托管入口可供扫描；Program.Main 已显式调用 VelopackApp.Run。
+    $packArguments = @('vpk','pack','--packId','ApiNet','--packTitle','ApiNet','--packVersion',$Version,'--packDir',$publishDirectory,'--mainExe',$mainExe,'--runtime',$Rid,'--channel',$Rid,'--icon',$icon,'--outputDir',$releaseDirectory)
+    # Windows Native AOT 无托管入口可供扫描；此参数仅 Windows 支持。
+    # Program.Main 已显式调用 VelopackApp.Run。
+    if ($IsWindows) { $packArguments += '--skipVeloAppCheck' }
     if ($IsMacOS) { $packArguments += '--noInst' }
     & dotnet @packArguments
     if ($LASTEXITCODE -ne 0) { throw 'Velopack 打包失败。' }
