@@ -1,0 +1,86 @@
+name: Native AOT packages
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: SemVer version
+        required: true
+        default: 0.1.0
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: sudo apt-get update && sudo apt-get install -y libfontconfig1 fonts-noto-cjk
+      - run: dotnet test ApiNet.sln
+  package:
+    needs: validate
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: windows-latest, rid: win-arm64 }
+          - { os: ubuntu-24.04, rid: linux-x64 }
+          - { os: ubuntu-24.04-arm, rid: linux-arm64 }
+          - { os: macos-15, rid: osx-x64 }
+          - { os: macos-15, rid: osx-arm64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Linux Native AOT and AppImage prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev squashfs-tools libfuse2t64
+      - name: Build unsigned packages
+        shell: pwsh
+        env:
+          APINET_RELEASE_VERSION: ${{ inputs.version }}
+        run: ./scripts/publish.ps1 -Rid '${{ matrix.rid }}' -Version $env:APINET_RELEASE_VERSION
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ApiNet-${{ matrix.rid }}
+          path: artifacts/releases/${{ matrix.rid }}
+          if-no-files-found: error
+  release:
+    needs: package
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ApiNet-*
+          path: artifacts/packages
+      - name: Collect assets and checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path artifacts/release | Out-Null
+          foreach ($file in Get-ChildItem artifacts/packages -Recurse -File) {
+            if ($file.Name -eq 'RELEASES') { continue }
+            $destination = Join-Path artifacts/release $file.Name
+            if (Test-Path -LiteralPath $destination) {
+              if ((Get-FileHash $destination).Hash -ne (Get-FileHash $file.FullName).Hash) { throw "Duplicate asset: $($file.Name)" }
+            } else { Copy-Item -LiteralPath $file.FullName -Destination $destination }
+          }
+          Get-ChildItem artifacts/release -File | Sort-Object Name | ForEach-Object { "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)" } | Set-Content artifacts/release/SHA256SUMS.txt
+      - name: Publish GitHub Release and update feeds
+        env:
+          GH_TOKEN: ${{ github.token }}
+          APINET_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          gh release create "v${APINET_VERSION}" --target "$GITHUB_SHA" --title "ApiNet ${APINET_VERSION}" --notes-file docs/RELEASE-NOTES.md --draft
+          gh release upload "v${APINET_VERSION}" artifacts/release/*
+          gh release edit "v${APINET_VERSION}" --draft=false --latest

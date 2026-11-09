@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:c="using:ApiNet.Desktop.Controls"
+             x:Class="ApiNet.Desktop.Controls.ParameterTable" x:Name="Root" x:DataType="c:ParameterTable">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="8,4">
+    <Grid ColumnDefinitions="32,2*,3*,36" Margin="0,5,0,8" ColumnSpacing="6"><TextBlock Grid.Column="1" Text="KEY" Foreground="#8994AB" FontSize="11" /><TextBlock Grid.Column="2" Text="VALUE · 支持 {{变量}}" Foreground="#8994AB" FontSize="11" /></Grid>
+    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+      <ItemsControl ItemsSource="{Binding #Root.Rows}"><ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:ParameterRowViewModel">
+          <Grid ColumnDefinitions="32,2*,3*,36" ColumnSpacing="6" Margin="0,0,0,6">
+            <CheckBox IsChecked="{Binding Enabled}" VerticalAlignment="Center" ToolTip.Tip="启用此参数" />
+            <c:CodeEditor Grid.Column="1" Text="{Binding Key}" SingleLine="True" MinHeight="36" />
+            <c:CodeEditor Grid.Column="2" Text="{Binding Value}" SingleLine="True" MinHeight="36" />
+            <Button Grid.Column="3" Content="×" Command="{Binding RemoveCommand}" Classes="ghost" ToolTip.Tip="删除此参数" VerticalAlignment="Center" />
+          </Grid>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate></ItemsControl>
+    </ScrollViewer>
+    <Button Grid.Row="2" Content="＋ 添加参数" Classes="ghost" Command="{Binding #Root.AddCommand}" HorizontalAlignment="Left" Margin="0,6" />
+  </Grid>
+</UserControl>

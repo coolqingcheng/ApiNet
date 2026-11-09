@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs"
+             xmlns:c="using:ApiNet.Desktop.Controls" x:Class="ApiNet.Desktop.Views.Tabs.HttpRequestView" x:DataType="vm:HttpRequestTabViewModel">
+  <Grid RowDefinitions="2*,5,3*">
+    <TabControl Margin="12,0">
+      <TabItem Header="Params"><Grid RowDefinitions="*,Auto"><c:ParameterTable Rows="{Binding QueryRows}" AddCommand="{Binding AddQueryCommand}" /><CheckBox Grid.Row="1" IsChecked="{Binding FollowRedirects}" Content="自动跟随重定向" Margin="12,8" /></Grid></TabItem>
+      <TabItem Header="Headers"><c:ParameterTable Rows="{Binding HeaderRows}" AddCommand="{Binding AddHeaderCommand}" /></TabItem>
+      <TabItem Header="Body"><Grid RowDefinitions="Auto,*"><Grid ColumnDefinitions="Auto,*,Auto" Margin="8,4"><ComboBox ItemsSource="{Binding BodyFormats}" SelectedItem="{Binding BodyFormat}" MinWidth="130" /><TextBlock Grid.Column="1" Text="Raw · 自动设置 Content-Type" Foreground="#8F99AF" FontSize="11" VerticalAlignment="Center" Margin="12,0" /><Button Grid.Column="2" Classes="ghost" Content="格式化" Command="{Binding FormatBodyCommand}" /></Grid><c:CodeEditor Grid.Row="1" Text="{Binding Body}" Language="{Binding BodyFormat}" /></Grid></TabItem>
+      <TabItem Header="Authorization"><StackPanel Margin="16" Spacing="14"><TextBlock Text="Bearer Token" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding BearerToken}" SingleLine="True" /><TextBlock Text="发送时追加 Authorization: Bearer …；支持 {{token}}。其他认证方式可在 Headers 中配置。" Foreground="#8F99AF" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
+    </TabControl>
+    <GridSplitter Grid.Row="1" Background="#343742" ResizeDirection="Rows" />
+    <Grid Grid.Row="2" RowDefinitions="Auto,*">
+      <Border Background="#242730" Padding="20,8"><Grid ColumnDefinitions="Auto,*,Auto"><TextBlock Text="响应" FontWeight="SemiBold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="#93D7B9" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" Margin="15,0" VerticalAlignment="Center" /><Button Grid.Column="2" Content="保存响应 ↓" Classes="ghost" Command="{Binding SaveResponseCommand}" IsEnabled="{Binding CanSaveResponse}" /></Grid></Border>
+      <TabControl Grid.Row="1" Margin="12,0"><TabItem Header="Body"><c:CodeEditor Text="{Binding ResponseBody, Mode=OneWay}" Language="{Binding ResponseFormat}" IsReadOnly="True" /></TabItem><TabItem Header="Headers"><c:CodeEditor Text="{Binding ResponseHeaders, Mode=OneWay}" IsReadOnly="True" /></TabItem></TabControl>
+    </Grid>
+  </Grid>
+</UserControl>

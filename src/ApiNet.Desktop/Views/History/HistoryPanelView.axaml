@@ -1,0 +1,16 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels" xmlns:m="using:ApiNet.Core.Models"
+             x:Class="ApiNet.Desktop.Views.History.HistoryPanelView" x:DataType="vm:MainWindowViewModel">
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+    <Grid ColumnDefinitions="*,Auto" Margin="16,18,10,12"><TextBlock Text="请求历史" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center" /><Button Grid.Column="1" Content="清空" Classes="ghost" Command="{Binding ClearHistoryCommand}" /></Grid>
+    <TextBox Grid.Row="1" Text="{Binding HistorySearch}" Watermark="搜索 URL、名称、文件夹或状态码" Margin="12,0,12,10" />
+    <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="8" Margin="12,0,12,8"><ComboBox ItemsSource="{Binding HistoryMethods}" SelectedItem="{Binding HistoryMethod}" HorizontalAlignment="Stretch" /><ComboBox Grid.Column="1" ItemsSource="{Binding HistoryResults}" SelectedItem="{Binding HistoryResult}" HorizontalAlignment="Stretch" /></Grid>
+    <StackPanel Grid.Row="3" Spacing="8" Margin="12,0,12,12">
+      <ComboBox ItemsSource="{Binding HistoryPeriods}" SelectedItem="{Binding HistoryPeriod}" HorizontalAlignment="Stretch" />
+      <Expander Header="环境与日期" HorizontalAlignment="Stretch"><StackPanel Spacing="8"><ComboBox ItemsSource="{Binding HistoryEnvironments}" SelectedItem="{Binding HistoryEnvironment}" HorizontalAlignment="Stretch" /><TextBlock Text="开始日期" FontSize="11" Foreground="#949CAE" /><DatePicker SelectedDate="{Binding HistoryFrom}" /><TextBlock Text="结束日期" FontSize="11" Foreground="#949CAE" /><DatePicker SelectedDate="{Binding HistoryTo}" /></StackPanel></Expander>
+    </StackPanel>
+    <ListBox Grid.Row="4" ItemsSource="{Binding History}" SelectedItem="{Binding SelectedHistory}" Background="Transparent" BorderThickness="0" DoubleTapped="OnOpen">
+      <ListBox.ItemTemplate><DataTemplate x:DataType="m:HistoryEntry"><StackPanel Spacing="5"><Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8"><TextBlock Text="{Binding Request.Method}" Foreground="#85CEAF" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Request.Name}" TextTrimming="CharacterEllipsis" /><TextBlock Grid.Column="2" Text="{Binding Response.StatusCode}" Foreground="#A5ADC1" FontSize="11" /></Grid><TextBlock Text="{Binding Request.Url}" Foreground="#848DA2" FontSize="11" TextTrimming="CharacterEllipsis" /><Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding Timestamp, StringFormat={}{0:MM-dd HH:mm:ss}}" Foreground="#6F788D" FontSize="10" /><TextBlock Grid.Column="1" Text="{Binding EnvironmentName}" Foreground="#6F788D" FontSize="10" /></Grid></StackPanel></DataTemplate></ListBox.ItemTemplate>
+    </ListBox>
+    <Button Grid.Row="5" Content="查看 / 恢复到新标签页" Command="{Binding RestoreHistoryCommand}" Margin="12" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" />
+  </Grid>
+</UserControl>

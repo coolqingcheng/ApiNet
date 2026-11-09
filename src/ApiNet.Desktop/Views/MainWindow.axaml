@@ -1,0 +1,74 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ApiNet.Desktop.ViewModels"
+        xmlns:tabs="using:ApiNet.Desktop.ViewModels.Tabs"
+        xmlns:m="using:ApiNet.Core.Models"
+        xmlns:views="using:ApiNet.Desktop.Views.Tabs"
+        xmlns:workspace="using:ApiNet.Desktop.Views.Workspace"
+        xmlns:history="using:ApiNet.Desktop.Views.History"
+        xmlns:capture="using:ApiNet.Desktop.Views.Capture"
+        x:Class="ApiNet.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel" Icon="/Assets/app.ico"
+        Title="ApiNet — 网络调试工作台" Width="1420" Height="920" MinWidth="1100" MinHeight="700"
+        WindowStartupLocation="CenterScreen" Background="#1D1F26">
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+S" Command="{Binding SelectedTab.SaveCommand}" />
+    <KeyBinding Gesture="Ctrl+W" Command="{Binding SelectedTab.CloseCommand}" />
+    <KeyBinding Gesture="Ctrl+N" Command="{Binding NewHttpCommand}" />
+  </Window.KeyBindings>
+  <Grid RowDefinitions="54,Auto,*,28">
+    <Border Background="#191B20" BorderBrush="#343640" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="64,*,Auto" Margin="0,0,16,0">
+        <Border Background="#F48655" CornerRadius="8" Width="30" Height="30"><TextBlock Text="↗" FontSize="25" FontWeight="Bold" Foreground="#191B20" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center"><TextBlock Text="API.NET" FontSize="16" FontWeight="Bold" LetterSpacing="2" /><Border Width="1" Height="18" Background="#393C46" /><TextBlock Text="个人工作区" Foreground="#B1B5C4" VerticalAlignment="Center" /><Border Background="#2B2E37" CornerRadius="4" Padding="6,3"><TextBlock Text="本地" FontSize="10" Foreground="#A4ABBE" /></Border></StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <TextBlock Text="环境" Foreground="#8D94A7" VerticalAlignment="Center" Margin="0,0,5,0" />
+          <ComboBox Width="180" ItemsSource="{Binding Environments}" SelectedItem="{Binding SelectedEnvironment}"><ComboBox.ItemTemplate><DataTemplate x:DataType="m:EnvironmentDefinition"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+          <Button Content="管理变量" Classes="ghost" Command="{Binding ManageEnvironmentsCommand}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <Border Grid.Row="1" Background="#373027" Padding="16,8" IsVisible="{Binding HasUpdateStatus}">
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto"><TextBlock Text="{Binding UpdateStatus}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0" /><ProgressBar Grid.Column="1" Width="120" Height="4" Value="{Binding UpdateProgress}" IsIndeterminate="{Binding UpdateBusy}" IsVisible="{Binding UpdateBusy}" Margin="0,0,12,0" /><Button Grid.Column="2" Content="立即重启升级" IsVisible="{Binding UpdateReady}" Classes="primary" Command="{Binding UpgradeNowCommand}" /><Button Grid.Column="3" Content="退出时升级" IsVisible="{Binding UpdateReady}" Margin="8,0,0,0" Command="{Binding UpgradeOnExitCommand}" /><Button Grid.Column="4" Content="×" Classes="ghost" Command="{Binding DismissUpdateCommand}" Margin="8,0,0,0" /></Grid>
+    </Border>
+    <Grid Grid.Row="2" ColumnDefinitions="64,300,5,*">
+      <Border Background="#17191E" BorderBrush="#32343D" BorderThickness="0,0,1,0">
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto" Margin="3,8">
+          <Button Classes="rail" Classes.active="{Binding IsWorkspace}" Command="{Binding NavigateCommand}" CommandParameter="工作区"><StackPanel Spacing="6"><TextBlock Text="▤" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="工作区" FontSize="10" /></StackPanel></Button>
+          <Button Grid.Row="1" Classes="rail" Classes.active="{Binding IsHistory}" Command="{Binding NavigateCommand}" CommandParameter="历史记录"><StackPanel Spacing="6"><TextBlock Text="◷" FontSize="25" HorizontalAlignment="Center" /><TextBlock Text="历史" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="2" Classes="rail" Classes.active="{Binding IsCapture}" Command="{Binding NavigateCommand}" CommandParameter="代理抓包"><StackPanel Spacing="6"><TextBlock Text="⇄" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="抓包" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="4" Classes="rail" ToolTip.Tip="检查更新" Command="{Binding CheckUpdatesCommand}" Content="↥" FontSize="24" />
+          <Button Grid.Row="5" Classes="rail" ToolTip.Tip="设置" Command="{Binding SettingsCommand}" Content="⚙" FontSize="23" />
+        </Grid>
+      </Border>
+      <Grid Grid.Column="1" Background="#22242C">
+        <workspace:WorkspaceExplorerView IsVisible="{Binding IsWorkspace}" />
+        <history:HistoryPanelView IsVisible="{Binding IsHistory}" />
+        <capture:CapturePanelView IsVisible="{Binding IsCapture}" />
+      </Grid>
+      <GridSplitter Grid.Column="2" Background="#30323B" ResizeDirection="Columns" />
+      <Grid Grid.Column="3">
+        <Grid IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" RowDefinitions="Auto,Auto,Auto,Auto">
+          <Border Background="#2C2927" CornerRadius="20" Width="84" Height="84"><TextBlock Text="↗" FontSize="52" Foreground="#F48655" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+          <TextBlock Grid.Row="1" Text="从一个请求开始" FontSize="26" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,26,0,10" />
+          <TextBlock Grid.Row="2" Text="调试接口、连接 WebSocket，或导入你的 OpenAPI 文档。" Foreground="#959DAF" HorizontalAlignment="Center" />
+          <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10" Margin="0,24,0,0"><Button Content="＋ HTTP 请求" Classes="primary" Command="{Binding NewHttpCommand}" /><Button Content="导入 OpenAPI" Command="{Binding ImportCommand}" /></StackPanel>
+        </Grid>
+        <TabControl x:Name="RequestTabs" ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" IsVisible="{Binding HasTabs}">
+          <TabControl.ItemTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" MinWidth="140" MaxWidth="270">
+              <TextBlock Text="{Binding Badge}" Foreground="{Binding BadgeColor}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="1" Text="{Binding Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+              <Button Grid.Column="2" Content="×" Classes="ghost" Padding="5,0" Command="{Binding CloseCommand}" ToolTip.Tip="关闭标签页" />
+              <Grid.ContextMenu><ContextMenu><MenuItem Header="保存" Command="{Binding SaveCommand}" /><MenuItem Header="复制为新标签页" Command="{Binding DuplicateCommand}" /><MenuItem Header="关闭" Command="{Binding CloseCommand}" /></ContextMenu></Grid.ContextMenu>
+            </Grid>
+          </DataTemplate></TabControl.ItemTemplate>
+          <TabControl.ContentTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel"><views:RequestTabView /></DataTemplate></TabControl.ContentTemplate>
+        </TabControl>
+      </Grid>
+    </Grid>
+    <Border Grid.Row="3" Background="#242731" BorderBrush="#343640" BorderThickness="0,1,0,0" Padding="12,4">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto"><TextBlock Text="ApiNet 0.1.0" FontSize="11" Foreground="#9EA6BB" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="#B6BECE" /><TextBlock Grid.Column="2" Text="{Binding ProxyText}" Foreground="#8BD7B2" FontSize="11" /><Button Grid.Column="3" Classes="ghost" Content="设置" FontSize="10" Padding="8,0" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
+    </Border>
+  </Grid>
+</Window>
