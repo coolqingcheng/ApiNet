@@ -46,6 +46,20 @@ public interface IOpenApiService
     string Export(WorkspaceDocument workspace, string? folderId);
 }
 
+public sealed record LocalImportSource(string Id, string Format, string Name, string DataDirectory, string? ExecutablePath = null, string? BackupPath = null)
+{
+    public string Location => "local://" + Format.ToLowerInvariant() + "/" + Uri.EscapeDataString(Path.GetFullPath(DataDirectory));
+    public string Description => Name + (ExecutablePath is null ? " · 本地数据" : " · 已安装") + (BackupPath is null ? " · 数据库" : " · 含自动备份");
+}
+
+public interface IWorkspaceImportService
+{
+    ImportPlan Preview(WorkspaceDocument workspace, string json, string? folderId, string location);
+    void Apply(WorkspaceDocument workspace, ImportPlan plan, bool overwriteConflicts);
+    Task<IReadOnlyList<LocalImportSource>> DetectLocalAsync(CancellationToken cancellationToken = default);
+    Task<string> ReadLocalAsync(LocalImportSource source, CancellationToken cancellationToken = default);
+}
+
 public interface IProxyService : IAsyncDisposable
 {
     bool IsRunning

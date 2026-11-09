@@ -64,6 +64,7 @@ public sealed class AppSettings
 
 public sealed class ImportSource
 {
+    public string Format { get; set; } = "OpenAPI";
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
     public string? FolderId
     {

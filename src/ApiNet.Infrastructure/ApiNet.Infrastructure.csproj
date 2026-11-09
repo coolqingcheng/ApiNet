@@ -8,6 +8,7 @@
 
   <PropertyGroup><IsAotCompatible>true</IsAotCompatible></PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Imports/Local/DecodeIndexedDb.cjs" />
     <ProjectReference Include="../ApiNet.Core/ApiNet.Core.csproj" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" />
     <PackageReference Include="Velopack" Version="1.2.161" />

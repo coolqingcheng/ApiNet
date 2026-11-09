@@ -49,7 +49,9 @@ public sealed partial class VariableResolver : IVariableResolver
         resolved.QueryParameters.Clear();
         resolved.HeaderParameters.Clear();
         resolved.Headers = Resolve(request.Headers, workspace);
-        resolved.Body = Resolve(request.Body, workspace);
+        resolved.Body = request.BodyFormat is "Form URL Encoded" or "Multipart" ? "" : Resolve(request.Body, workspace);
+        resolved.BodyParameters = request.BodyParameters.Where(x => x.Enabled && !string.IsNullOrWhiteSpace(x.Key))
+            .Select(x => new RequestParameter { Key = Resolve(x.Key, workspace), Value = Resolve(x.Value, workspace) }).ToList();
         resolved.Subprotocol = Resolve(request.Subprotocol, workspace);
         return resolved;
     }

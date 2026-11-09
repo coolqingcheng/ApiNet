@@ -5,13 +5,14 @@ using System.Text.Json.Nodes;
 using ApiNet.Core.Interfaces;
 using ApiNet.Core.Models;
 using ApiNet.Core.Serialization;
+using ApiNet.Infrastructure.Imports;
 
 namespace ApiNet.Infrastructure.OpenApi;
 
 public sealed class OpenApiService : IOpenApiService
 {
     private static readonly string[] Methods = ["get", "post", "put", "patch", "delete", "head", "options", "trace"];
-    private static readonly string[] Fields = ["Name", "Method", "Url", "Headers", "QueryParameters", "Body", "BodyFormat", "Subprotocol"];
+
 
     public ImportPlan Preview(WorkspaceDocument workspace, string json, string? folderId, string location)
     {
@@ -126,6 +127,7 @@ public sealed class OpenApiService : IOpenApiService
                     request.BodyFormat = Text(extension, "bodyFormat") ?? request.BodyFormat;
                     request.QueryParameters = extension["queryParameters"]?.Deserialize(AppJsonContext.Default.ListRequestParameter) ?? [];
                     request.HeaderParameters = extension["headerParameters"]?.Deserialize(AppJsonContext.Default.ListRequestParameter) ?? [];
+                    request.BodyParameters = extension["bodyParameters"]?.Deserialize(AppJsonContext.Default.ListRequestParameter) ?? [];
                 }
                 incoming.Add(request);
             }
@@ -142,67 +144,13 @@ public sealed class OpenApiService : IOpenApiService
                 request.Id = Guid.NewGuid().ToString("N");
                 incoming.Add(request);
             }
-        var previous = workspace.Requests.Where(x => x.SourceId == source.Id).ToList();
-        HashSet<string> matched = [];
-        foreach (var request in incoming)
-        {
-            var existing = previous.FirstOrDefault(x => x.SourceKey == request.SourceKey);
-            if (existing is null && request.OperationId is not null)
-            {
-                var matches = previous.Where(x => x.OperationId == request.OperationId && !matched.Contains(x.Id)).ToArray();
-                if (matches.Length == 1 && incoming.Count(x => x.OperationId == request.OperationId) == 1)
-                    existing = matches[0];
-            }
-            var change = new ImportChange { Incoming = request, ExistingId = existing?.Id, Kind = existing is null ? "新增" : "更新" };
-            if (existing is not null)
-            {
-                matched.Add(existing.Id);
-                var baseline = Baseline(existing);
-                foreach (var field in Fields)
-                    if (Value(existing, field) != Value(baseline, field) && Value(request, field) != Value(baseline, field) && Value(existing, field) != Value(request, field))
-                        change.ConflictFields.Add(field);
-                if (change.ConflictFields.Count > 0)
-                    change.Kind = "冲突";
-            }
-            plan.Changes.Add(change);
-        }
-        foreach (var deleted in previous.Where(x => !matched.Contains(x.Id)))
-            plan.Changes.Add(new ImportChange { Kind = "移除", ExistingId = deleted.Id, Incoming = ModelCopy.Request(deleted) });
+        RequestImportMerger.Preview(workspace, plan, incoming);
         return plan;
     }
 
     public void Apply(WorkspaceDocument workspace, ImportPlan plan, bool overwriteConflicts)
     {
-        foreach (var folder in plan.NewFolders)
-            if (workspace.Folders.All(x => x.Id != folder.Id))
-                workspace.Folders.Add(folder);
-        foreach (var change in plan.Changes)
-        {
-            var existing = workspace.Requests.FirstOrDefault(x => x.Id == change.ExistingId);
-            if (change.Kind == "移除")
-            {
-                if (existing is not null)
-                    existing.SourceRemoved = true;
-                continue;
-            }
-            var incoming = change.Incoming;
-            var baselineJson = JsonSerializer.Serialize(incoming, AppJsonContext.Default.RequestDefinition);
-            if (existing is null)
-            {
-                incoming.ImportBaselineJson = baselineJson;
-                workspace.Requests.Add(incoming);
-                continue;
-            }
-            var baseline = Baseline(existing);
-            foreach (var field in Fields)
-                if (Value(existing, field) == Value(baseline, field) || (overwriteConflicts && change.ConflictFields.Contains(field)))
-                    SetValue(existing, field, Value(incoming, field));
-            existing.SourceId = incoming.SourceId;
-            existing.SourceKey = incoming.SourceKey;
-            existing.OperationId = incoming.OperationId;
-            existing.ImportBaselineJson = baselineJson;
-            existing.SourceRemoved = false;
-        }
+        RequestImportMerger.Apply(workspace, plan, overwriteConflicts);
         var previousSource = workspace.ImportSources.FirstOrDefault(x => x.Id == plan.Source.Id);
         var oldServer = previousSource is null ? null : Server(JsonNode.Parse(previousSource.DocumentJson)!.AsObject())?.TrimEnd('/');
         workspace.ImportSources.RemoveAll(x => x.Id == plan.Source.Id);
@@ -226,6 +174,7 @@ public sealed class OpenApiService : IOpenApiService
         var sources = new Dictionary<string, JsonObject>();
         foreach (var source in workspace.ImportSources.Where(x => requests.Any(r => r.SourceId == x.Id)))
         {
+            if (source.Format != "OpenAPI") continue;
             var document = JsonNode.Parse(source.DocumentJson)!.AsObject();
             sources[source.Id] = document;
             var buckets = document["components"] as JsonObject ?? new JsonObject { ["schemas"] = document["definitions"]?.DeepClone(), ["parameters"] = document["parameters"]?.DeepClone(), ["responses"] = document["responses"]?.DeepClone(), ["securitySchemes"] = document["securityDefinitions"]?.DeepClone() };
@@ -252,7 +201,7 @@ public sealed class OpenApiService : IOpenApiService
                 clean.Url = clean.Url.Replace(secret.Value, "{{" + secret.Key + "}}");
                 clean.Body = clean.Body.Replace(secret.Value, "{{" + secret.Key + "}}");
                 clean.Headers = clean.Headers.Replace(secret.Value, "{{" + secret.Key + "}}");
-                foreach (var parameter in clean.HeaderParameters.Concat(clean.QueryParameters))
+                foreach (var parameter in clean.HeaderParameters.Concat(clean.QueryParameters).Concat(clean.BodyParameters))
                 {
                     parameter.Key = parameter.Key.Replace(secret.Value, "{{" + secret.Key + "}}");
                     parameter.Value = parameter.Value.Replace(secret.Value, "{{" + secret.Key + "}}");
@@ -322,7 +271,7 @@ public sealed class OpenApiService : IOpenApiService
                 else list.Add((JsonNode)new JsonObject { ["name"] = parameter.Key, ["in"] = "query", ["schema"] = new JsonObject { ["type"] = "string" }, ["example"] = parameter.Value });
             }
             operation["x-apinet-folder"] = request.FolderId;
-            operation["x-apinet-request"] = new JsonObject { ["url"] = clean.Url, ["headers"] = clean.Headers, ["body"] = clean.Body, ["bodyFormat"] = clean.BodyFormat, ["queryParameters"] = JsonSerializer.SerializeToNode(clean.QueryParameters, AppJsonContext.Default.ListRequestParameter), ["headerParameters"] = JsonSerializer.SerializeToNode(clean.HeaderParameters, AppJsonContext.Default.ListRequestParameter) };
+            operation["x-apinet-request"] = new JsonObject { ["url"] = clean.Url, ["headers"] = clean.Headers, ["body"] = clean.Body, ["bodyFormat"] = clean.BodyFormat, ["queryParameters"] = JsonSerializer.SerializeToNode(clean.QueryParameters, AppJsonContext.Default.ListRequestParameter), ["bodyParameters"] = JsonSerializer.SerializeToNode(clean.BodyParameters, AppJsonContext.Default.ListRequestParameter), ["headerParameters"] = JsonSerializer.SerializeToNode(clean.HeaderParameters, AppJsonContext.Default.ListRequestParameter) };
             operation["tags"] = new JsonArray(JsonValue.Create(workspace.Folders.FirstOrDefault(x => x.Id == request.FolderId)?.Name ?? "请求"));
             if (operation["requestBody"] is null && request.Body.Length > 0 && method is not ("get" or "head"))
             {
@@ -333,6 +282,13 @@ public sealed class OpenApiService : IOpenApiService
                 }
                 catch (JsonException) { example = JsonValue.Create(clean.Body); }
                 operation["requestBody"] = new JsonObject { ["content"] = new JsonObject { [Http.HttpRequestService.BodyContentType(clean.BodyFormat)] = new JsonObject { ["example"] = example } } };
+            }
+            if (clean.BodyFormat is "Form URL Encoded" or "Multipart" && method is not ("get" or "head"))
+            {
+                var properties = new JsonObject();
+                foreach (var parameter in clean.BodyParameters.Where(x => x.Enabled && x.Key.Length > 0))
+                    properties[parameter.Key] = new JsonObject { ["type"] = "string", ["example"] = parameter.Value };
+                operation["requestBody"] = new JsonObject { ["content"] = new JsonObject { [Http.HttpRequestService.BodyContentType(clean.BodyFormat)] = new JsonObject { ["schema"] = new JsonObject { ["type"] = "object", ["properties"] = properties } } } };
             }
             if (parsed is not null && parsed.Host != "apinet.local")
                 operation["servers"] = new JsonArray(new JsonObject { ["url"] = parsed.GetLeftPart(UriPartial.Authority) });
@@ -427,40 +383,6 @@ public sealed class OpenApiService : IOpenApiService
                     changed |= ids.Add(folder.Id);
         } while (changed);
         return ids;
-    }
-    private static RequestDefinition Baseline(RequestDefinition request) => request.ImportBaselineJson is null ? ModelCopy.Request(request) : JsonSerializer.Deserialize(request.ImportBaselineJson, AppJsonContext.Default.RequestDefinition)!;
-    private static List<RequestParameter> HeaderValues(RequestDefinition request) => request.HeaderParameters.Count > 0 ? request.HeaderParameters : Http.HeaderParser.Parse(request.Headers).Select(x => new RequestParameter { Key = x.Key, Value = x.Value }).ToList();
-    private static string Value(RequestDefinition request, string field) => field switch { "Name" => request.Name, "Method" => request.Method, "Url" => request.Url, "Headers" => JsonSerializer.Serialize(HeaderValues(request), AppJsonContext.Default.ListRequestParameter), "QueryParameters" => JsonSerializer.Serialize(request.QueryParameters, AppJsonContext.Default.ListRequestParameter), "Body" => request.Body, "BodyFormat" => request.BodyFormat, "Subprotocol" => request.Subprotocol, _ => "" };
-    private static void SetValue(RequestDefinition request, string field, string value)
-    {
-        switch (field)
-        {
-            case "Name":
-                request.Name = value;
-                break;
-            case "Method":
-                request.Method = value;
-                break;
-            case "Url":
-                request.Url = value;
-                break;
-            case "Headers":
-                request.HeaderParameters = JsonSerializer.Deserialize(value, AppJsonContext.Default.ListRequestParameter) ?? [];
-                request.Headers = string.Join('\n', request.HeaderParameters.Where(x => x.Enabled && x.Key.Length > 0).Select(x => x.Key + ": " + x.Value));
-                break;
-            case "QueryParameters":
-                request.QueryParameters = JsonSerializer.Deserialize(value, AppJsonContext.Default.ListRequestParameter) ?? [];
-                break;
-            case "BodyFormat":
-                request.BodyFormat = value;
-                break;
-            case "Body":
-                request.Body = value;
-                break;
-            case "Subprotocol":
-                request.Subprotocol = value;
-                break;
-        }
     }
     private static string? Text(JsonNode? node, string key) => node?[key] is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
     private static string Scalar(JsonNode node) => node is JsonValue value && value.TryGetValue<string>(out var text) ? text : node.ToJsonString();

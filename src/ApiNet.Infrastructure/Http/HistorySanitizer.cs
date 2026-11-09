@@ -37,6 +37,11 @@ public static class HistorySanitizer
         request.Url = Redact(request.Url);
         request.Headers = Redact(Headers(request.Headers));
         request.Body = Redact(request.Body);
+        foreach (var parameter in request.BodyParameters)
+        {
+            parameter.Key = Redact(parameter.Key);
+            parameter.Value = Redact(parameter.Value);
+        }
         request.ImportBaselineJson = null;
         return new HistoryEntry
         {

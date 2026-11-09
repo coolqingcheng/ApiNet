@@ -26,9 +26,12 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     [ObservableProperty] private string _url;
     [ObservableProperty] private string _headers;
     [ObservableProperty] private string _body;
-    [ObservableProperty] private string _bodyFormat;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(IsFormBody), nameof(IsRawBody))] private string _bodyFormat;
     [ObservableProperty] private string _responseFormat = "Text";
-    public static string[] BodyFormats { get; } = ["JSON", "XML", "Text", "HTML", "JavaScript"];
+    public static string[] BodyFormats { get; } = ["JSON", "XML", "Text", "HTML", "JavaScript", "Form URL Encoded", "Multipart"];
+    public bool IsFormBody => BodyFormat is "Form URL Encoded" or "Multipart";
+    public bool IsRawBody => !IsFormBody;
+    public ObservableCollection<ParameterRowViewModel> BodyRows { get; } = [];
     public ObservableCollection<ParameterRowViewModel> QueryRows { get; } = [];
     public ObservableCollection<ParameterRowViewModel> HeaderRows { get; } = [];
     private bool _syncingRows;
@@ -72,6 +75,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         _followRedirects = request.FollowRedirects;
         QueryRows.CollectionChanged += RowsChanged;
         HeaderRows.CollectionChanged += RowsChanged;
+        BodyRows.CollectionChanged += RowsChanged;
         LoadRows(request);
         SaveCommand = new AsyncRelayCommand(() => Owner.SaveTabAsync(this));
         CloseCommand = new AsyncRelayCommand(() => Owner.CloseTabAsync(this));
@@ -99,6 +103,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         request.BodyFormat = BodyFormat;
         request.QueryParameters = QueryRows.Select(x => x.Snapshot()).ToList();
         request.HeaderParameters = HeaderRows.Select(x => x.Snapshot()).ToList();
+        request.BodyParameters = BodyRows.Select(x => x.Snapshot()).ToList();
         request.Subprotocol = Subprotocol;
         request.FollowRedirects = FollowRedirects;
         if (!string.IsNullOrWhiteSpace(Query))
@@ -115,16 +120,17 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         return request;
     }
 
-    private bool HasChanges() => Owner.Workspace.Requests.All(x => x.Id != Id) || Name != Original.Name || Method != Original.Method || Url != Original.Url || Headers != Original.Headers || Body != Original.Body || BodyFormat != Original.BodyFormat || Subprotocol != Original.Subprotocol || FollowRedirects != Original.FollowRedirects || !string.IsNullOrEmpty(Query) || !string.IsNullOrEmpty(BearerToken) || !SameRows(QueryRows, Original.QueryParameters) || !SameRows(HeaderRows, HeaderValues(Original));
+    private bool HasChanges() => Owner.Workspace.Requests.All(x => x.Id != Id) || Name != Original.Name || Method != Original.Method || Url != Original.Url || Headers != Original.Headers || Body != Original.Body || BodyFormat != Original.BodyFormat || Subprotocol != Original.Subprotocol || FollowRedirects != Original.FollowRedirects || !string.IsNullOrEmpty(Query) || !string.IsNullOrEmpty(BearerToken) || !SameRows(BodyRows, Original.BodyParameters) || !SameRows(QueryRows, Original.QueryParameters) || !SameRows(HeaderRows, HeaderValues(Original));
 
     private static bool SameRows(IEnumerable<ParameterRowViewModel> rows, IEnumerable<RequestParameter> values) => rows.Select(x => (x.Enabled, x.Key, x.Value)).SequenceEqual(values.Select(x => (x.Enabled, x.Key, x.Value)));
     private static IEnumerable<RequestParameter> HeaderValues(RequestDefinition request) => request.HeaderParameters.Count > 0 ? request.HeaderParameters : request.Headers.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(line => { var index = line.IndexOf(':'); return new RequestParameter { Key = index < 0 ? line.Trim() : line[..index].Trim(), Value = index < 0 ? "" : line[(index + 1)..].Trim() }; });
     private void LoadRows(RequestDefinition request)
     {
         _syncingRows = true;
-        QueryRows.Clear(); HeaderRows.Clear();
+        QueryRows.Clear(); HeaderRows.Clear(); BodyRows.Clear();
         foreach (var parameter in request.QueryParameters) AddRow(QueryRows, parameter);
         foreach (var parameter in HeaderValues(request)) AddRow(HeaderRows, parameter);
+        foreach (var parameter in request.BodyParameters) AddRow(BodyRows, parameter);
         _syncingRows = false;
     }
     private void AddRow(ObservableCollection<ParameterRowViewModel> rows, RequestParameter parameter) => rows.Add(new ParameterRowViewModel(parameter, row => rows.Remove(row)));
@@ -155,6 +161,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     }
     [RelayCommand] private void AddQuery() => AddRow(QueryRows, new RequestParameter());
     [RelayCommand] private void AddHeader() => AddRow(HeaderRows, new RequestParameter());
+    [RelayCommand] private void AddBodyParameter() => AddRow(BodyRows, new RequestParameter());
 
     public void MarkSaved(RequestDefinition request)
     {
@@ -186,6 +193,13 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
             Body = request.Body;
         if (BodyFormat == Original.BodyFormat)
             BodyFormat = request.BodyFormat;
+        if (SameRows(BodyRows, Original.BodyParameters))
+        {
+            _syncingRows = true;
+            BodyRows.Clear();
+            foreach (var parameter in request.BodyParameters) AddRow(BodyRows, parameter);
+            _syncingRows = false;
+        }
         if (SameRows(QueryRows, Original.QueryParameters))
         {
             _syncingRows = true;

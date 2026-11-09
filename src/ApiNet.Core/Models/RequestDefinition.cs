@@ -16,6 +16,7 @@ public sealed class RequestDefinition
     public string BodyFormat { get; set; } = "JSON";
     public List<RequestParameter> QueryParameters { get; set; } = [];
     public List<RequestParameter> HeaderParameters { get; set; } = [];
+    public List<RequestParameter> BodyParameters { get; set; } = [];
     public string Subprotocol { get; set; } = "";
     public int TimeoutSeconds { get; set; } = 30;
     public bool FollowRedirects

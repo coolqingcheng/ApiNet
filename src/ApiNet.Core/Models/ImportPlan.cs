@@ -2,6 +2,10 @@ namespace ApiNet.Core.Models;
 
 public sealed class ImportPlan
 {
+    public string Format { get; set; } = "OpenAPI";
+    public List<string> Warnings { get; set; } = [];
+    public List<VariableDefinition> SharedVariables { get; set; } = [];
+    public List<EnvironmentDefinition> Environments { get; set; } = [];
     public ImportSource Source { get; set; } = new();
     public List<ImportChange> Changes { get; set; } = [];
     public List<FolderDefinition> NewFolders { get; set; } = [];

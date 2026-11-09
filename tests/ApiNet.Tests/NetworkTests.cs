@@ -71,6 +71,33 @@ public class NetworkTests
         finally { if (result.DownloadPath is not null) File.Delete(result.DownloadPath); }
     }
     [Fact]
+    public async Task ImportedFormsResolveVariablesBeforeEncodingAndRedactHistory()
+    {
+        var builder = WebApplication.CreateSlimBuilder(); builder.Logging.ClearProviders(); builder.WebHost.UseUrls("http://127.0.0.1:0");
+        await using var server = builder.Build();
+        server.MapPost("/form", async context =>
+        {
+            var form = await context.Request.ReadFormAsync();
+            await context.Response.WriteAsync(form["text"] + "|" + form["token"] + "|" + form.Files.Count);
+        });
+        await server.StartAsync();
+        var workspace = new WorkspaceDocument { SharedVariables = [new() { Key = "term", Value = "汉字 &+=?" }, new() { Key = "token", Value = "private-token", IsSecret = true }] };
+        foreach (var format in new[] { "Form URL Encoded", "Multipart" })
+        {
+            var request = new RequestDefinition { Method = "POST", Url = Address(server) + "/form", BodyFormat = format, Body = "{{unused}}", BodyParameters = [new() { Key = "text", Value = "{{term}}" }, new() { Key = "token", Value = "{{token}}" }, new() { Enabled = false, Key = "disabled", Value = "{{missing}}" }] };
+            var resolved = new ApiNet.Infrastructure.Variables.VariableResolver().ResolveRequest(request, workspace);
+            var result = await new HttpRequestService().SendAsync(resolved, CancellationToken.None);
+            try
+            {
+                Assert.Null(result.Error); Assert.Equal(200, result.StatusCode);
+                Assert.Equal("汉字 &+=?|private-token|0", result.Body);
+                var history = HistorySanitizer.Create(resolved, result, workspace);
+                Assert.Equal("[已脱敏]", history.Request.BodyParameters.Single(x => x.Key == "token").Value);
+            }
+            finally { if (result.DownloadPath is not null) File.Delete(result.DownloadPath); }
+        }
+    }
+    [Fact]
     public async Task XmlBodyAndVariableQueryUseSelectedMimeAndCorrectEscaping()
     {
         await using var server = await StartServerAsync();

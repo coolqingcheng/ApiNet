@@ -18,6 +18,7 @@ using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
 using ApiNet.Desktop.ViewModels.Tabs;
+using ApiNet.Desktop.ViewModels.Dialogs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -249,6 +250,7 @@ public class WorkbenchTests
     }
     private sealed class TestDialogs : IDialogService
     {
+        public Task<ImportSelection?> PickImportAsync(IReadOnlyList<LocalImportSource> sources) => Task.FromResult<ImportSelection?>(null);
         public string? ResponseDestination { get; init; }
         public int ResponsePrompts { get; private set; }
         public Task<string?> PromptAsync(string title, string initial = "") => Task.FromResult<string?>(null);

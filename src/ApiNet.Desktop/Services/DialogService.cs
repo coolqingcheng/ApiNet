@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using ApiNet.Core.Models;
+using ApiNet.Core.Interfaces;
 using ApiNet.Desktop.ViewModels.Dialogs;
 using ApiNet.Desktop.ViewModels.Settings;
 using ApiNet.Desktop.Views.Dialogs;
@@ -9,6 +10,7 @@ namespace ApiNet.Desktop.Services;
 
 public sealed class DialogService(Func<Window> owner) : IDialogService
 {
+    public Task<ImportSelection?> PickImportAsync(IReadOnlyList<LocalImportSource> sources) => new ImportPickerWindow(new ImportPickerViewModel(sources)).ShowDialog<ImportSelection?>(owner());
     public async Task<string?> PromptAsync(string title, string initial = "")
     {
         var model = new DialogViewModel(title, "", ["确定", "取消"], initial);
@@ -19,7 +21,7 @@ public sealed class DialogService(Func<Window> owner) : IDialogService
     public Task<int> ChooseAsync(string title, string message, string[] choices) => new DialogWindow(new DialogViewModel(title, message, choices)).ShowDialog<int>(owner());
     public async Task<string?> OpenJsonAsync()
     {
-        var files = await owner().StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = "导入 OpenAPI / Swagger JSON", AllowMultiple = false, FileTypeFilter = [new FilePickerFileType("OpenAPI JSON") { Patterns = ["*.json"] }] });
+        var files = await owner().StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions { Title = "导入 OpenAPI / Postman / ApiPost JSON", AllowMultiple = false, FileTypeFilter = [new FilePickerFileType("请求集合 / 环境 JSON") { Patterns = ["*.json"] }] });
         return files.FirstOrDefault()?.TryGetLocalPath();
     }
     public async Task<string?> SaveJsonAsync(string name)

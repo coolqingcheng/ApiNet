@@ -29,7 +29,7 @@ dotnet restore
 dotnet run --project src/ApiNet.Desktop
 ```
 
-测试：
+测试（本地 IndexedDB 解码集成测试另需 PATH 中有 Node.js 22；正式应用优先使用已安装原软件自带的 Electron，无需用户另装 Node.js）：
 
 ```sh
 dotnet test ApiNet.sln
@@ -48,6 +48,8 @@ v0.1.0 验证记录：
 
 v0.1.1 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42589146970)已完成六个平台打包，Windows/Linux/macOS 均通过 35 项测试。Windows x64 另执行了真实安装集成测试：从 0.1.0 覆盖升级、同版本再次安装、缺失文件修复，以及旧数据库、WAL、本地 CA 和修复后新增数据的保留，全部通过。
 
+0.1.2 新增的本机/集合导入、数据库校验及表单发送等功能，已在本机通过 51 项测试（41 项服务/网络 + 10 项桌面）。跨平台构建结果见对应 CI。
+
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
@@ -59,6 +61,8 @@ v0.1.1 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 - 公共变量及环境变量，使用 `{{baseUrl}}`、`{{token}}` 等引用；支持嵌套引用，缺失或循环引用会阻止发送。
 - SQLite 保存工作区和历史；历史可按时间、方法、环境、执行结果、URL/名称/文件夹关键词筛选，恢复后不会自动发送。
 - Swagger 2.0、OpenAPI 3.0/3.1 JSON 导入到选定文件夹；按首个 tag 分组；导入源绑定、增量更新、字段冲突预览、来源移除标记。
+- Postman Collection v2 / v2.1、旧版自动备份、环境/公共变量，以及 ApiPost 项目/单请求 JSON 导入；保留目录、请求、启用状态、原始请求体和表单文本字段。
+- 检测本机 ApiPost / Postman，在导入窗口选择后直接读取本地数据副本；支持本地导入源刷新及增量合并。
 - 导出 OpenAPI 3.0.3，保留相关模型引用，通过 `x-apinet-*` 扩展恢复文件夹及 WebSocket 配置。
 - 本地 HTTP/1.1 正向代理、HTTPS CONNECT 隧道、可选 HTTPS 解密、WebSocket 帧转发及查看、抓包转调试。
 - 关闭时退出或隐藏到托盘；Windows/macOS 提供托盘菜单，Linux 关闭到托盘选项当前回退为最小化窗口。
@@ -66,15 +70,31 @@ v0.1.1 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 ## 基本使用
 
-左侧选择文件夹后新建请求，或右键导入 OpenAPI。选择“工作区根目录”后，可在根目录新建文件夹或导出整个工作区。每个导入源保存文件路径，再次导入同一路径到同一文件夹会增量更新；文件迁移时需重新选择导入源。
+左侧选择文件夹后新建请求，或点击“导入”/右键“导入到此文件夹”。选择“工作区根目录”后，可在根目录新建文件夹或导出整个工作区。每个导入源保存文件路径或本机数据目录，再次导入同一来源到同一文件夹会增量更新；文件迁移时需重新选择导入源。
 
 在顶部“管理变量”中配置公共变量和开发/测试等环境。当前环境覆盖公共变量。导入的新服务会在需要时创建独立的 `import_xxxxxx.baseUrl`，避免复用已有服务地址。路径参数如 `{{id}}` 需要在变量中配置。
 
 Query 和 Headers 使用“添加参数”和每行的删除按钮编辑，取消勾选可保留参数但不发送。Query 值在解析变量后进行 URL 编码。Body 类型会自动设置默认 Content-Type，Headers 中手动指定的值会覆盖默认值。JSON/XML 高亮在编辑期间生效，`{{变量}}` 单独以橙色突出显示。
 
+Body 另支持 `Form URL Encoded` 和 `Multipart` 文本表单，使用相同的参数行增删及启用控制，变量在实际编码前解析；Multipart 边界由 HTTP 客户端生成。
+
 ![请求体高亮](docs/images/body-editor.png)
 
 修改请求后点击保存或 Ctrl+S。退出应用会保留未保存草稿，重启后恢复标签页；网络连接不会自动重连。历史恢复的数据可能已脱敏，重新发送前需补充认证信息。
+
+## 从 ApiPost / Postman 导入
+
+导入窗口自动列出检测到的软件和残留本地数据。选中软件并点击“一键导入”，即可查看预览并导入到当前文件夹，无需先手动导出。也可点击“选择 JSON 文件”，导入 Swagger/OpenAPI、Postman Collection/环境/自动备份或 ApiPost 项目 JSON。文件夹绑定多个导入源时，“刷新导入源”会让你选择具体来源。
+
+![从本机软件导入](docs/images/import-picker.png)
+
+本地读取会复制 Chromium IndexedDB 的 LevelDB 文件，校验表、日志和当前清单，再通过原软件自带的 Electron/V8 解码。读取过程不获取原数据库锁，不写入原软件的数据目录，不运行请求或脚本；临时副本在结束后清理。优先读取当前数据库，无法完整读取时可回退到最新的 Postman 自动备份，预览会显示备份文件名，提醒核对数据时间。原软件正在写入时，建议先关闭后再导入。
+
+Windows 检测常见安装位置及卸载注册表，macOS 检测 Applications，Linux 检测常见目录、PATH 和 Postman 的 Snap/Flatpak 数据目录。自定义数据目录、加密数据、尚未同步到本机的云端内容或改变存储结构的新版软件可能无法直接读取，此时使用 JSON 文件导入。本机已验证 ApiPost 8.2.5 的请求/文件夹读取以及 Postman 自动备份的环境导入；其他版本与 macOS/Linux 的真实软件数据仍需实机验证。
+
+支持 Bearer、API Key、固定用户名密码的 Basic 认证和继承认证；含变量的 Basic、OAuth/Digest 等认证需手动配置。脚本、前后置任务、历史、执行结果不迁移；不支持的认证、请求体和 Cookie 参数会在预览中提示。上传文件项会停用，当前表单仅支持文本字段。Postman 独立 WebSocket 导出格式暂不支持，普通集合中的 ws/wss URL 会识别为 WebSocket 请求。
+
+增量导入按来源请求标识合并，同一 URL 下的多个请求可分别保留；无标识时使用目录和位置定位，调整此类项目顺序可能被识别为新增。冲突可选保留本地或使用文档值；来源中移除的请求只标记，不自动删除。已有公共/环境变量保留本地值，并显示同名变量提示；新增变量会补入，导入后可在“管理变量”切换环境。不同项目的同名变量需要核对后调整。
 
 ## 代理抓包
 
@@ -99,14 +119,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.1
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.2
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.1`）。工作流先运行测试，再并行构建六个平台，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需配置签名密钥或个人访问令牌，发布使用工作流内置的 `GITHUB_TOKEN`。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.2`）。工作流先运行测试，再并行构建六个平台，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需配置签名密钥或个人访问令牌，发布使用工作流内置的 `GITHUB_TOKEN`。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
@@ -133,7 +153,7 @@ Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Acti
 ```text
 src/ApiNet.Desktop          Views / ViewModels / Services / Styles / Assets
 src/ApiNet.Core             模型、接口、源生成 JSON 上下文
-src/ApiNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、更新
+src/ApiNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、集合/本机导入、更新
 src/ApiNet.Proxy            正向代理、HTTP 协议读写、本地 CA
 src/ApiNet.Setup            Windows 原生安装入口、覆盖修复和旧数据迁移
 tests/ApiNet.Tests          服务与网络集成测试

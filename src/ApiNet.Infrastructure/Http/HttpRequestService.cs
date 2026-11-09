@@ -20,7 +20,16 @@ public sealed class HttpRequestService : IHttpRequestService
             using var handler = new SocketsHttpHandler { AllowAutoRedirect = request.FollowRedirects, AutomaticDecompression = DecompressionMethods.All };
             using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(Math.Clamp(request.TimeoutSeconds, 1, 3600)) };
             using var message = new HttpRequestMessage(new HttpMethod(request.Method), uri);
-            if (!string.IsNullOrEmpty(request.Body))
+            if (request.BodyFormat == "Form URL Encoded")
+                message.Content = new FormUrlEncodedContent(request.BodyParameters.Where(x => x.Enabled && x.Key.Length > 0).Select(x => new KeyValuePair<string, string>(x.Key, x.Value)));
+            else if (request.BodyFormat == "Multipart")
+            {
+                var multipart = new MultipartFormDataContent();
+                message.Content = multipart;
+                foreach (var parameter in request.BodyParameters.Where(x => x.Enabled && x.Key.Length > 0))
+                    multipart.Add(new StringContent(parameter.Value, Encoding.UTF8), parameter.Key);
+            }
+            else if (!string.IsNullOrEmpty(request.Body))
                 message.Content = new StringContent(request.Body, Encoding.UTF8, BodyContentType(request.BodyFormat));
             foreach (var header in HeaderParser.Parse(request.Headers))
             {
@@ -85,7 +94,7 @@ public sealed class HttpRequestService : IHttpRequestService
             return new HttpResult { Error = exception is OperationCanceledException ? (cancellationToken.IsCancellationRequested ? "请求已取消" : "请求超时") : exception.Message, DurationMs = timer.ElapsedMilliseconds };
         }
     }
-    public static string BodyContentType(string format) => format switch { "JSON" => "application/json", "XML" => "application/xml", "HTML" => "text/html", "JavaScript" => "application/javascript", _ => "text/plain" };
+    public static string BodyContentType(string format) => format switch { "JSON" => "application/json", "XML" => "application/xml", "HTML" => "text/html", "JavaScript" => "application/javascript", "Form URL Encoded" => "application/x-www-form-urlencoded", "Multipart" => "multipart/form-data", _ => "text/plain" };
     public static string SafeFileName(string? value)
     {
         value = (value ?? "").Trim('"').Replace('\\', '/').Split('/').Last();

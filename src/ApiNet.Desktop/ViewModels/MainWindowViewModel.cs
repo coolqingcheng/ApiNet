@@ -6,6 +6,7 @@ using ApiNet.Desktop.Services;
 using ApiNet.Desktop.ViewModels.Tabs;
 using ApiNet.Desktop.ViewModels.Workspace;
 using ApiNet.Infrastructure.WebSockets;
+using ApiNet.Infrastructure.Imports;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,6 +19,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IWorkspaceStore _store;
     private readonly IHttpRequestService _http;
     private readonly IOpenApiService _openApi;
+    private readonly IWorkspaceImportService _imports;
     private readonly IProxyService _proxy;
     private readonly IUpdateService _updates;
     private readonly IDialogService _dialogs;
@@ -70,12 +72,13 @@ public partial class MainWindowViewModel : ViewModelBase
     public string ProxyText => ProxyRunning ? $"● 代理 127.0.0.1:{Workspace.Settings.ProxyPort}" : "○ 代理未启动";
     public event Action<bool>? ExitRequested;
 
-    public MainWindowViewModel(IWorkspaceStore store, IVariableResolver variables, IHttpRequestService http, IOpenApiService openApi, IProxyService proxy, IUpdateService updates, IDialogService dialogs)
+    public MainWindowViewModel(IWorkspaceStore store, IVariableResolver variables, IHttpRequestService http, IOpenApiService openApi, IProxyService proxy, IUpdateService updates, IDialogService dialogs, IWorkspaceImportService? imports = null)
     {
         _store = store;
         Variables = variables;
         _http = http;
         _openApi = openApi;
+        _imports = imports ?? new WorkspaceImportService(openApi);
         _proxy = proxy;
         _updates = updates;
         _dialogs = dialogs;
@@ -179,7 +182,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
     [RelayCommand] private void DismissUpdate() => UpdateStatus = "";
 
-    private static bool SameContent(RequestDefinition? left, RequestDefinition right) => left is not null && left.Name == right.Name && left.Url == right.Url && left.Method == right.Method && left.Body == right.Body && left.BodyFormat == right.BodyFormat && left.Headers == right.Headers && left.Subprotocol == right.Subprotocol && left.FollowRedirects == right.FollowRedirects && SameParameters(left.QueryParameters, right.QueryParameters) && SameParameters(left.HeaderParameters, right.HeaderParameters);
+    private static bool SameContent(RequestDefinition? left, RequestDefinition right) => left is not null && left.Name == right.Name && left.Url == right.Url && left.Method == right.Method && left.Body == right.Body && left.BodyFormat == right.BodyFormat && left.Headers == right.Headers && left.Subprotocol == right.Subprotocol && left.FollowRedirects == right.FollowRedirects && SameParameters(left.BodyParameters, right.BodyParameters) && SameParameters(left.QueryParameters, right.QueryParameters) && SameParameters(left.HeaderParameters, right.HeaderParameters);
     private static bool SameParameters(IEnumerable<RequestParameter> left, IEnumerable<RequestParameter> right) => left.Select(x => (x.Enabled, x.Key, x.Value)).SequenceEqual(right.Select(x => (x.Enabled, x.Key, x.Value)));
     private Task PersistAsync()
     {
