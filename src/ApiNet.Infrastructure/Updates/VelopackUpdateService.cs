@@ -21,7 +21,7 @@ public sealed class VelopackUpdateService : IUpdateService
         try
         {
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || uri.Scheme != "https")
-                throw new InvalidOperationException("请在设置中填写 HTTPS 更新源地址。");
+                throw new InvalidOperationException("更新源地址无效。");
             StateChanged?.Invoke(new("正在检查更新…", Busy: true));
             if (!VelopackLocator.IsCurrentSet || VelopackLocator.Current.CurrentlyInstalledVersion is null)
             {

@@ -111,7 +111,7 @@ public partial class App : Application
                 }
                 catch (Exception exception) { await dialogs.ChooseAsync("无法加载工作区", exception.Message + "\n原数据已保留，请检查数据库。", ["退出"]); _canShutdown = true; _tray?.Dispose(); desktop.Shutdown(1); return; }
                 _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromHours(4) };
-                _updateTimer.Tick += async (_, _) => { if (model.Workspace.Settings.AutoCheckUpdates && model.Workspace.Settings.UpdateUrl.Length > 0) await model.CheckUpdatesCommand.ExecuteAsync(null); };
+                _updateTimer.Tick += async (_, _) => { if (model.Workspace.Settings.AutoCheckUpdates) await model.CheckUpdatesCommand.ExecuteAsync(null); };
                 _updateTimer.Start();
             };
         }

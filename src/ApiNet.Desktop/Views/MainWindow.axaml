@@ -9,7 +9,7 @@
         xmlns:capture="using:ApiNet.Desktop.Views.Capture"
         x:Class="ApiNet.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel" Icon="/Assets/app.ico"
-        Title="ApiNet — 网络调试工作台" Width="1420" Height="920" MinWidth="1100" MinHeight="700"
+        Title="{Binding WindowTitle}" Width="1420" Height="920" MinWidth="1100" MinHeight="700"
         WindowStartupLocation="CenterScreen" Background="#1D1F26">
   <Window.KeyBindings>
     <KeyBinding Gesture="Ctrl+S" Command="{Binding SelectedTab.SaveCommand}" />

@@ -9,7 +9,6 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _closeToTray;
     [ObservableProperty] private string _proxyPort;
     [ObservableProperty] private bool _decryptHttps;
-    [ObservableProperty] private string _updateUrl;
     [ObservableProperty] private bool _autoCheckUpdates;
     [ObservableProperty] private string _error = "";
     public event Action? Saved;
@@ -19,7 +18,6 @@ public partial class SettingsViewModel : ViewModelBase
         _closeToTray = settings.CloseToTray;
         _proxyPort = settings.ProxyPort.ToString();
         _decryptHttps = settings.DecryptHttps;
-        _updateUrl = settings.UpdateUrl;
         _autoCheckUpdates = settings.AutoCheckUpdates;
     }
     [RelayCommand]
@@ -30,15 +28,9 @@ public partial class SettingsViewModel : ViewModelBase
             Error = "代理端口必须在 1024–65535 之间。";
             return;
         }
-        if (UpdateUrl.Length > 0 && (!Uri.TryCreate(UpdateUrl, UriKind.Absolute, out var uri) || uri.Scheme != "https"))
-        {
-            Error = "更新源需要填写 HTTPS 地址。";
-            return;
-        }
         _settings.CloseToTray = CloseToTray;
         _settings.ProxyPort = port;
         _settings.DecryptHttps = DecryptHttps;
-        _settings.UpdateUrl = UpdateUrl.Trim();
         _settings.AutoCheckUpdates = AutoCheckUpdates;
         Saved?.Invoke();
     }

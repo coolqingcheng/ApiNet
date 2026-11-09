@@ -130,7 +130,7 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 
 ## 在线更新源
 
-默认更新源已填写公开仓库地址：
+更新源固定为本项目的公开 GitHub 仓库，设置中无需填写地址；主窗口标题显示当前安装版本：
 
 ```text
 https://github.com/coolqingcheng/ApiNet

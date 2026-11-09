@@ -49,6 +49,7 @@ public sealed class VariableDefinition
 
 public sealed class AppSettings
 {
+    public const string UpdateRepository = "https://github.com/coolqingcheng/ApiNet";
     public bool CloseToTray
     {
         get; set;
@@ -58,7 +59,6 @@ public sealed class AppSettings
     {
         get; set;
     }
-    public string UpdateUrl { get; set; } = "https://github.com/coolqingcheng/ApiNet";
     public bool AutoCheckUpdates { get; set; } = true;
 }
 

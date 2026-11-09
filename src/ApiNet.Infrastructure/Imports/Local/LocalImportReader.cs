@@ -26,7 +26,10 @@ public sealed class LocalImportReader
         foreach (var format in new[] { "ApiPost", "Postman" })
         {
             var executable = Executables(format).FirstOrDefault(File.Exists);
-            var paths = new[] { Path.Combine(_appData, format), Path.Combine(_appData, format.ToLowerInvariant()), Path.Combine(_appData, format == "ApiPost" ? "Apipost" : "postman"), Path.Combine(_home, "snap", format.ToLowerInvariant(), "current", ".config", format), Path.Combine(_home, ".var", "app", "com.getpostman.Postman", "config", format) }.Distinct(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
+            // Enumerate the actual directory names: on a case-insensitive macOS
+            // volume Postman/postman refer to the same profile.
+            var profiles = Directory.Exists(_appData) ? Directory.EnumerateDirectories(_appData, "*", new EnumerationOptions { IgnoreInaccessible = true }).Where(x => Path.GetFileName(x).Equals(format, StringComparison.OrdinalIgnoreCase)) : [];
+            var paths = profiles.Concat(new[] { Path.Combine(_home, "snap", format.ToLowerInvariant(), "current", ".config", format), Path.Combine(_home, ".var", "app", "com.getpostman.Postman", "config", format) }).Distinct(OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
             foreach (var path in paths.Where(Directory.Exists))
             {
                 cancellationToken.ThrowIfCancellationRequested();

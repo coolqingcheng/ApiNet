@@ -16,6 +16,7 @@ namespace ApiNet.Desktop.ViewModels;
 public partial class MainWindowViewModel : ViewModelBase
 {
     public string ApplicationVersion => "ApiNet " + typeof(MainWindowViewModel).Assembly.GetName().Version?.ToString(3);
+    public string WindowTitle => ApplicationVersion + " — 网络调试工作台";
     private readonly IWorkspaceStore _store;
     private readonly IHttpRequestService _http;
     private readonly IOpenApiService _openApi;
@@ -120,8 +121,8 @@ public partial class MainWindowViewModel : ViewModelBase
         }
         catch (Exception exception) { Status = "加载工作区失败：" + exception.Message; throw; }
         finally { _initializing = false; }
-        if (Workspace.Settings.AutoCheckUpdates && Workspace.Settings.UpdateUrl.Length > 0)
-            _ = _updates.CheckAndDownloadAsync(Workspace.Settings.UpdateUrl);
+        if (Workspace.Settings.AutoCheckUpdates)
+            _ = _updates.CheckAndDownloadAsync(AppSettings.UpdateRepository);
     }
 
     private static WorkspaceDocument CreateWorkspace()
@@ -167,7 +168,7 @@ public partial class MainWindowViewModel : ViewModelBase
         OnPropertyChanged(nameof(ProxyText));
         await PersistSafelyAsync();
     }
-    [RelayCommand] private Task CheckUpdatesAsync() => _updates.CheckAndDownloadAsync(Workspace.Settings.UpdateUrl);
+    [RelayCommand] private Task CheckUpdatesAsync() => _updates.CheckAndDownloadAsync(AppSettings.UpdateRepository);
     [RelayCommand]
     private void UpgradeNow()
     {
