@@ -123,7 +123,7 @@ public class DocumentExportWorkflowTests
         finally { ThemeService.Apply("Dark"); await model.ShutdownAsync(); window.Close(); }
     }
 
-    private static RawInputModifiers MultiSelectModifier => OperatingSystem.IsMacOS() ? RawInputModifiers.Meta : RawInputModifiers.Control;
+    private static RawInputModifiers MultiSelectModifier => Application.Current!.PlatformSettings!.HotkeyConfiguration.CommandModifiers.HasFlag(KeyModifiers.Meta) ? RawInputModifiers.Meta : RawInputModifiers.Control;
     private static void Render(Window window) { window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(); }
     private static void ClickNode(Window window, WorkspaceNodeViewModel node, RawInputModifiers modifiers = RawInputModifiers.None, MouseButton button = MouseButton.Left)
     {
