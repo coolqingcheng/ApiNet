@@ -67,7 +67,7 @@ v0.1.7 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
-- 每个请求独立标签页；清晰边框区分当前与其他标签，固定单行、横向滚动；右侧“全部标签”支持名称/方法/URL 模糊搜索及快速切换。支持保存、复制、关闭、草稿恢复和 Ctrl+N、Ctrl+S、Ctrl+W。
+- 每个请求独立标签页；清晰边框区分当前与其他标签，固定单行、横向滚动；右侧“全部标签”支持名称/方法/URL 模糊搜索及快速切换。右键支持关闭、关闭其他、关闭左侧、关闭右侧和全部关闭；支持保存、复制、草稿恢复和 Ctrl+N、Ctrl+S、Ctrl+W。
 - HTTP 方法、URL 与 Params 双向同步，Query/Header/Form 参数采用 Postman 风格的 KEY / VALUE / DESCRIPTION 表格，底部空行新增、悬停删除、全选启停和 Bulk Edit；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
 - URL、参数、Header、认证和请求体中的 `{{变量}}` 高亮；JSON/XML/HTML 语法高亮和 JSON/XML 格式化，支持 JSON、XML、Text、HTML、JavaScript 请求体类型。显式填写的 Content-Type 优先于类型默认值；Multipart 保留客户端生成的边界。
 - Multipart 混合文本与文件上传，支持同名字段上传多个文件、变量文件路径、文件选择与流式发送。
@@ -106,6 +106,10 @@ v0.1.7 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 ![多选导出文档](docs/images/document-export-selection.png)
 
 请求标签始终保持一行，可通过滚动条、触控板或鼠标滚轮横向浏览。右上角的列表按钮展示所有打开的标签；输入名称、HTTP 方法或 URL 可模糊搜索，支持不连续字符和多个关键词，点击结果或按 Enter 切换，选中的标签会自动滚动到可见位置。
+
+右键任意标签可选择“关闭其他标签”“关闭左侧标签”“关闭右侧标签”或“全部关闭”，范围以右键点击的标签及当前排列为准；没有可关闭项时，相应菜单置灰。批量关闭逐项处理未保存修改和 WebSocket 断开确认，选择“取消”或保存失败时停止后续关闭，已关闭的标签不会重新打开。关闭标签只移除打开的页面，集合中的请求仍然保留。
+
+![标签批量关闭菜单](docs/images/request-tabs-close-menu.png)
 
 ![全部标签与模糊搜索](docs/images/request-tabs-search.png)
 
@@ -176,14 +180,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.7
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.8
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.7`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.8`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 

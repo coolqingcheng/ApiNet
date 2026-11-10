@@ -208,45 +208,4 @@ public partial class MainWindowViewModel
         OpenRequest(request);
         await PersistSafelyAsync();
     }
-    public async Task<bool> CloseTabAsync(RequestTabViewModel tab)
-    {
-        if (tab is WebSocketTabViewModel { IsConnected: true } && !await _dialogs.ConfirmAsync("断开连接", "关闭此标签页将断开 WebSocket，是否继续？"))
-            return false;
-        if (tab.IsDirty)
-        {
-            var action = await _dialogs.ChooseAsync("未保存的修改", $"“{tab.Name}”已修改。", ["保存", "放弃修改", "取消"]);
-            if (action is < 0 or 2)
-                return false;
-            if (action == 0)
-            {
-                await SaveTabAsync(tab);
-                if (tab.IsDirty)
-                    return false;
-            }
-        }
-        await tab.DisposeAsync();
-        tab.DisposeParameterTables();
-        var index = Tabs.IndexOf(tab);
-        var selected = SelectedTab == tab;
-        Tabs.Remove(tab);
-        if (selected || SelectedTab is null)
-            SelectedTab = Tabs.Count == 0 ? null : Tabs[Math.Clamp(index, 0, Tabs.Count - 1)];
-        await PersistSafelyAsync();
-        return true;
-    }
-    [RelayCommand]
-    private async Task CloseOtherTabsAsync()
-    {
-        foreach (var tab in Tabs.Where(x => x != SelectedTab).ToArray())
-            if (!await CloseTabAsync(tab))
-                break;
-    }
-    [RelayCommand]
-    private async Task CloseAllTabsAsync()
-    {
-        foreach (var tab in Tabs.ToArray())
-            if (!await CloseTabAsync(tab))
-                break;
-    }
-
 }

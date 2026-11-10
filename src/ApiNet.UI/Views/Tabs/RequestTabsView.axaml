@@ -34,11 +34,22 @@
       </Grid>
     </ControlTemplate></TabControl.Template>
     <TabControl.ItemTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel">
-      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" MinWidth="142" MaxWidth="244" ToolTip.Tip="{Binding Url}">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" MinWidth="142" MaxWidth="244" ToolTip.Tip="{Binding Url}" Background="Transparent">
         <TextBlock Text="{Binding Badge}" Foreground="{Binding BadgeColor}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
         <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
         <Button Grid.Column="2" Content="×" Classes="ghost" Padding="4,0" Command="{Binding CloseCommand}" ToolTip.Tip="关闭标签页" AutomationProperties.Name="关闭标签页" />
-        <Grid.ContextMenu><ContextMenu><MenuItem Header="保存" Command="{Binding SaveCommand}" /><MenuItem Header="复制为新标签页" Command="{Binding DuplicateCommand}" /><MenuItem Header="关闭" Command="{Binding CloseCommand}" /></ContextMenu></Grid.ContextMenu>
+        <Grid.ContextMenu>
+          <ContextMenu>
+            <MenuItem Header="保存" Command="{Binding SaveCommand}" />
+            <MenuItem Header="复制为新标签页" Command="{Binding DuplicateCommand}" />
+            <Separator />
+            <MenuItem Header="关闭" Command="{Binding CloseCommand}" />
+            <MenuItem Header="关闭其他标签" Command="{Binding CloseOtherTabsCommand}" />
+            <MenuItem Header="关闭左侧标签" Command="{Binding CloseTabsToLeftCommand}" />
+            <MenuItem Header="关闭右侧标签" Command="{Binding CloseTabsToRightCommand}" />
+            <MenuItem Header="全部关闭" Command="{Binding CloseAllTabsCommand}" />
+          </ContextMenu>
+        </Grid.ContextMenu>
       </Grid>
     </DataTemplate></TabControl.ItemTemplate>
     <TabControl.ContentTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel"><views:RequestTabView /></DataTemplate></TabControl.ContentTemplate>

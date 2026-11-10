@@ -66,6 +66,20 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     {
         get;
     }
+    public IAsyncRelayCommand CloseOtherTabsCommand { get; }
+    public IAsyncRelayCommand CloseTabsToLeftCommand { get; }
+    public IAsyncRelayCommand CloseTabsToRightCommand { get; }
+    public IAsyncRelayCommand CloseAllTabsCommand { get; }
+
+    private bool CanClose => !Owner.IsClosingTabs && Owner.Tabs.Contains(this);
+    internal void RefreshCloseCommands()
+    {
+        CloseCommand.NotifyCanExecuteChanged();
+        CloseOtherTabsCommand.NotifyCanExecuteChanged();
+        CloseTabsToLeftCommand.NotifyCanExecuteChanged();
+        CloseTabsToRightCommand.NotifyCanExecuteChanged();
+        CloseAllTabsCommand.NotifyCanExecuteChanged();
+    }
 
     protected RequestTabViewModel(RequestDefinition request, MainWindowViewModel owner)
     {
@@ -90,7 +104,11 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
         BodyRows.CollectionChanged += RowsChanged;
         LoadRows(request);
         SaveCommand = new AsyncRelayCommand(() => Owner.SaveTabAsync(this));
-        CloseCommand = new AsyncRelayCommand(() => Owner.CloseTabAsync(this));
+        CloseCommand = new AsyncRelayCommand(() => Owner.CloseTabAsync(this), () => CanClose);
+        CloseOtherTabsCommand = new AsyncRelayCommand(() => Owner.CloseOtherTabsAsync(this), () => CanClose && Owner.Tabs.Count > 1);
+        CloseTabsToLeftCommand = new AsyncRelayCommand(() => Owner.CloseTabsToLeftAsync(this), () => CanClose && Owner.Tabs.IndexOf(this) > 0);
+        CloseTabsToRightCommand = new AsyncRelayCommand(() => Owner.CloseTabsToRightAsync(this), () => CanClose && Owner.Tabs.IndexOf(this) < Owner.Tabs.Count - 1);
+        CloseAllTabsCommand = new AsyncRelayCommand(() => Owner.CloseAllTabsAsync(), () => CanClose);
         DuplicateCommand = new AsyncRelayCommand(() => Owner.DuplicateTabAsync(this));
         PropertyChanged += (_, args) =>
         {

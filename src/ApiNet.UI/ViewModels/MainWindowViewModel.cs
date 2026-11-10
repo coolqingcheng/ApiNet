@@ -100,7 +100,7 @@ public partial class MainWindowViewModel : ViewModelBase
             if (args.PropertyName == nameof(CaptureSearch))
                 FilterCaptures();
         };
-        Tabs.CollectionChanged += (_, _) => { OnPropertyChanged(nameof(HasTabs)); OnPropertyChanged(nameof(IsEmpty)); OnPropertyChanged(nameof(ShowRequests)); OnPropertyChanged(nameof(ShowEmpty)); };
+        Tabs.CollectionChanged += (_, _) => { OnPropertyChanged(nameof(HasTabs)); OnPropertyChanged(nameof(IsEmpty)); OnPropertyChanged(nameof(ShowRequests)); OnPropertyChanged(nameof(ShowEmpty)); RefreshTabCloseCommands(); };
         _proxy.Captured += record => Dispatcher.UIThread.Post(() => { _allCaptures.Insert(0, record); if (_allCaptures.Count > 1000) _allCaptures.RemoveAt(_allCaptures.Count - 1); FilterCaptures(); });
         _updates.StateChanged += OnUpdateStateChanged;
     }
