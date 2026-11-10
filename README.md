@@ -64,6 +64,8 @@ v0.1.6 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 v0.1.7 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42738255990)在 Windows/Linux/macOS 均通过 92 项测试（60 项服务/网络 + 32 项界面/MVVM），覆盖工作区 Ctrl/⌘ 多选、单行标签滚动与模糊搜索、侧栏图标首次渲染，以及 WebSocket 参数表格、批量编辑和消息高亮。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42738282235)已完成六个桌面 Native AOT 目标并发布 35 个文件；Windows x64 的 0.1.0 → 0.1.7 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过，安装包、启动器和主程序的网络 Logo 也通过逐像素比对。六个公开更新索引均为 0.1.7，SHA256 清单与发布文件摘要一致；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
 
+v0.1.8 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42743979186)在 Windows/Linux/macOS 均通过 96 项测试（60 项服务/网络 + 36 项界面/MVVM），覆盖标签右键菜单点击、按目标标签关闭其他/左右标签、全部关闭、菜单置灰、保存/放弃/取消、无效批量编辑、WebSocket 断开和重复关闭保护。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42744005841)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及网络 Logo 比对均通过。六个公开更新索引均为 0.1.8，索引中的大小、SHA256 及发布校验清单均与发布文件摘要一致；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
+
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
