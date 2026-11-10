@@ -16,11 +16,14 @@ public partial class WebSocketTabViewModel : RequestTabViewModel
     private CancellationTokenSource? _connecting;
     private readonly SemaphoreSlim _historyGate = new(1, 1);
     [ObservableProperty] private bool _isConnected;
-    [ObservableProperty] private bool _binary;
+    [ObservableProperty][NotifyPropertyChangedFor(nameof(MessageLanguage))] private bool _binary;
+    public static string[] MessageFormats { get; } = ["JSON", "XML", "Text", "HTML", "JavaScript"];
+    public string MessageLanguage => Binary ? "Text" : BodyFormat;
     public ObservableCollection<SocketMessage> Messages { get; } = [];
     public WebSocketTabViewModel(RequestDefinition request, MainWindowViewModel owner, IWebSocketSession session) : base(request, owner)
     {
         _session = session;
+        PropertyChanged += (_, args) => { if (args.PropertyName == nameof(BodyFormat)) OnPropertyChanged(nameof(MessageLanguage)); };
         _session.MessageReceived += message => Dispatcher.UIThread.Post(async () =>
         {
             Messages.Add(message);

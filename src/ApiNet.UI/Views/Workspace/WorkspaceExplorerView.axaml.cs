@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using ApiNet.Desktop.ViewModels;
 using ApiNet.Desktop.ViewModels.Workspace;
@@ -11,10 +12,20 @@ public partial class WorkspaceExplorerView : UserControl
     private static readonly DataFormat<string> NodeFormat = DataFormat.CreateStringApplicationFormat("apinet-node");
     private Point _press;
     private string? _dragId;
+    private bool _selectionOnly;
     public WorkspaceExplorerView()
     {
         InitializeComponent();
-        RequestTree.PointerPressed += (_, e) => { _press = e.GetPosition(RequestTree); _dragId = (e.Source as Control)?.DataContext is WorkspaceNodeViewModel node ? node.Id : null; };
+        RequestTree.AddHandler(PointerPressedEvent, (_, e) =>
+        {
+            var left = e.GetCurrentPoint(RequestTree).Properties.IsLeftButtonPressed;
+            _selectionOnly = !left || (e.KeyModifiers & (KeyModifiers.Control | KeyModifiers.Meta | KeyModifiers.Shift)) != 0;
+            _press = e.GetPosition(RequestTree);
+            _dragId = !_selectionOnly && (e.Source as Control)?.DataContext is WorkspaceNodeViewModel node ? node.Id : null;
+            if (!_selectionOnly && DataContext is MainWindowViewModel model) model.ClearHiddenWorkspaceSelection();
+        }, RoutingStrategies.Tunnel);
+        RequestTree.AddHandler(PointerReleasedEvent, (_, _) => _selectionOnly = false, RoutingStrategies.Bubble, handledEventsToo: true);
+        RequestTree.AddHandler(KeyDownEvent, (_, e) => _selectionOnly = (e.KeyModifiers & (KeyModifiers.Control | KeyModifiers.Meta | KeyModifiers.Shift)) != 0, RoutingStrategies.Tunnel);
         RequestTree.PointerMoved += async (_, e) =>
         {
             var position = e.GetPosition(RequestTree);
@@ -38,7 +49,8 @@ public partial class WorkspaceExplorerView : UserControl
     }
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs args)
     {
-        if (DataContext is MainWindowViewModel model)
-            model.OpenSelectedCommand.Execute(null);
+        if (DataContext is not MainWindowViewModel model || model.IsRefreshingWorkspaceTree || _selectionOnly || RequestTree.SelectedItems.Count != 1) return;
+        if (args.AddedItems.OfType<WorkspaceNodeViewModel>().FirstOrDefault() is { IsFolder: false } node && model.Workspace.Requests.FirstOrDefault(x => x.Id == node.Id) is { } request)
+            model.OpenRequest(request);
     }
 }

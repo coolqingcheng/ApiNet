@@ -49,6 +49,11 @@ internal static partial class Program
                 using var child = Process.Start(start) ?? throw new IOException("无法启动安装程序。");
                 child.WaitForExit();
                 if (child.ExitCode != 0) throw new IOException($"安装未完成（错误码 {child.ExitCode}）。");
+                if (!options.Help)
+                {
+                    var launcher = Path.Combine(options.InstallDirectory, "ApiNet.exe");
+                    if (File.Exists(launcher)) SHChangeNotify(0x00002000, 0x0005 | 0x2000, launcher, 0);
+                }
                 if (options.StartApplication && !options.Help)
                 {
                     var launcher = Path.Combine(options.InstallDirectory, "ApiNet.exe");
@@ -101,4 +106,6 @@ internal static partial class Program
     }
     [LibraryImport("user32.dll", EntryPoint = "MessageBoxW", StringMarshalling = StringMarshalling.Utf16)]
     private static partial int MessageBox(nint window, string text, string caption, uint type);
+    [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
+    private static partial void SHChangeNotify(uint eventId, uint flags, string item, nint unused);
 }

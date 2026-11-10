@@ -7,6 +7,7 @@ using ApiNet.Desktop.Services.Documents;
 using ApiNet.Desktop.ViewModels;
 using ApiNet.Desktop.ViewModels.Workspace;
 using ApiNet.Desktop.ViewModels.Dialogs;
+using ApiNet.Desktop.Controls;
 using ApiNet.Desktop.Views;
 using ApiNet.Infrastructure.Documents;
 using ApiNet.Infrastructure.Http;
@@ -16,6 +17,8 @@ using ApiNet.Infrastructure.Updates;
 using ApiNet.Infrastructure.Variables;
 using ApiNet.Proxy;
 using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Input;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
@@ -44,18 +47,22 @@ public class DocumentExportWorkflowTests
             var first = model.SelectedTab!;
             first.Name = "导出中的未保存修改";
             first.Url = "{{baseUrl}}/draft";
-            model.Nodes[0].IsExportSelected = true;
+            ClickNode(window, model.Nodes[0]);
             var socket = Nodes(model.Nodes).Single(x => x.Id == model.Workspace.Requests.Single(x => x.Protocol == "WebSocket").Id);
-            socket.IsExportSelected = true;
+            var tabCount = model.Tabs.Count;
+            ClickNode(window, socket, MultiSelectModifier);
+            Assert.Equal(tabCount, model.Tabs.Count);
             model.Search = "does-not-match";
             Assert.Empty(model.Nodes);
-            Assert.True(model.HasExportSelection);
-            Assert.Contains("3 个请求", model.ExportSelectionSummary);
+            Assert.True(model.HasWorkspaceSelection);
+            Assert.Contains("3 个请求", model.WorkspaceSelectionSummary);
             await model.ToggleThemeCommand.ExecuteAsync(null);
             model.Search = "";
-            Assert.Equal(2, Nodes(model.Nodes).Count(x => x.IsExportSelected));
+            Assert.Equal(2, Nodes(model.Nodes).Count(x => x.IsSelected));
             window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick();
-            Assert.True(window.GetVisualDescendants().OfType<CheckBox>().Count(x => x.IsChecked == true) >= 2);
+            var tree = window.GetVisualDescendants().OfType<TreeView>().Single();
+            Assert.Equal(2, tree.SelectedItems.Count);
+            Assert.Empty(tree.GetVisualDescendants().OfType<CheckBox>());
             var directory = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../artifacts/screenshots"));
             Directory.CreateDirectory(directory);
             using (var frame = window.CaptureRenderedFrame()) { Assert.NotNull(frame); frame.Save(Path.Combine(directory, "document-export-selection.png")); }
@@ -68,11 +75,64 @@ public class DocumentExportWorkflowTests
             Assert.Contains("包含 3 个请求", dialogs.Scope);
             Assert.True(first.IsDirty);
             Assert.DoesNotContain(model.Workspace.Requests, x => x.Name == first.Name);
-            model.ClearExportSelectionCommand.Execute(null);
-            Assert.False(model.HasExportSelection);
-            Assert.DoesNotContain(Nodes(model.Nodes), x => x.IsExportSelected);
+            model.ClearWorkspaceSelectionCommand.Execute(null);
+            Assert.False(model.HasWorkspaceSelection);
+            Assert.DoesNotContain(Nodes(model.Nodes), x => x.IsSelected);
         }
         finally { ThemeService.Apply("Dark"); await model.ShutdownAsync(); window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public async Task CtrlClickTogglesRowsAndPlainClickResetsSelectionWhileIconsRenderBeforeHover()
+    {
+        var dialogs = new ExportDialogs(); var model = CreateModel(dialogs); await model.InitializeAsync();
+        var window = new MainWindow { DataContext = model }; window.Show();
+        try
+        {
+            Render(window);
+            var icons = window.GetVisualDescendants().OfType<NavigationIcon>().Where(x => x.Kind != NavigationIconKind.Folder).ToArray();
+            Assert.Equal(7, icons.Length);
+            Assert.All(icons, icon => { Assert.Equal(new Size(24, 24), icon.Bounds.Size); Assert.NotNull(icon.Foreground); });
+            var tree = window.GetVisualDescendants().OfType<TreeView>().Single();
+            Assert.Empty(tree.GetVisualDescendants().OfType<CheckBox>());
+            var first = Nodes(model.Nodes).Single(x => x.Id == model.Workspace.Requests[0].Id);
+            var second = Nodes(model.Nodes).Single(x => x.Id == model.Workspace.Requests[1].Id);
+            var socket = Nodes(model.Nodes).Single(x => x.Id == model.Workspace.Requests[2].Id);
+            ClickNode(window, first); var active = model.SelectedTab; var tabCount = model.Tabs.Count;
+            ClickNode(window, second, MultiSelectModifier);
+            Assert.Equal(2, tree.SelectedItems.Count); Assert.Same(active, model.SelectedTab); Assert.Equal(tabCount, model.Tabs.Count);
+            Assert.Contains("2 个请求", model.WorkspaceSelectionSummary);
+            ClickNode(window, first, MultiSelectModifier);
+            Assert.Single(tree.SelectedItems); Assert.True(second.IsSelected); Assert.False(first.IsSelected); Assert.Same(active, model.SelectedTab);
+            ClickNode(window, first, MultiSelectModifier);
+            // A right-click on a selected row retains the full export selection.
+            ClickNode(window, second, button: MouseButton.Right);
+            Assert.Equal(2, tree.SelectedItems.Count);
+            tree.ContextMenu?.Close();
+            await model.ExportCommand.ExecuteAsync(null);
+            Assert.Contains("共 2 个请求", Encoding.UTF8.GetString(dialogs.Content!));
+            ClickNode(window, socket);
+            Assert.Single(tree.SelectedItems); Assert.Equal(socket.Id, model.SelectedTab!.Id);
+            Assert.Contains("1 个请求", model.WorkspaceSelectionSummary);
+            model.Search = "does-not-match"; Assert.True(model.HasWorkspaceSelection);
+            model.Search = ""; Render(window);
+            Assert.Single(tree.SelectedItems);
+            model.ClearWorkspaceSelectionCommand.Execute(null); Render(window);
+            Assert.Empty(tree.SelectedItems); Assert.Null(model.SelectedNode); Assert.False(model.HasWorkspaceSelection);
+        }
+        finally { ThemeService.Apply("Dark"); await model.ShutdownAsync(); window.Close(); }
+    }
+
+    private static RawInputModifiers MultiSelectModifier => OperatingSystem.IsMacOS() ? RawInputModifiers.Meta : RawInputModifiers.Control;
+    private static void Render(Window window) { window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(); }
+    private static void ClickNode(Window window, WorkspaceNodeViewModel node, RawInputModifiers modifiers = RawInputModifiers.None, MouseButton button = MouseButton.Left)
+    {
+        Render(window);
+        var item = window.GetVisualDescendants().OfType<TreeViewItem>().Single(x => ReferenceEquals(x.DataContext, node));
+        var label = item.GetVisualDescendants().OfType<TextBlock>().First(x => x.Text == node.Name);
+        var point = label.TranslatePoint(new Point(Math.Min(label.Bounds.Width / 2, 45), label.Bounds.Height / 2), window)!.Value;
+        window.MouseDown(point, button, modifiers); window.MouseUp(point, button, modifiers);
+        Render(window);
     }
 
     [AvaloniaFact]

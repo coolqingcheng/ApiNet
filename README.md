@@ -65,20 +65,20 @@ v0.1.6 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
-- 每个请求独立标签页；单击打开、保存、复制、关闭与草稿恢复；支持 Ctrl+N、Ctrl+S、Ctrl+W。
+- 每个请求独立标签页；清晰边框区分当前与其他标签，固定单行、横向滚动；右侧“全部标签”支持名称/方法/URL 模糊搜索及快速切换。支持保存、复制、关闭、草稿恢复和 Ctrl+N、Ctrl+S、Ctrl+W。
 - HTTP 方法、URL 与 Params 双向同步，Query/Header/Form 参数采用 Postman 风格的 KEY / VALUE / DESCRIPTION 表格，底部空行新增、悬停删除、全选启停和 Bulk Edit；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
 - URL、参数、Header、认证和请求体中的 `{{变量}}` 高亮；JSON/XML/HTML 语法高亮和 JSON/XML 格式化，支持 JSON、XML、Text、HTML、JavaScript 请求体类型。显式填写的 Content-Type 优先于类型默认值；Multipart 保留客户端生成的边界。
 - Multipart 混合文本与文件上传，支持同名字段上传多个文件、变量文件路径、文件选择与流式发送。
 - 深色/浅色主题，一键切换并记住选择；输入框、参数表格和代码高亮随主题变化。
 - 本地工具：JSON 格式化/压缩、URL 参数编码/解码、UTF-8 Base64 编码/解码、复制结果与结果填回输入。
 - 文件响应完整流式接收，自动提示保存到本地；取消选择后仍可点击“保存响应”。文本响应也可保存原始内容，无需重新发送请求。
-- WebSocket：ws/wss、握手 Headers、子协议、文本/JSON、Base64 二进制、双向消息及会话历史。
+- WebSocket：ws/wss，与 HTTP 一致的 Params / Headers / Body / Authorization / Settings；共享三列参数表、空行新增和 Bulk Edit，消息支持 JSON/XML/Text/HTML/JavaScript 高亮、格式化及 Base64 二进制，保留子协议、双向消息及会话历史。
 - 公共变量及环境变量，使用 `{{baseUrl}}`、`{{token}}` 等引用；支持嵌套引用，缺失或循环引用会阻止发送。
 - SQLite 保存工作区和历史；历史可按时间、方法、环境、执行结果、URL/名称/文件夹关键词筛选，恢复后不会自动发送。
 - Swagger 2.0、OpenAPI 3.0/3.1 JSON 支持从本地文件或在线 HTTP/HTTPS 链接导入到选定文件夹；按首个 tag 分组；导入源绑定、增量更新、字段冲突预览、来源移除标记。
 - Postman Collection v2 / v2.1、旧版自动备份、环境/公共变量，以及 ApiPost 项目/单请求 JSON 导入；保留目录、请求、启用状态、原始请求体和表单文本/文件字段。
 - 检测本机 ApiPost / Postman，在导入窗口选择后直接读取本地数据副本；支持本地导入源刷新及增量合并。
-- 文档导出支持 Markdown、PDF 和 OpenAPI JSON；勾选多个文件夹/请求，文件夹递归包含全部子项，重叠选择自动去重。PDF 内置中文字体，长参数表格自动分页。OpenAPI 3.0.3 保留模型引用，通过 `x-apinet-*` 扩展恢复文件夹及 WebSocket 配置。
+- 文档导出支持 Markdown、PDF 和 OpenAPI JSON；按住 Ctrl 点击选择多个文件夹/请求（macOS 使用 ⌘），文件夹递归包含全部子项，重叠选择自动去重。PDF 内置中文字体，长参数表格自动分页。OpenAPI 3.0.3 保留模型引用，通过 `x-apinet-*` 扩展恢复文件夹及 WebSocket 配置。
 - 本地 HTTP/1.1 正向代理、HTTPS CONNECT 隧道、可选 HTTPS 解密、WebSocket 帧转发及查看、抓包转调试。
 - 关闭时退出或隐藏到托盘；Windows/macOS 提供托盘菜单，Linux 关闭到托盘选项当前回退为最小化窗口。
 - Velopack 检查更新、后台自动下载、立即重启升级/退出时升级；检查及下载状态显示在底部状态栏，仅更新下载就绪后弹出升级选择。开发运行不会尝试安装更新。
@@ -89,9 +89,11 @@ v0.1.6 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 ### 选择文档范围并导出
 
-在左侧集合树中勾选文件夹或请求，再点“导出文档”。可以跨目录多选；勾选父文件夹会包含全部下级请求，即使它们当前被折叠或搜索隐藏；重复选择只导出一次。底部显示勾选项数和实际请求数，支持一键清空。
+在左侧集合树中直接点击选中一行，按住 Ctrl 再点击可跨目录多选或取消其中一项（macOS 使用 ⌘），无需选择框。多选操作不会打开额外请求标签，普通点击会切回单选并打开请求；右键已选行保留整个选择范围，可直接导出。
 
-未勾选时，默认导出当前选中的文件夹/请求；点击“工作区根目录”会清空勾选并切换为整个工作区。格式选择窗口确认范围和请求数量，然后在系统保存窗口选择本地目录。
+选择父文件夹会包含全部下级请求，即使它们当前被折叠或搜索隐藏；重叠选择只导出一次。底部显示选中项数和实际请求数，支持“清空选择”；搜索、主题切换及集合刷新后保留选择。
+
+点击“导出文档”使用当前选择的文件夹/请求；点击“工作区根目录”会清空选择并切换为整个工作区。格式选择窗口确认范围和请求数量，然后在系统保存窗口选择本地目录。
 
 - **Markdown (.md)**：按文件夹路径分组，包含 URL、Query、Headers、表单字段、请求体、WebSocket 子协议，以及导入源中可用的描述、响应定义和引用模型。
 - **PDF (.pdf)**：与 Markdown 使用相同内容，内置中文字体；长 URL、长参数和表格自动换行/分页，跨页表格重复表头。
@@ -100,6 +102,14 @@ v0.1.6 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 导出使用已打开标签页的当前编辑内容，无需先保存；变量保留为占位符，标记为敏感的值脱敏，常见认证/Cookie 头和本机上传路径不写入文档。历史记录、抓包和实际响应内容不参与文档导出；普通手动请求未定义的响应结构不会自动推断。
 
 ![多选导出文档](docs/images/document-export-selection.png)
+
+请求标签始终保持一行，可通过滚动条、触控板或鼠标滚轮横向浏览。右上角的列表按钮展示所有打开的标签；输入名称、HTTP 方法或 URL 可模糊搜索，支持不连续字符和多个关键词，点击结果或按 Enter 切换，选中的标签会自动滚动到可见位置。
+
+![全部标签与模糊搜索](docs/images/request-tabs-search.png)
+
+WebSocket 的 Headers 与 HTTP 共用同一个参数编辑组件，Body 可选择文本格式、格式化并发送消息，接收/发送记录显示在下方；修改连接参数后需要重新连接。
+
+![WebSocket 参数表格](docs/images/websocket-headers-dark.png)
 
 在顶部“管理变量”中配置公共变量和开发/测试等环境。当前环境覆盖公共变量。导入的新服务会在需要时创建独立的 `import_xxxxxx.baseUrl`，避免复用已有服务地址。路径参数如 `{{id}}` 需要在变量中配置。
 
@@ -164,14 +174,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.6
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.7
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.6`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.7`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
@@ -208,4 +218,4 @@ tests/ApiNet.Desktop.Tests  MVVM 交互及 XAML 渲染测试
 
 窗口只组合视图，功能按目录拆分；MainWindowViewModel 的协调命令按 Workspace、History、Capture、OpenApi、Documents、Updates 分文件，工具与设置使用独立 View/ViewModel，深浅主题色集中在 ThemePalette.axaml。各请求 Tab 维护自己的状态，网络与存储实现不依赖 Avalonia。
 
-Logo 使用透明底 SVG/PNG 和多尺寸 ICO，窗口、托盘和安装包共用图标。修改后可用 `python scripts/generate-icons.py` 重新生成（需要 Python 3 和 Pillow）。
+Logo 使用中心节点连接三个节点表达网络，提供透明底 SVG/PNG 和九种尺寸 ICO，窗口、任务栏、托盘、启动器和安装包共用图标。Windows 安装和首次启动新版本时会通知 Shell 刷新本应用的图标缓存。侧栏采用固定尺寸矢量图标，避免字体符号首次绘制时缺失或裁切。修改 Logo 后可用 `python scripts/generate-icons.py` 重新生成（需要 Python 3 和 Pillow）。

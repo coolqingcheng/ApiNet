@@ -70,7 +70,7 @@ public class WorkbenchTests
         model.SelectedTab = first;
         Assert.Equal("https://first.example.com", first.Url);
         Assert.Equal("https://second.example.com", second.Url);
-        Assert.True(window.FindControl<TabControl>("RequestTabs")!.Items.Count >= 2);
+        Assert.True(window.GetVisualDescendants().OfType<TabControl>().Single(x => x.Name == "RequestTabs").Items.Count >= 2);
         model.Workspace.Environments[0].Variables.First(x => x.Key == "baseUrl").Value = address;
         first.Url = "{{baseUrl}}/health";
         first.Name = "服务健康检查";

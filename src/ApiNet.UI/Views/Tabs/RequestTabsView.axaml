@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ApiNet.Desktop.ViewModels" xmlns:tabs="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:views="using:ApiNet.Desktop.Views.Tabs"
+             x:Class="ApiNet.Desktop.Views.Tabs.RequestTabsView" x:DataType="vm:MainWindowViewModel">
+  <UserControl.Resources>
+    <ControlTheme x:Key="RequestTabTheme" TargetType="TabItem">
+      <Setter Property="Padding" Value="12,9" /><Setter Property="Margin" Value="4,6,0,6" />
+      <Setter Property="MinHeight" Value="38" /><Setter Property="Background" Value="{DynamicResource RaisedBackgroundBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" />
+      <Setter Property="BorderThickness" Value="1" /><Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Template"><ControlTemplate><Border Name="TabBoundary" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}" Padding="{TemplateBinding Padding}">
+        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Header}" ContentTemplate="{TemplateBinding HeaderTemplate}" VerticalAlignment="Center" />
+      </Border></ControlTemplate></Setter>
+      <Style Selector="^:pointerover"><Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" /></Style>
+      <Style Selector="^:selected"><Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /><Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" /></Style>
+      <Style Selector="^:focus-visible"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Style>
+    </ControlTheme>
+  </UserControl.Resources>
+  <TabControl x:Name="RequestTabs" ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" ItemContainerTheme="{StaticResource RequestTabTheme}" Padding="0" SelectionChanged="OnSelectedTabChanged">
+    <TabControl.ItemsPanel><ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate></TabControl.ItemsPanel>
+    <TabControl.Template><ControlTemplate>
+      <Grid RowDefinitions="Auto,*">
+        <Border BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1" Background="{DynamicResource SidebarBackgroundBrush}">
+          <Grid ColumnDefinitions="*,Auto">
+            <ScrollViewer x:Name="TabHeaderScroller" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" PointerWheelChanged="OnHeaderWheel">
+              <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+            </ScrollViewer>
+            <Button Grid.Column="1" x:Name="AllTabsButton" Classes="ghost" Width="44" Margin="4,4" Padding="10" ToolTip.Tip="全部标签 · 搜索" AutomationProperties.Name="全部标签">
+              <Path Data="M2,3 L16,3 M2,8 L12,8 M2,13 L8,13 M12,12 L16,16 L20,12" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.6" Width="20" Height="20" />
+              <Button.Flyout><Flyout Placement="BottomEdgeAlignedRight" Opened="OnPickerOpened"><views:OpenTabsView DataContext="{Binding TabPicker}" RequestClose="OnPickerClose" /></Flyout></Button.Flyout>
+            </Button>
+          </Grid>
+        </Border>
+        <ContentPresenter Grid.Row="1" Name="PART_SelectedContentHost" Content="{TemplateBinding SelectedContent}" ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+      </Grid>
+    </ControlTemplate></TabControl.Template>
+    <TabControl.ItemTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel">
+      <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" MinWidth="142" MaxWidth="244" ToolTip.Tip="{Binding Url}">
+        <TextBlock Text="{Binding Badge}" Foreground="{Binding BadgeColor}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="12" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+        <Button Grid.Column="2" Content="×" Classes="ghost" Padding="4,0" Command="{Binding CloseCommand}" ToolTip.Tip="关闭标签页" AutomationProperties.Name="关闭标签页" />
+        <Grid.ContextMenu><ContextMenu><MenuItem Header="保存" Command="{Binding SaveCommand}" /><MenuItem Header="复制为新标签页" Command="{Binding DuplicateCommand}" /><MenuItem Header="关闭" Command="{Binding CloseCommand}" /></ContextMenu></Grid.ContextMenu>
+      </Grid>
+    </DataTemplate></TabControl.ItemTemplate>
+    <TabControl.ContentTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel"><views:RequestTabView /></DataTemplate></TabControl.ContentTemplate>
+  </TabControl>
+</UserControl>

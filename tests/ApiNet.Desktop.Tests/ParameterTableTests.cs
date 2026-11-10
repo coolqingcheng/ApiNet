@@ -151,6 +151,50 @@ public class ParameterTableTests
     private static void Render(Window window) { window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(); }
 
     [AvaloniaFact]
+    public async Task WebSocketUsesHttpStyleParameterTabsAndMessageEditorAndCommitsHandshakeBulkEdits()
+    {
+        var model = CreateModel(); await model.InitializeAsync();
+        var session = new TestSocketSession();
+        var tab = new WebSocketTabViewModel(model.Workspace.Requests.Single(x => x.Protocol == "WebSocket"), model, session);
+        model.Tabs.Add(tab); model.SelectedTab = tab;
+        tab.Url = "wss://example.test/events?channel=users";
+        var window = new MainWindow { DataContext = model }; window.Show();
+        try
+        {
+            Render(window);
+            var view = window.GetVisualDescendants().OfType<WebSocketView>().Single();
+            Assert.Empty(view.GetVisualDescendants().OfType<Expander>());
+            var tabs = view.FindControl<TabControl>("SocketRequestTabs")!;
+            tabs.SelectedIndex = 1; Render(window);
+            var table = view.GetVisualDescendants().OfType<ParameterTable>().Single(x => x.Title == "Headers");
+            Assert.Same(tab.HeaderTable, table.Model); Assert.True(table.Bounds.Height > 200);
+            var header = tab.HeaderTable.Items.Last(); header.Key = "X-Client"; header.Value = "{{baseUrl}}"; header.Description = "握手来源";
+            Assert.Equal("Headers (1)", tab.HeaderTabTitle);
+            Save(window, "websocket-headers-dark.png");
+            tab.HeaderTable.ToggleBulkCommand.Execute(null); tab.HeaderTable.BulkText = "X-Client: {{baseUrl}}\nX-Channel: users";
+            tab.Subprotocol = "graphql-transport-ws";
+            await tab.ConnectCommand.ExecuteAsync(null);
+            Assert.True(tab.IsConnected); Assert.Contains("channel=users", session.Request!.Url);
+            Assert.Contains("X-Client: https://httpbin.org", session.Request.Headers); Assert.Contains("X-Channel: users", session.Request.Headers);
+            Assert.Equal("graphql-transport-ws", session.Request.Subprotocol);
+            Assert.True(tab.HeaderTable.IsBulkEditing); Assert.False(tab.HeaderTable.HasPendingBulkChanges);
+            tabs.SelectedIndex = 2; tab.BodyFormat = "JSON"; tab.Body = "{\"host\":\"{{baseUrl}}\",\"event\":\"subscribe\"}";
+            tab.FormatBodyCommand.Execute(null); Assert.Contains('\n', tab.Body);
+            Render(window);
+            var editor = view.FindControl<CodeEditor>("SocketMessageEditor")!;
+            Assert.Equal("JSON", editor.Language); Assert.True(editor.Bounds.Height > 180);
+            await tab.SendMessageCommand.ExecuteAsync(null); Assert.Contains("https://httpbin.org", session.Content);
+            Save(window, "websocket-body-dark.png");
+            tab.BodyFormat = "XML"; tab.Body = "<event><channel>users</channel></event>"; tab.FormatBodyCommand.Execute(null);
+            Assert.Equal("XML", editor.Language); Assert.Contains('\n', tab.Body);
+            await model.ToggleThemeCommand.ExecuteAsync(null); Save(window, "websocket-body-light.png");
+            tab.Binary = true; Assert.Equal("Text", editor.Language);
+            tab.Binary = false; Assert.Equal("XML", editor.Language);
+        }
+        finally { ThemeService.Apply("Dark"); await model.ShutdownAsync(); window.Close(); }
+    }
+
+    [AvaloniaFact]
     public async Task PendingBulkEditsAreUsedBySendSaveAndDraftPersistenceWithoutLeavingBulkMode()
     {
         var store = new SqliteWorkspaceStore(Path.Combine(Path.GetTempPath(), "apinet-bulk-" + Guid.NewGuid().ToString("N")));
@@ -207,5 +251,19 @@ public class ParameterTableTests
         public Task<string?> SaveResponseAsync(string name) => Task.FromResult<string?>(null);
         public Task EditEnvironmentsAsync(WorkspaceDocument workspace) => Task.CompletedTask;
         public Task EditSettingsAsync(WorkspaceDocument workspace) => Task.CompletedTask;
+    }
+    private sealed class TestSocketSession : IWebSocketSession
+    {
+        public event Action<SocketMessage>? MessageReceived;
+        public bool IsConnected { get; private set; }
+        public RequestDefinition? Request { get; private set; }
+        public string Content { get; private set; } = "";
+        public Task ConnectAsync(RequestDefinition request, CancellationToken cancellationToken) { Request = request; IsConnected = true; return Task.CompletedTask; }
+        public Task SendAsync(string content, bool binary, CancellationToken cancellationToken)
+        {
+            Content = content; MessageReceived?.Invoke(new() { Direction = "发送", Kind = binary ? "二进制" : "文本", Content = content }); return Task.CompletedTask;
+        }
+        public Task DisconnectAsync() { IsConnected = false; return Task.CompletedTask; }
+        public ValueTask DisposeAsync() { IsConnected = false; return ValueTask.CompletedTask; }
     }
 }

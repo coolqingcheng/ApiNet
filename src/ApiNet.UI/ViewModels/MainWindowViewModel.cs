@@ -36,6 +36,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsMobile { get; set; }
     public ObservableCollection<WorkspaceNodeViewModel> Nodes { get; } = [];
     public ObservableCollection<RequestTabViewModel> Tabs { get; } = [];
+    public OpenTabsViewModel TabPicker { get; }
     public ObservableCollection<EnvironmentDefinition> Environments { get; } = [];
     public ObservableCollection<HistoryEntry> History { get; } = [];
     public ObservableCollection<CaptureRecord> Captures { get; } = [];
@@ -89,6 +90,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _proxy = proxy;
         _updates = updates;
         _dialogs = dialogs;
+        TabPicker = new OpenTabsViewModel(Tabs, tab => SelectedTab = tab);
         PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == nameof(Search))

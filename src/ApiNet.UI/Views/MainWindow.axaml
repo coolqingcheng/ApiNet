@@ -8,8 +8,9 @@
         xmlns:history="using:ApiNet.Desktop.Views.History"
         xmlns:capture="using:ApiNet.Desktop.Views.Capture"
         xmlns:tools="using:ApiNet.Desktop.Views.Tools"
+        xmlns:c="using:ApiNet.Desktop.Controls"
         x:Class="ApiNet.Desktop.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel" Icon="/Assets/app.ico"
+        x:DataType="vm:MainWindowViewModel" Icon="avares://ApiNet.UI/Assets/app.ico"
         Title="{Binding WindowTitle}" Width="1420" Height="920" MinWidth="1100" MinHeight="700"
         WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}">
   <Window.KeyBindings>
@@ -32,13 +33,13 @@
     <Grid Grid.Row="1" ColumnDefinitions="64,300,5,*">
       <Border Background="{DynamicResource RailBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
         <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto" Margin="3,8">
-          <Button Classes="rail" Classes.active="{Binding IsWorkspace}" Command="{Binding NavigateCommand}" CommandParameter="工作区"><StackPanel Spacing="6"><TextBlock Text="▤" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="工作区" FontSize="10" /></StackPanel></Button>
-          <Button Grid.Row="1" Classes="rail" Classes.active="{Binding IsHistory}" Command="{Binding NavigateCommand}" CommandParameter="历史记录"><StackPanel Spacing="6"><TextBlock Text="◷" FontSize="25" HorizontalAlignment="Center" /><TextBlock Text="历史" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
-          <Button Grid.Row="2" Classes="rail" Classes.active="{Binding IsCapture}" Command="{Binding NavigateCommand}" CommandParameter="代理抓包"><StackPanel Spacing="6"><TextBlock Text="⇄" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="抓包" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
-          <Button Grid.Row="3" Classes="rail" Classes.active="{Binding IsTools}" Command="{Binding NavigateCommand}" CommandParameter="工具"><StackPanel Spacing="6"><TextBlock Text="⌘" FontSize="24" HorizontalAlignment="Center" /><TextBlock Text="工具" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
-          <Button Grid.Row="5" Classes="rail" ToolTip.Tip="切换深色 / 浅色主题" Command="{Binding ToggleThemeCommand}" Content="◐" FontSize="24" />
-          <Button Grid.Row="6" Classes="rail" ToolTip.Tip="检查更新" Command="{Binding CheckUpdatesCommand}" Content="↥" FontSize="24" />
-          <Button Grid.Row="7" Classes="rail" ToolTip.Tip="设置" Command="{Binding SettingsCommand}" Content="⚙" FontSize="23" />
+          <Button Classes="rail" Classes.active="{Binding IsWorkspace}" Command="{Binding NavigateCommand}" CommandParameter="工作区" AutomationProperties.Name="工作区"><StackPanel Spacing="6"><c:NavigationIcon Kind="Workspace" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="工作区" FontSize="10" /></StackPanel></Button>
+          <Button Grid.Row="1" Classes="rail" Classes.active="{Binding IsHistory}" Command="{Binding NavigateCommand}" CommandParameter="历史记录" AutomationProperties.Name="历史记录"><StackPanel Spacing="6"><c:NavigationIcon Kind="History" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="历史" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="2" Classes="rail" Classes.active="{Binding IsCapture}" Command="{Binding NavigateCommand}" CommandParameter="代理抓包" AutomationProperties.Name="代理抓包"><StackPanel Spacing="6"><c:NavigationIcon Kind="Capture" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="抓包" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="3" Classes="rail" Classes.active="{Binding IsTools}" Command="{Binding NavigateCommand}" CommandParameter="工具" AutomationProperties.Name="常用工具"><StackPanel Spacing="6"><c:NavigationIcon Kind="Tools" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="工具" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="5" Classes="rail" ToolTip.Tip="切换深色 / 浅色主题" AutomationProperties.Name="切换主题" Command="{Binding ToggleThemeCommand}"><c:NavigationIcon Kind="Theme" Foreground="{Binding $parent[Button].Foreground}" /></Button>
+          <Button Grid.Row="6" Classes="rail" ToolTip.Tip="检查更新" AutomationProperties.Name="检查更新" Command="{Binding CheckUpdatesCommand}"><c:NavigationIcon Kind="Update" Foreground="{Binding $parent[Button].Foreground}" /></Button>
+          <Button Grid.Row="7" Classes="rail" ToolTip.Tip="设置" AutomationProperties.Name="设置" Command="{Binding SettingsCommand}"><c:NavigationIcon Kind="Settings" Foreground="{Binding $parent[Button].Foreground}" /></Button>
         </Grid>
       </Border>
       <Grid Grid.Column="1" Background="{DynamicResource SidebarBackgroundBrush}">
@@ -55,17 +56,7 @@
           <TextBlock Grid.Row="2" Text="调试接口、连接 WebSocket，或导入你的 OpenAPI 文档。" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" />
           <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10" Margin="0,24,0,0"><Button Content="＋ HTTP 请求" Classes="primary" Command="{Binding NewHttpCommand}" /><Button Content="导入 OpenAPI" Command="{Binding ImportCommand}" /></StackPanel>
         </Grid>
-        <TabControl x:Name="RequestTabs" ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" IsVisible="{Binding ShowRequests}">
-          <TabControl.ItemTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" MinWidth="140" MaxWidth="270">
-              <TextBlock Text="{Binding Badge}" Foreground="{Binding BadgeColor}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
-              <TextBlock Grid.Column="1" Text="{Binding Title}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-              <Button Grid.Column="2" Content="×" Classes="ghost" Padding="5,0" Command="{Binding CloseCommand}" ToolTip.Tip="关闭标签页" />
-              <Grid.ContextMenu><ContextMenu><MenuItem Header="保存" Command="{Binding SaveCommand}" /><MenuItem Header="复制为新标签页" Command="{Binding DuplicateCommand}" /><MenuItem Header="关闭" Command="{Binding CloseCommand}" /></ContextMenu></Grid.ContextMenu>
-            </Grid>
-          </DataTemplate></TabControl.ItemTemplate>
-          <TabControl.ContentTemplate><DataTemplate x:DataType="tabs:RequestTabViewModel"><views:RequestTabView /></DataTemplate></TabControl.ContentTemplate>
-        </TabControl>
+        <views:RequestTabsView IsVisible="{Binding ShowRequests}" />
         <Border IsVisible="{Binding IsTools}"><tools:ToolsView DataContext="{Binding Tools}" /></Border>
       </Grid>
     </Grid>

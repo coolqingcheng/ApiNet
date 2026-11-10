@@ -22,6 +22,20 @@ function Invoke-Setup([string]$File, [string[]]$SetupArguments) {
     } finally { $process.Dispose() }
 }
 
+function Assert-ApplicationIcon([string]$File) {
+    $actual = [Drawing.Icon]::ExtractAssociatedIcon($File)
+    $expected = [Drawing.Icon]::new((Join-Path $projectRoot 'src/ApiNet.UI/Assets/app.ico'), $actual.Size)
+    $actualImage = $actual.ToBitmap()
+    $expectedImage = $expected.ToBitmap()
+    try {
+        for ($y = 0; $y -lt $actualImage.Height; $y++) {
+            for ($x = 0; $x -lt $actualImage.Width; $x++) {
+                if ($actualImage.GetPixel($x, $y).ToArgb() -ne $expectedImage.GetPixel($x, $y).ToArgb()) { throw "应用图标与网络 Logo 不一致：$File" }
+            }
+        }
+    } finally { $actualImage.Dispose(); $expectedImage.Dispose(); $actual.Dispose(); $expected.Dispose() }
+}
+
 try {
     $legacy = Join-Path $testRoot 'ApiNet-0.1.0-Setup.exe'
     Invoke-WebRequest -Uri 'https://github.com/coolqingcheng/ApiNet/releases/download/v0.1.0/ApiNet-win-x64-Setup.exe' -OutFile $legacy
@@ -51,7 +65,11 @@ try {
     $manifest = [xml](Get-Content (Join-Path $installDirectory 'current/sq.version') -Raw)
     if ($manifest.package.metadata.version -ne $Version) { throw '安装版本不匹配。' }
     if ((Get-Content $repairLog -Raw) -notmatch 'User chose to overwrite existing installation') { throw '同版本安装未进入修复流程。' }
+    Assert-ApplicationIcon $setup
+    Assert-ApplicationIcon (Join-Path $installDirectory 'ApiNet.exe')
+    Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')
     Write-Host "已验证：0.1.0 → $Version 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留。"
+    Write-Host '已验证：安装包、启动器和 Native AOT 主程序均嵌入相同的网络 Logo。'
 } finally {
     $env:APINET_DATA_DIR = $previousDataDirectory
     Get-ChildItem $testRoot -Filter '*.log' | ForEach-Object { Write-Host "安装日志：$($_.FullName)"; Get-Content $_.FullName -Tail 8 }

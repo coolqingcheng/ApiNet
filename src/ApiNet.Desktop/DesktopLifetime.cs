@@ -104,6 +104,7 @@ public sealed class DesktopLifetime
                 try
                 {
                     await model.InitializeAsync();
+                    WindowsShellIconRefresh.RefreshAfterUpdate(store.DataDirectory);
                 }
                 catch (Exception exception) { await dialogs.ChooseAsync("无法加载工作区", exception.Message + "\n原数据已保留，请检查数据库。", ["退出"]); _canShutdown = true; _tray?.Dispose(); desktop.Shutdown(1); return; }
                 _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromHours(4) };

@@ -20,22 +20,19 @@
           </ListBox.ItemTemplate>
         </ListBox>
       </TabItem>
-      <TabItem Header="发送">
-        <Grid RowDefinitions="*,Auto" Margin="4">
-          <c:CodeEditor x:Name="MessageEditor" Text="{Binding Body}" Language="JSON" />
-          <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+      <TabItem Header="Body">
+        <Grid RowDefinitions="Auto,*,Auto" Margin="4">
+          <Grid ColumnDefinitions="*,Auto" Margin="0,6"><ComboBox ItemsSource="{Binding MessageFormats}" SelectedItem="{Binding BodyFormat}" IsEnabled="{Binding !Binary}" HorizontalAlignment="Stretch" /><Button Grid.Column="1" Content="格式化" Classes="ghost" Command="{Binding FormatBodyCommand}" IsVisible="{Binding !Binary}" /></Grid>
+          <c:CodeEditor Grid.Row="1" x:Name="MessageEditor" Text="{Binding Body}" Language="{Binding MessageLanguage}" MinHeight="60" />
+          <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,6,0,0">
             <CheckBox Content="二进制（Base64）" IsChecked="{Binding Binary}" />
             <Button Grid.Column="1" Content="发送消息" Classes="primary" Command="{Binding SendMessageCommand}" />
           </Grid>
         </Grid>
       </TabItem>
-      <TabItem Header="握手">
-        <Grid RowDefinitions="Auto,Auto,*" Margin="4">
-          <TextBlock Text="子协议（可选）" Margin="4,4,4,8" Foreground="{DynamicResource TextMutedBrush}" />
-          <c:CodeEditor Grid.Row="1" Text="{Binding Subprotocol}" SingleLine="True" MinHeight="44" />
-          <c:ParameterTable Grid.Row="2" Title="Headers" Model="{Binding HeaderTable}" MinTableWidth="320" />
-        </Grid>
-      </TabItem>
+      <TabItem Header="{Binding HeaderTabTitle}"><c:ParameterTable Title="Headers" Model="{Binding HeaderTable}" MinTableWidth="320" /></TabItem>
+      <TabItem Header="Params"><c:ParameterTable Title="Query Params" Model="{Binding QueryTable}" MinTableWidth="320" /></TabItem>
+      <TabItem Header="Settings"><StackPanel Margin="8" Spacing="10"><TextBlock Text="WebSocket 子协议（可选）" Foreground="{DynamicResource TextMutedBrush}" /><c:CodeEditor Text="{Binding Subprotocol}" SingleLine="True" MinHeight="44" /></StackPanel></TabItem>
     </TabControl>
   </Grid>
 </UserControl>

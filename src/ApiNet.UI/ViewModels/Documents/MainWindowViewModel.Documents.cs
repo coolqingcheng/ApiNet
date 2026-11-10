@@ -10,25 +10,32 @@ namespace ApiNet.Desktop.ViewModels;
 
 public partial class MainWindowViewModel
 {
-    private readonly HashSet<string> _exportSelectionIds = new(StringComparer.Ordinal);
-    public bool HasExportSelection => _exportSelectionIds.Count > 0;
-    public string ExportSelectionSummary => HasExportSelection ? $"已勾选 {_exportSelectionIds.Count} 项 · {WorkspaceExportSelection.Create(Workspace, _exportSelectionIds).Requests.Count} 个请求" : "勾选条目可多选导出，文件夹包含所有子项";
-    private WorkspaceNodeViewModel TrackExportSelection(WorkspaceNodeViewModel node)
+    private readonly HashSet<string> _workspaceSelectionIds = new(StringComparer.Ordinal);
+    public bool HasWorkspaceSelection => _workspaceSelectionIds.Count > 0;
+    public string WorkspaceSelectionSummary => HasWorkspaceSelection ? $"已选择 {_workspaceSelectionIds.Count} 项 · {WorkspaceExportSelection.Create(Workspace, _workspaceSelectionIds).Requests.Count} 个请求" : "按住 Ctrl / ⌘ 点击可多选，文件夹包含所有子项";
+    private WorkspaceNodeViewModel TrackWorkspaceSelection(WorkspaceNodeViewModel node)
     {
-        node.IsExportSelected = _exportSelectionIds.Contains(node.Id);
+        node.IsSelected = _workspaceSelectionIds.Contains(node.Id);
         node.PropertyChanged += (_, args) =>
         {
-            if (args.PropertyName != nameof(node.IsExportSelected)) return;
-            if (node.IsExportSelected) _exportSelectionIds.Add(node.Id); else _exportSelectionIds.Remove(node.Id);
-            OnPropertyChanged(nameof(ExportSelectionSummary)); OnPropertyChanged(nameof(HasExportSelection));
+            if (args.PropertyName != nameof(node.IsSelected)) return;
+            if (IsRefreshingWorkspaceTree) return;
+            if (node.IsSelected) _workspaceSelectionIds.Add(node.Id); else _workspaceSelectionIds.Remove(node.Id);
+            OnPropertyChanged(nameof(WorkspaceSelectionSummary)); OnPropertyChanged(nameof(HasWorkspaceSelection));
         };
         return node;
     }
-    [RelayCommand] private void ClearExportSelection()
+    [RelayCommand] private void ClearWorkspaceSelection()
     {
-        _exportSelectionIds.Clear();
-        foreach (var node in Flatten(Nodes)) node.IsExportSelected = false;
-        OnPropertyChanged(nameof(ExportSelectionSummary)); OnPropertyChanged(nameof(HasExportSelection));
+        _workspaceSelectionIds.Clear();
+        foreach (var node in Flatten(Nodes)) node.IsSelected = false;
+        SelectedNode = null;
+        OnPropertyChanged(nameof(WorkspaceSelectionSummary)); OnPropertyChanged(nameof(HasWorkspaceSelection));
+    }
+    public void ClearHiddenWorkspaceSelection()
+    {
+        _workspaceSelectionIds.IntersectWith(Flatten(Nodes).Select(x => x.Id));
+        OnPropertyChanged(nameof(WorkspaceSelectionSummary)); OnPropertyChanged(nameof(HasWorkspaceSelection));
     }
     [ObservableProperty][NotifyCanExecuteChangedFor(nameof(ExportCommand))] private bool _isExporting;
     private bool CanExport() => !IsExporting;
@@ -38,7 +45,7 @@ public partial class MainWindowViewModel
         IsExporting = true;
         try
         {
-            var selectedIds = HasExportSelection ? _exportSelectionIds.ToArray() : SelectedNode is { } node ? [node.Id] : null;
+            var selectedIds = HasWorkspaceSelection ? _workspaceSelectionIds.ToArray() : SelectedNode is { } node ? [node.Id] : null;
             var includedIds = WorkspaceExportSelection.Create(Workspace, selectedIds).Requests.Select(x => x.Id).ToHashSet(StringComparer.Ordinal);
             foreach (var tab in Tabs.Where(x => includedIds.Contains(x.Id)))
                 if (!tab.TryCommitParameterEdits()) { Status = tab.Name + "：" + tab.Status; return; }
@@ -57,7 +64,7 @@ public partial class MainWindowViewModel
             };
             var selected = WorkspaceExportSelection.Create(snapshot, selectedIds);
             if (selected.Requests.Count == 0) { Status = "所选范围没有可导出的请求"; return; }
-            var scope = HasExportSelection ? string.Join("\n", _exportSelectionIds.Take(8).Select(id => "• " + (Workspace.Folders.FirstOrDefault(x => x.Id == id)?.Name ?? Workspace.Requests.FirstOrDefault(x => x.Id == id)?.Name))) : SelectedNode?.Name ?? "整个工作区";
+            var scope = HasWorkspaceSelection ? string.Join("\n", _workspaceSelectionIds.Take(8).Select(id => "• " + (Workspace.Folders.FirstOrDefault(x => x.Id == id)?.Name ?? Workspace.Requests.FirstOrDefault(x => x.Id == id)?.Name))) : SelectedNode?.Name ?? "整个工作区";
             var choice = await _dialogs.ChooseAsync("导出接口文档", scope + $"\n\n包含 {selected.Requests.Count} 个请求（文件夹递归包含所有子项，重叠选择自动去重）。\n使用当前编辑内容，变量保留为占位符。", ["Markdown (.md)", "PDF (.pdf)", "OpenAPI JSON (.json)", "取消"]);
             if (choice is < 0 or > 2) { Status = "已取消导出"; return; }
             Status = "正在生成接口文档…";
