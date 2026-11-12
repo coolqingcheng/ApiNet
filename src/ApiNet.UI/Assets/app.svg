@@ -1,12 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <title>ApiNet Puppy</title>
-  <rect x="32" y="32" width="448" height="448" rx="104" fill="#1684D3"/>
-  <path d="M 181,178 C 162,146,127,153,111,190 C 94,233,94,296,118,312 C 136,324,154,312,164,288 L 191,208 Z " fill="#C98D57" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M 331,178 C 350,146,385,153,401,190 C 418,233,418,296,394,312 C 376,324,358,312,348,288 L 321,208 Z " fill="#C98D57" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M 166,193 C 174,155,214,143,256,147 C 298,143,338,155,346,193 C 384,232,379,301,350,334 C 326,361,287,374,256,374 C 225,374,186,361,162,334 C 133,301,128,232,166,193 Z " fill="#FFF1D6" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="207" cy="259" r="15" fill="#29384B"/>
-  <circle cx="305" cy="259" r="15" fill="#29384B"/>
-  <path d="M 240,293 C 238,283,274,283,272,293 C 270,302,260,309,256,309 C 252,309,242,302,240,293 Z " fill="#29384B" stroke="none" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M 256,307 L 256,318" fill="none" stroke="#29384B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M 234,317 C 238,330,250,330,256,318 C 262,330,274,330,278,317" fill="none" stroke="#29384B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <title>ApiNet Folded N</title>
+  <polygon points="48,104 144,48 144,408 48,464" fill="#0077B8"/>
+  <polygon points="48,104 144,48 464,408 368,464" fill="#009DE6"/>
+  <polygon points="368,104 464,48 464,408 368,464" fill="#23B8F2"/>
 </svg>
