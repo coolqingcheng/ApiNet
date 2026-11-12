@@ -6,6 +6,7 @@ using ApiNet.Desktop.ViewModels;
 using ApiNet.Desktop.ViewModels.Dialogs;
 using ApiNet.Desktop.ViewModels.Tabs;
 using ApiNet.Desktop.Views;
+using ApiNet.Desktop.Views.Dialogs;
 using ApiNet.Infrastructure.Http;
 using ApiNet.Infrastructure.OpenApi;
 using ApiNet.Infrastructure.Persistence;
@@ -226,16 +227,75 @@ public class UiFeedbackTests
             updates.Report(new("正在下载更新…", 45, "0.2.0", Busy: true)); Dispatcher.UIThread.RunJobs();
             Assert.Empty(dialogs.Titles); Assert.Equal(45, model.UpdateProgress); Assert.False(model.IsUpdateIndeterminate);
             dialogs.Choices.Enqueue(1);
-            updates.Report(new("更新已下载", 100, "0.2.0", Ready: true)); Dispatcher.UIThread.RunJobs();
+            const string notes = "- 修复参数表格输入崩溃。\n- 升级提示显示更新内容。";
+            updates.Report(new("更新已下载", 100, "0.2.0", Ready: true, ReleaseNotes: notes)); Dispatcher.UIThread.RunJobs();
             Assert.Single(dialogs.Titles); Assert.True(model.UpdateOnExit);
-            updates.Report(new("更新已下载", 100, "0.2.0", Ready: true)); Dispatcher.UIThread.RunJobs();
+            Assert.Contains("0.2.0", dialogs.Titles[0]);
+            Assert.Contains("更新内容\n" + notes, dialogs.Messages[0]);
+            updates.Report(new("更新已下载", 100, "0.2.0", Ready: true, ReleaseNotes: notes)); Dispatcher.UIThread.RunJobs();
             Assert.Single(dialogs.Titles);
+            updates.Report(new("当前已是最新版本")); Dispatcher.UIThread.RunJobs();
+            Assert.True(model.UpdateReady);
             var restarting = false; model.ExitRequested += restart => restarting = restart;
             dialogs.Choices.Enqueue(0);
             await model.ShowUpdatePromptCommand.ExecuteAsync(null);
             Assert.Equal(2, dialogs.Titles.Count); Assert.True(restarting);
+            Assert.Equal(dialogs.Messages[0], dialogs.Messages[1]);
         }
         finally { await model.ShutdownAsync(); window.Close(); }
+    }
+    [AvaloniaFact]
+    public async Task UpdateNotesFollowTheTargetVersionAndMissingNotesStillAllowUpgrade()
+    {
+        var updates = new TestUpdates(); var dialogs = new TestDialogs();
+        var model = CreateModel(updates, dialogs); await model.InitializeAsync();
+        try
+        {
+            Dispatcher.UIThread.RunJobs();
+            updates.Report(new("更新已下载", 100, "0.2.0", Ready: true, ReleaseNotes: "旧版本说明")); Dispatcher.UIThread.RunJobs();
+            updates.Report(new("更新已下载", 100, "0.3.0", Ready: true, ReleaseNotes: "新版本说明")); Dispatcher.UIThread.RunJobs();
+            Assert.Equal(2, dialogs.Messages.Count);
+            Assert.Contains("新版本说明", dialogs.Messages[1]);
+            Assert.DoesNotContain("旧版本说明", dialogs.Messages[1]);
+            var restarting = false; model.ExitRequested += restart => restarting = restart;
+            foreach (var notes in new string?[] { null, "", " \r\n " })
+            {
+                updates.Report(new("更新已下载", 100, "0.4.0", Ready: true, ReleaseNotes: notes)); Dispatcher.UIThread.RunJobs();
+                dialogs.Choices.Enqueue(0);
+                await model.ShowUpdatePromptCommand.ExecuteAsync(null);
+                Assert.Contains("此版本未提供更新说明。", dialogs.Messages[^1]);
+                Assert.DoesNotContain("新版本说明", dialogs.Messages[^1]);
+                Assert.True(restarting);
+            }
+        }
+        finally { await model.ShutdownAsync(); }
+    }
+    [AvaloniaFact]
+    public async Task LongUpdateNotesCanScrollWithoutHidingUpgradeButtons()
+    {
+        var notes = string.Join('\n', Enumerable.Range(1, 100).Select(i => $"- 第 {i} 项更新：修复问题并改进使用体验。"));
+        var model = new DialogViewModel("发现新版本 0.2.0", "更新包已下载完成。\n\n更新内容\n" + notes, ["立即升级", "退出时升级", "稍后"]);
+        var window = new DialogWindow(model); window.Show();
+        try
+        {
+            SaveFrame(window, "update-release-notes.png");
+            var message = window.FindControl<SelectableTextBlock>("DialogMessage")!;
+            Assert.EndsWith(notes, message.Text);
+            var scroll = window.GetVisualDescendants().OfType<ScrollViewer>().Single();
+            Assert.True(scroll.Extent.Height > scroll.Viewport.Height);
+            scroll.ScrollToEnd(); Dispatcher.UIThread.RunJobs();
+            Assert.True(scroll.Offset.Y > 0);
+            Assert.True(window.Bounds.Height <= window.MaxHeight);
+            foreach (var label in new[] { "立即升级", "退出时升级", "稍后" })
+            {
+                var button = window.GetVisualDescendants().OfType<Button>().Single(x => Equals(x.Content, label));
+                var position = button.TranslatePoint(new Point(), window)!.Value;
+                Assert.True(button.IsEffectivelyVisible);
+                Assert.True(position.Y >= scroll.TranslatePoint(new Point(), window)!.Value.Y + scroll.Bounds.Height);
+                Assert.True(position.Y + button.Bounds.Height <= window.Bounds.Height);
+            }
+        }
+        finally { window.Close(); }
     }
     private static void SaveFrame(Window window, string name)
     {
@@ -264,7 +324,7 @@ public class UiFeedbackTests
     {
         public event Action<UpdateState>? StateChanged;
         public bool IsReady { get; private set; }
-        public void Report(UpdateState state) { IsReady = state.Ready; StateChanged?.Invoke(state); }
+        public void Report(UpdateState state) { if (state.Ready) IsReady = true; StateChanged?.Invoke(state); }
         public Task CheckAndDownloadAsync(string url, CancellationToken cancellationToken = default) { Report(new("当前已是最新版本")); return Task.CompletedTask; }
         public void Apply(bool restart) { }
     }
@@ -272,8 +332,9 @@ public class UiFeedbackTests
     {
         public string? UploadPath { get; set; }
         public List<string> Titles { get; } = [];
+        public List<string> Messages { get; } = [];
         public Queue<int> Choices { get; } = new();
-        public Task<int> ChooseAsync(string title, string message, string[] choices) { Titles.Add(title); return Task.FromResult(Choices.TryDequeue(out var choice) ? choice : -1); }
+        public Task<int> ChooseAsync(string title, string message, string[] choices) { Titles.Add(title); Messages.Add(message); return Task.FromResult(Choices.TryDequeue(out var choice) ? choice : -1); }
         public Task<ImportSelection?> PickImportAsync(IReadOnlyList<LocalImportSource> sources) => Task.FromResult<ImportSelection?>(null);
         public Task<string?> PromptAsync(string title, string initial = "") => Task.FromResult<string?>(null);
         public Task<bool> ConfirmAsync(string title, string message) => Task.FromResult(false);

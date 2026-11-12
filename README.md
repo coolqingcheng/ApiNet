@@ -89,7 +89,7 @@ v0.1.10 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 - 文档导出支持 Markdown、PDF 和 OpenAPI JSON；按住 Ctrl 点击选择多个文件夹/请求（macOS 使用 ⌘），文件夹递归包含全部子项，重叠选择自动去重。PDF 内置中文字体，长参数表格自动分页。OpenAPI 3.0.3 保留模型引用，通过 `x-apinet-*` 扩展恢复文件夹及 WebSocket 配置。
 - 本地 HTTP/1.1 正向代理、HTTPS CONNECT 隧道、可选 HTTPS 解密、WebSocket 帧转发及查看、抓包转调试。
 - 关闭时退出或隐藏到托盘；Windows/macOS 提供托盘菜单，Linux 关闭到托盘选项当前回退为最小化窗口。
-- Velopack 检查更新、后台自动下载、立即重启升级/退出时升级；检查及下载状态显示在底部状态栏，仅更新下载就绪后弹出升级选择。开发运行不会尝试安装更新。
+- Velopack 检查更新、后台自动下载、立即重启升级/退出时升级；检查及下载状态显示在底部状态栏，仅更新下载就绪后弹出版本号、更新内容及升级选择。开发运行不会尝试安装更新。
 
 ## 基本使用
 
@@ -190,14 +190,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`linux-x64`、`osx-arm64`，打包脚本和 CI 发布矩阵仅接受这三个目标。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.10
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.11
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.10`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.11`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
@@ -208,6 +208,8 @@ https://github.com/coolqingcheng/ApiNet
 ```
 
 Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Actions artifacts 用于构建之间传递文件，应用使用 Release 中的长期下载地址。当前发布通道为 `win-x64`、`linux-x64`、`osx-arm64`；对应 `releases.{通道}.json` 与 `*.nupkg`，不要重命名或删除更新资产。Windows ARM64、Linux ARM64 和 macOS Intel 的最后一个发布版本为 v0.1.9，后续版本不再提供这些架构的更新包。
+
+每次发布前填写 `docs/RELEASE-NOTES.md` 中的版本说明，打包脚本会将它写入更新包及公开更新索引，GitHub 发布页也使用同一文件。自 0.1.11 客户端起，升级提示显示目标版本的更新内容，支持滚动、选择复制以及稍后重新查看；没有说明的旧包会显示相应提示。更早版本需先升级到 0.1.11，后续升级提示才会展示更新内容。
 
 启动及每四小时检查一次，也可手动检查。检查中、当前已是最新版、失败原因和下载进度都显示在窗口底部，不弹常规提示框。发现新版本后自动下载并校验，再弹出立即重启升级/退出时升级/稍后的选择，同一版本每次启动只自动提示一次；稍后可从底部“安装更新”重新打开。“退出时升级”只在真正退出应用时执行，隐藏到托盘会继续运行。开发运行不安装更新。首版需要先安装正式包；后续发布更高版本即可获得更新。尚未完成所有目标系统/架构的连续版本安装/升级实机验证。
 

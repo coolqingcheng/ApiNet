@@ -73,7 +73,7 @@ public interface IProxyService : IAsyncDisposable
     string ExportCertificate();
 }
 
-public sealed record UpdateState(string Status, double Progress = 0, string? Version = null, bool Ready = false, bool Busy = false);
+public sealed record UpdateState(string Status, double Progress = 0, string? Version = null, bool Ready = false, bool Busy = false, string? ReleaseNotes = null);
 
 public interface IUpdateService
 {

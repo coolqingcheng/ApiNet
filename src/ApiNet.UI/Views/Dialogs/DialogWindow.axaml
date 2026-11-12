@@ -4,7 +4,7 @@
         WindowStartupLocation="CenterOwner" CanResize="False" Background="{DynamicResource SurfaceBackgroundBrush}">
   <StackPanel Margin="24" Spacing="18">
     <TextBlock Text="{Binding Title}" FontSize="19" FontWeight="SemiBold" />
-    <ScrollViewer MaxHeight="360"><TextBlock Text="{Binding Message}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /></ScrollViewer>
+    <ScrollViewer MaxHeight="360" HorizontalScrollBarVisibility="Disabled"><SelectableTextBlock x:Name="DialogMessage" Text="{Binding Message}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /></ScrollViewer>
     <TextBox x:Name="Input" Text="{Binding Value}" IsVisible="{Binding ShowInput}" />
     <ItemsControl ItemsSource="{Binding Choices}" HorizontalAlignment="Right">
       <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel Orientation="Horizontal" /></ItemsPanelTemplate></ItemsControl.ItemsPanel>

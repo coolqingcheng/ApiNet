@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)][ValidateSet('win-x64','linux-x64','osx-arm64')][string]$Rid,
-    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$')][string]$Version = '0.1.10',
+    [ValidatePattern('^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$')][string]$Version = '0.1.11',
     [switch]$PublishOnly
 )
 $ErrorActionPreference = 'Stop'
@@ -34,13 +34,20 @@ try {
         iconutil -c icns $iconSet -o $icon
         if ($LASTEXITCODE -ne 0) { throw 'macOS 图标生成失败。' }
     }
-    $packArguments = @('vpk','pack','--packId','ApiNet','--packTitle','ApiNet','--packVersion',$Version,'--packDir',$publishDirectory,'--mainExe',$mainExe,'--runtime',$Rid,'--channel',$Rid,'--icon',$icon,'--outputDir',$releaseDirectory)
+    $releaseNotes = Join-Path $projectRoot 'docs/RELEASE-NOTES.md'
+    $packArguments = @('vpk','pack','--packId','ApiNet','--packTitle','ApiNet','--packVersion',$Version,'--packDir',$publishDirectory,'--mainExe',$mainExe,'--runtime',$Rid,'--channel',$Rid,'--icon',$icon,'--releaseNotes',$releaseNotes,'--outputDir',$releaseDirectory)
     # Windows Native AOT 无托管入口可供扫描；此参数仅 Windows 支持。
     # Program.Main 已显式调用 VelopackApp.Run。
     if ($IsWindows) { $packArguments += '--skipVeloAppCheck' }
     if ($IsMacOS) { $packArguments += '--noInst' }
     & dotnet @packArguments
     if ($LASTEXITCODE -ne 0) { throw 'Velopack 打包失败。' }
+    $feed = Get-Content -LiteralPath (Join-Path $releaseDirectory "releases.$Rid.json") -Raw | ConvertFrom-Json
+    $fullRelease = @($feed.Assets | Where-Object { $_.Type -eq 'Full' -and $_.Version -eq $Version })
+    if ($fullRelease.Count -ne 1) { throw '更新索引中未找到唯一的目标版本完整包。' }
+    $expectedNotes = [IO.File]::ReadAllText($releaseNotes).Replace("`r`n", "`n").Trim()
+    $actualNotes = ([string]$fullRelease[0].NotesMarkdown).Replace("`r`n", "`n").Trim()
+    if (!$expectedNotes -or $actualNotes -cne $expectedNotes) { throw '更新索引中的更新说明与发布说明不一致。' }
     if ($IsWindows) {
         $nativeInstaller = Get-ChildItem -LiteralPath $releaseDirectory -Filter '*Setup.exe' | Select-Object -First 1
         if (!$nativeInstaller) { throw '未找到 Velopack Windows 安装包。' }

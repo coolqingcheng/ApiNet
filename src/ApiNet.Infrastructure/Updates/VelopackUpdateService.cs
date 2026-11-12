@@ -48,7 +48,7 @@ public sealed class VelopackUpdateService : IUpdateService
             await manager.DownloadUpdatesAsync(update, progress => StateChanged?.Invoke(new("正在下载更新…", progress, version, Busy: true)), cancellationToken);
             _manager = manager;
             _update = update;
-            StateChanged?.Invoke(new("更新已下载，可以立即重启升级或退出时升级。", 100, version, true));
+            StateChanged?.Invoke(new("更新已下载，可以立即重启升级或退出时升级。", 100, version, true, ReleaseNotes: update.TargetFullRelease.NotesMarkdown));
         }
         catch (Exception exception) { StateChanged?.Invoke(new($"更新失败：{exception.Message}")); }
         finally { _gate.Release(); }
