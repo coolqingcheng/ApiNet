@@ -267,6 +267,6 @@ tests/ApiNet.Desktop.Tests  MVVM 交互及 XAML 渲染测试
 
 窗口只组合视图，功能按目录拆分；MainWindowViewModel 的协调命令按 Workspace、History、Capture、OpenApi、Documents、Updates 分文件，工具与设置使用独立 View/ViewModel，深浅主题色集中在 ThemePalette.axaml。各请求 Tab 维护自己的状态，网络与存储实现不依赖 Avalonia。
 
-Logo 采用 VS Code 风格的抽象几何折带：三块蓝色折面组成 Net 的首字母 N，使用透明背景和清晰轮廓，适配任务栏小尺寸。提供 SVG、1024 px PNG 和九种尺寸 ICO，窗口、任务栏、托盘、启动器和安装包共用图标；macOS 打包时由同一 PNG 生成 ICNS。Windows 安装和首次启动新版本时会通知 Shell 刷新本应用的图标缓存。侧栏采用固定尺寸矢量图标，避免字体符号首次绘制时缺失或裁切。修改 Logo 后可用 `python scripts/generate-icons.py` 重新生成（需要 Python 3 和 Pillow）。
+Logo 以双向数据流表达网络调试功能：深蓝向上箭形代表发送请求，浅蓝向下箭形代表接收响应，两块相向的几何色面组成标志。使用透明背景和清晰轮廓，适配任务栏小尺寸，也呼应 WebSocket 与代理抓包中的双向通信。提供 SVG、1024 px PNG 和九种尺寸 ICO，窗口、任务栏、托盘、启动器和安装包共用图标；macOS 打包时由同一 PNG 生成 ICNS。Windows 安装和首次启动新版本时会通知 Shell 刷新本应用的图标缓存。侧栏采用固定尺寸矢量图标，避免字体符号首次绘制时缺失或裁切。修改 Logo 后可用 `python scripts/generate-icons.py` 重新生成（需要 Python 3 和 Pillow）。
 
-![折叠 N 图标与小尺寸预览](docs/images/icon-sizes.png)
+![双向数据流图标与小尺寸预览](docs/images/icon-sizes.png)
