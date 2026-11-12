@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using ApiNet.Core.Interfaces;
 using ApiNet.Core.Models;
 using ApiNet.Core.Serialization;
+using ApiNet.Infrastructure.Http;
 
 namespace ApiNet.Infrastructure.Variables;
 
@@ -37,6 +38,7 @@ public sealed partial class VariableResolver : IVariableResolver
     {
         var resolved = ModelCopy.Request(request);
         resolved.Url = Resolve(request.Url, workspace);
+        if (request.Protocol != "WebSocket") resolved.Url = HttpRequestUrl.WithDefaultScheme(resolved.Url);
         var query = request.QueryParameters.Where(x => x.Enabled && !string.IsNullOrWhiteSpace(x.Key))
             .Select(x => Uri.EscapeDataString(Resolve(x.Key, workspace)) + "=" + Uri.EscapeDataString(Resolve(x.Value, workspace))).ToArray();
         if (query.Length > 0)

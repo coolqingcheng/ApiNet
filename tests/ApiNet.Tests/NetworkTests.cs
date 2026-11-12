@@ -51,6 +51,38 @@ public class NetworkTests
     }
     internal static string Address(WebApplication server) => server.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()!.Addresses.Single();
     [Fact]
+    public async Task HttpDefaultsToPlainHttpForBareAuthorityAndKeepsQueryAndFragment()
+    {
+        await using var server = await StartServerAsync();
+        var authority = Address(server)["http://".Length..];
+        foreach (var url in new[] { authority + "/inspect?search=https%3A%2F%2Fexample.test#part", "//" + authority + "/inspect?search=https://example.test#part" })
+        {
+            var request = new RequestDefinition { Method = "POST", Url = url, Body = "<hello />", BodyFormat = "XML" };
+            var result = await new HttpRequestService().SendAsync(request, CancellationToken.None);
+            try
+            {
+                Assert.Null(result.Error); Assert.Equal(200, result.StatusCode);
+                Assert.Equal("application/xml; charset=utf-8\nhttps://example.test", result.Body);
+                Assert.Equal(url, request.Url);
+            }
+            finally { if (result.DownloadPath is not null) File.Delete(result.DownloadPath); }
+        }
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("http://")]
+    [InlineData("ftp://example.test/file")]
+    [InlineData("file:///etc/hosts")]
+    public async Task HttpStillRejectsEmptyMalformedAndUnsupportedExplicitSchemes(string url)
+    {
+        var result = await new HttpRequestService().SendAsync(new RequestDefinition { Url = url }, CancellationToken.None);
+        Assert.Equal("请输入有效的 http:// 或 https:// 地址。", result.Error);
+        Assert.Null(result.DownloadPath);
+    }
+
+    [Fact]
     public async Task FileDownloadKeepsEveryByteBeyondPreviewLimitAndOmitsTempPathFromHistory()
     {
         await using var server = await StartServerAsync();

@@ -15,7 +15,7 @@ public sealed class HttpRequestService : IHttpRequestService
         string? downloadPath = null;
         try
         {
-            if (!Uri.TryCreate(request.Url, UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+            if (!Uri.TryCreate(HttpRequestUrl.WithDefaultScheme(request.Url), UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
                 throw new FormatException("请输入有效的 http:// 或 https:// 地址。");
             using var handler = new SocketsHttpHandler { AllowAutoRedirect = request.FollowRedirects, AutomaticDecompression = DecompressionMethods.All };
             using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(Math.Clamp(request.TimeoutSeconds, 1, 3600)) };

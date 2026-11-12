@@ -70,7 +70,7 @@ v0.1.8 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
 - 每个请求独立标签页；清晰边框区分当前与其他标签，固定单行、横向滚动；右侧“全部标签”支持名称/方法/URL 模糊搜索及快速切换。右键支持关闭、关闭其他、关闭左侧、关闭右侧和全部关闭；支持保存、复制、草稿恢复和 Ctrl+N、Ctrl+S、Ctrl+W。
-- HTTP 方法、URL 与 Params 双向同步，Query/Header/Form 参数采用 Postman 风格的 KEY / VALUE / DESCRIPTION 表格，底部空行新增、悬停删除、全选启停和 Bulk Edit；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
+- HTTP 方法、URL 与 Params 双向同步，省略协议时默认使用 `http://`；Query/Header/Form 参数采用 Postman 风格的 KEY / VALUE / DESCRIPTION 表格，底部空行新增、悬停删除、全选启停和 Bulk Edit；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
 - URL、参数、Header、认证和请求体中的 `{{变量}}` 高亮；JSON/XML/HTML 语法高亮和 JSON/XML 格式化，支持 JSON、XML、Text、HTML、JavaScript 请求体类型。显式填写的 Content-Type 优先于类型默认值；Multipart 保留客户端生成的边界。
 - Multipart 混合文本与文件上传，支持同名字段上传多个文件、变量文件路径、文件选择与流式发送。
 - 深色/浅色主题，一键切换并记住选择；输入框、参数表格和代码高亮随主题变化。
@@ -120,6 +120,8 @@ WebSocket 的 Headers 与 HTTP 共用同一个参数编辑组件，Body 可选�
 ![WebSocket 参数表格](docs/images/websocket-headers-dark.png)
 
 在顶部“管理变量”中配置公共变量和开发/测试等环境。当前环境覆盖公共变量。导入的新服务会在需要时创建独立的 `import_xxxxxx.baseUrl`，避免复用已有服务地址。路径参数如 `{{id}}` 需要在变量中配置。
+
+HTTP 地址省略协议时默认使用 `http://`，例如 `localhost:8080/api` 会请求 `http://localhost:8080/api`；域名、IP、带端口地址以及变量解析后的地址均支持，也可填写 `//example.com/api`。显式填写的 `https://` 保留；预览和历史显示实际请求地址，输入框和已保存的变量表达式保留原样。
 
 Query、Headers 和表单参数使用 Postman 风格的 KEY / VALUE / DESCRIPTION 三列表格。直接在底部空行输入即可新增，悬停行时显示删除按钮；左侧勾选启停，表头支持全选，Tab / Shift+Tab 切换单元格。细分隔线、占位提示、灰色焦点边框及参数描述均适配深色/浅色主题。
 
@@ -182,14 +184,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.8
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.9
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.8`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.9`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 

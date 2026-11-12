@@ -61,6 +61,32 @@ public class UiFeedbackTests
         finally { await model.ShutdownAsync(); }
     }
     [AvaloniaFact]
+    public async Task SchemeLessUrlPreviewSendAndHistoryUseHttpWhileSavedInputStaysEditable()
+    {
+        var http = new RecordingHttp();
+        var model = CreateModel(http: http); await model.InitializeAsync();
+        try
+        {
+            model.Workspace.SharedVariables.Add(new() { Key = "host", Value = "localhost:8080" });
+            var tab = Assert.IsType<HttpRequestTabViewModel>(model.SelectedTab);
+            tab.Url = "{{host}}/users?name=one#part";
+            tab.QueryRows.Single().Value = "中文 &+";
+            var expected = "http://localhost:8080/users?name=%E4%B8%AD%E6%96%87%20%26%2B#part";
+            tab.PreviewCommand.Execute(null); Assert.Equal(expected, tab.ResolvedUrl);
+            await tab.SendCommand.ExecuteAsync(null);
+            Assert.Equal(expected, http.Request!.Url);
+            Assert.Equal(expected, Assert.Single(model.History).Request.Url);
+            Assert.StartsWith("{{host}}/users?", tab.Url);
+            await tab.SaveCommand.ExecuteAsync(null);
+            Assert.False(tab.IsDirty);
+            var saved = model.Workspace.Requests.Single(request => request.Id == tab.Id);
+            Assert.Equal("{{host}}/users#part", saved.Url);
+            Assert.Equal("中文 &+", saved.QueryParameters.Single().Value);
+        }
+        finally { await model.ShutdownAsync(); }
+    }
+
+    [AvaloniaFact]
     public async Task UploadFilePickerAndTablePersistFileTypesAndPaths()
     {
         var path = Path.GetTempFileName();
@@ -216,6 +242,15 @@ public class UiFeedbackTests
         window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick();
         var path = Environment.GetEnvironmentVariable("APINET_SCREENSHOT_DIR") ?? Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../artifacts/screenshots"));
         Directory.CreateDirectory(path); using var frame = window.CaptureRenderedFrame(); Assert.NotNull(frame); frame.Save(Path.Combine(path, name));
+    }
+    private sealed class RecordingHttp : IHttpRequestService
+    {
+        public RequestDefinition? Request { get; private set; }
+        public Task<HttpResult> SendAsync(RequestDefinition request, CancellationToken cancellationToken)
+        {
+            Request = request;
+            return Task.FromResult(new HttpResult { StatusCode = 200, StatusText = "OK", Body = "received" });
+        }
     }
     private sealed class PendingHttp : IHttpRequestService
     {
