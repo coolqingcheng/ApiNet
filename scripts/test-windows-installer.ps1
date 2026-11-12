@@ -42,10 +42,17 @@ function Get-ShortcutAppId([string]$Path) {
     $item = $shellReader.NameSpace((Split-Path -Parent $Path)).ParseName((Split-Path -Leaf $Path))
     return $item.ExtendedProperty('System.AppUserModel.ID')
 }
+function Get-ShortcutTarget([string]$Path) {
+    # WScript.Shell.TargetPath uses ANSI and loses non-ACP characters on English
+    # runners. The Shell property handler reads the link's Unicode target.
+    $item = $shellReader.NameSpace((Split-Path -Parent $Path)).ParseName((Split-Path -Leaf $Path))
+    return [string]$item.ExtendedProperty('System.Link.TargetParsingPath')
+}
 function Assert-ShortcutIcon([string]$Path, [string]$IconDataDirectory, [string]$Target, [string]$Arguments, [string]$AppId) {
     $shortcut = $shortcutReader.CreateShortcut($Path)
-    if ([IO.Path]::GetFullPath($shortcut.TargetPath) -ne [IO.Path]::GetFullPath($Target) -or $shortcut.Arguments -ne $Arguments) {
-        throw "快捷方式目标或参数被改动：$Path；实际目标='$($shortcut.TargetPath)'，参数='$($shortcut.Arguments)'；预期目标='$Target'，参数='$Arguments'"
+    $actualTarget = Get-ShortcutTarget $Path
+    if ([IO.Path]::GetFullPath($actualTarget) -ne [IO.Path]::GetFullPath($Target) -or $shortcut.Arguments -ne $Arguments) {
+        throw "快捷方式目标或参数被改动：$Path；实际目标='$actualTarget'，参数='$($shortcut.Arguments)'；预期目标='$Target'，参数='$Arguments'"
     }
     if ((Get-ShortcutAppId $Path) -ne $AppId) { throw "快捷方式 AppUserModelID 被改动：$Path" }
     $iconPath = $shortcut.IconLocation -replace ',0$', ''
@@ -66,7 +73,7 @@ try {
     $pin = $shortcutReader.CreateShortcut($pinnedShortcut)
     $pin.Arguments = '--example "中文 value"'
     $pin.Save()
-    $pinnedTarget = $pin.TargetPath
+    $pinnedTarget = Get-ShortcutTarget $pinnedShortcut
     $pinnedArguments = $pin.Arguments
     $pinnedAppId = Get-ShortcutAppId $pinnedShortcut
     # Opaque fixtures verify that the installer preserves every byte, including a
@@ -99,10 +106,10 @@ try {
     Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')
     Assert-ShortcutIcon $pinnedShortcut $dataDirectory $pinnedTarget $pinnedArguments $pinnedAppId
     foreach ($shortcutPath in @($startMenuShortcut, $desktopShortcut)) {
-        $standardShortcut = $shortcutReader.CreateShortcut($shortcutPath)
+        $standardTarget = Get-ShortcutTarget $shortcutPath
         $validTargets = @([IO.Path]::GetFullPath((Join-Path $installDirectory 'current/ApiNet.Desktop.exe')), [IO.Path]::GetFullPath((Join-Path $installDirectory 'ApiNet.exe')))
-        if ([IO.Path]::GetFullPath($standardShortcut.TargetPath) -notin $validTargets) { throw "标准快捷方式未指向本次安装：$shortcutPath → $($standardShortcut.TargetPath)" }
-        Assert-ShortcutIcon $shortcutPath $dataDirectory $standardShortcut.TargetPath '' 'velopack.ApiNet'
+        if ([IO.Path]::GetFullPath($standardTarget) -notin $validTargets) { throw "标准快捷方式未指向本次安装：$shortcutPath → $standardTarget" }
+        Assert-ShortcutIcon $shortcutPath $dataDirectory $standardTarget '' 'velopack.ApiNet'
     }
 
     # Exercise startup repair in the actual Native AOT program, including a pin
