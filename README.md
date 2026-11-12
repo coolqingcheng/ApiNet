@@ -82,6 +82,8 @@ v0.1.12 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 
 v0.1.13 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43184996059)在 Windows/Linux/macOS 均通过 153 项测试（102 项服务/工具/网络 + 51 项界面/MVVM），覆盖格式化/压缩、数字与转义保留、多兆字节 JSON 的后台处理与取消、旧任务失效，以及响应原文、下载和历史保留。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43184997700)已完成三个 Native AOT 目标并发布 18 个文件，Windows x64 覆盖安装、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。三个更新索引、更新说明、包摘要及校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取完整说明，此项验证不替换或重启应用。另通过 Windows x64/Linux x64 的[原生运行检查](https://github.com/coolqingcheng/ApiNet/actions/runs/43186375089)，实际执行 JSON/XML/HTML/JavaScript/CSS 格式化、压缩及无效 JavaScript 报错；NUglify 的反射辅助代码仍产生裁剪告警，此检查覆盖当前使用的调用路径，macOS 的对应功能尚未做原生运行检查。
 
+v0.1.14 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43189979115)在 Windows/Linux/macOS 均通过 156 项测试（102 项服务/工具/网络 + 54 项界面/MVVM），新增覆盖响应头重复字段、冒号与原文保留、鼠标切换表格/纯文本、历史刷新、三套主题即时切换与保存，以及表头半选、鼠标全选和空格键停用。三套主题、紧凑布局和小窗口响应头视图已通过 Headless 渲染检查。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43190007463)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及图标一致性验证通过。三个公开更新索引、更新说明、包大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取本次更新说明，此项验证不替换或重启应用。
+
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
@@ -164,7 +166,7 @@ JSON 格式化和压缩在后台逐 token 读写，保留大整数及字符串�
 
 v0.1.13 的本机核心处理对比：10.87 MiB UTF-8 JSON、150,000 条含中文/大整数/数组的记录，Release 模式预热后各执行 3 次，平均格式化耗时由 221 ms 降为 84 ms，单次托管内存分配由 147.97 MiB 降为 111.49 MiB。结果的完整 JSON 数据已比对一致；此数字不包含编辑器显示耗时，也不代表进程峰值内存或所有数据规模的表现。
 
-响应 Headers 提供 [KEY / VALUE 表格](docs/images/response-headers-table.png) 与 [纯文本](docs/images/response-headers-text.png) 两种视图，可选择复制，长值自动换行；切换保留原文，每个请求独立记住当前视图。
+响应 Headers 提供 [KEY / VALUE 表格](docs/images/response-headers-table.png) 与 [纯文本](docs/images/response-headers-text.png) 两种视图，可选择复制，长值自动换行；切换保留原文，每个请求独立切换视图。
 
 响应 Body 顶部提供类型选择、格式化、压缩、原文及处理期间的取消按钮，支持 JSON、XML、HTML、JavaScript 和 CSS。Content-Type 不准确时可手动选择；纯文本不删除空白。操作只调整当前显示，保存响应仍下载原始字节，历史与请求内容保持原样；收到新响应或关闭标签会取消旧处理。
 
