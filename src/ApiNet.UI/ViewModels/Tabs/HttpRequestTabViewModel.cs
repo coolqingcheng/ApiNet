@@ -67,6 +67,7 @@ public partial class HttpRequestTabViewModel : RequestTabViewModel
     public override async Task StopAsync()
     {
         _request?.Cancel();
+        await StopResponseProcessingAsync();
         if (SendCommand.ExecutionTask is { IsCompleted: false } running)
             await running;
         ClearDownload();

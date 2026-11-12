@@ -22,7 +22,7 @@ using Avalonia.VisualTree;
 
 namespace ApiNet.Desktop.Tests;
 
-public class UiFeedbackTests
+public partial class UiFeedbackTests
 {
     private static MainWindowViewModel CreateModel(TestUpdates? updates = null, TestDialogs? dialogs = null, IHttpRequestService? http = null, SqliteWorkspaceStore? store = null)
     {
@@ -151,13 +151,13 @@ public class UiFeedbackTests
         try
         {
             model.NavigateCommand.Execute("工具"); model.Tools.Input = "{\"message\":\"你好\",\"ok\":true}";
-            model.Tools.TransformCommand.Execute("format"); Assert.Contains('\n', model.Tools.Output); Assert.False(model.ShowRequests);
+            await model.Tools.TransformCommand.ExecuteAsync("format"); Assert.Contains('\n', model.Tools.Output); Assert.False(model.ShowRequests);
             SaveFrame(window, "tools-dark.png");
             await model.ToggleThemeCommand.ExecuteAsync(null); SaveFrame(window, "tools-light.png");
-            model.Tools.Input = "bad json"; model.Tools.TransformCommand.Execute("format"); Assert.Contains("处理失败", model.Tools.Status);
-            model.Tools.SelectedTool = "URL 编码 / 解码"; model.Tools.Input = "中文 &+=?"; model.Tools.TransformCommand.Execute("encode");
+            model.Tools.Input = "bad json"; await model.Tools.TransformCommand.ExecuteAsync("format"); Assert.Contains("处理失败", model.Tools.Status);
+            model.Tools.SelectedTool = "URL 编码 / 解码"; model.Tools.Input = "中文 &+=?"; await model.Tools.TransformCommand.ExecuteAsync("encode");
             Assert.Equal("%E4%B8%AD%E6%96%87%20%26%2B%3D%3F", model.Tools.Output);
-            model.Tools.UseOutputCommand.Execute(null); model.Tools.TransformCommand.Execute("decode"); Assert.Equal("中文 &+=?", model.Tools.Output);
+            model.Tools.UseOutputCommand.Execute(null); await model.Tools.TransformCommand.ExecuteAsync("decode"); Assert.Equal("中文 &+=?", model.Tools.Output);
             model.NavigateCommand.Execute("工作区"); Assert.Same(tab, model.SelectedTab); Assert.True(model.ShowRequests);
         }
         finally { ThemeService.Apply("Dark"); await model.ShutdownAsync(); window.Close(); }
@@ -364,6 +364,7 @@ public class UiFeedbackTests
     private sealed class TestDialogs : IDialogService
     {
         public string? UploadPath { get; set; }
+        public string? ResponsePath { get; set; }
         public List<string> Titles { get; } = [];
         public List<string> Messages { get; } = [];
         public Queue<int> Choices { get; } = new();
@@ -374,7 +375,7 @@ public class UiFeedbackTests
         public Task<string?> OpenJsonAsync() => Task.FromResult<string?>(null);
         public Task<string?> OpenUploadFileAsync() => Task.FromResult(UploadPath);
         public Task<string?> SaveJsonAsync(string name) => Task.FromResult<string?>(null);
-        public Task<string?> SaveResponseAsync(string name) => Task.FromResult<string?>(null);
+        public Task<string?> SaveResponseAsync(string name) => Task.FromResult(ResponsePath);
         public Task EditEnvironmentsAsync(WorkspaceDocument workspace) => Task.CompletedTask;
         public Task EditSettingsAsync(WorkspaceDocument workspace) => Task.CompletedTask;
     }

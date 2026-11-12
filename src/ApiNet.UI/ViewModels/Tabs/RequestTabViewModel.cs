@@ -27,7 +27,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     [ObservableProperty] private string _headers;
     [ObservableProperty] private string _body;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(IsFormBody), nameof(IsRawBody), nameof(IsMultipartBody))] private string _bodyFormat;
-    [ObservableProperty] private string _responseFormat = "Text";
+    [ObservableProperty][NotifyCanExecuteChangedFor(nameof(FormatResponseCommand), nameof(MinifyResponseCommand))] private string _responseFormat = "Text";
     public static string[] BodyFormats { get; } = ["JSON", "XML", "Text", "HTML", "JavaScript", "Form URL Encoded", "Multipart"];
     public bool IsFormBody => BodyFormat is "Form URL Encoded" or "Multipart";
     public bool IsRawBody => !IsFormBody;
@@ -46,7 +46,7 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
     [ObservableProperty] private bool _isBusy;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(Title))] private bool _isDirty;
     [ObservableProperty] private string _status = "准备就绪";
-    [ObservableProperty] private string _responseBody = "";
+    [ObservableProperty][NotifyCanExecuteChangedFor(nameof(FormatResponseCommand), nameof(MinifyResponseCommand), nameof(RestoreResponseCommand))] private string _responseBody = "";
     [ObservableProperty] private string _responseHeaders = "";
     [ObservableProperty] private string _resolvedUrl = "";
     [ObservableProperty] private bool _followRedirects;
@@ -252,13 +252,6 @@ public abstract partial class RequestTabViewModel : ViewModelBase, IAsyncDisposa
             Subprotocol = request.Subprotocol;
         Original = ModelCopy.Request(request);
         IsDirty = HasChanges();
-    }
-    public void ShowHistory(HttpResult response)
-    {
-        ResponseBody = response.Body;
-        ResponseHeaders = response.Headers;
-        ResponseFormat = response.ContentType.Contains("json") ? "JSON" : response.ContentType.Contains("xml") ? "XML" : response.ContentType.Contains("html") ? "HTML" : "Text";
-        Status = response.Error ?? $"{response.StatusCode} {response.StatusText}  ·  {response.DurationMs} ms  ·  {response.Size:N0} B";
     }
     public RequestDefinition Resolve(WorkspaceDocument? context = null)
     {

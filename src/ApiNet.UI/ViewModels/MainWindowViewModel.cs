@@ -208,6 +208,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
     public async Task ShutdownAsync()
     {
+        await Tools.StopAsync();
         foreach (var tab in Tabs.ToArray())
             await tab.StopAsync();
         await _proxy.StopAsync();

@@ -11,6 +11,7 @@
         <Button Margin="0,0,8,8" Content="解码" Command="{Binding TransformCommand}" CommandParameter="decode" IsVisible="{Binding IsCodec}" />
         <Button Margin="0,0,8,8" Content="结果填回输入" Classes="ghost" Command="{Binding UseOutputCommand}" />
         <Button Margin="0,0,8,8" Content="清空" Classes="ghost" Command="{Binding ClearCommand}" />
+        <Button Margin="0,0,8,8" Content="取消处理" Command="{Binding CancelTransformCommand}" IsVisible="{Binding IsBusy}" />
       </WrapPanel>
     </StackPanel>
     <Grid x:Name="EditorPanels" Grid.Row="1" ColumnDefinitions="*,12,*" IsVisible="{Binding IsTextTool}">

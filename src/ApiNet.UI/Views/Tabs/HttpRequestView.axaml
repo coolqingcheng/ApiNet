@@ -11,7 +11,22 @@
     <GridSplitter Grid.Row="1" Background="{DynamicResource SubtleBorderBrush}" ResizeDirection="Rows" />
     <Grid Grid.Row="2" RowDefinitions="Auto,*">
       <Border Background="{DynamicResource RaisedBackgroundBrush}" Padding="20,8"><Grid ColumnDefinitions="Auto,*,Auto"><TextBlock Text="响应" FontWeight="SemiBold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" Margin="15,0" VerticalAlignment="Center" /><Button Grid.Column="2" Content="保存响应 ↓" Classes="ghost" Command="{Binding SaveResponseCommand}" IsEnabled="{Binding CanSaveResponse}" /></Grid></Border>
-      <TabControl Grid.Row="1" Margin="12,0"><TabItem Header="Body"><c:CodeEditor x:Name="ResponseBodyEditor" Text="{Binding ResponseBody, Mode=OneWay}" Language="{Binding ResponseFormat}" IsReadOnly="True" WordWrap="True" /></TabItem><TabItem Header="Headers"><c:CodeEditor Text="{Binding ResponseHeaders, Mode=OneWay}" IsReadOnly="True" WordWrap="True" /></TabItem></TabControl>
+      <TabControl Grid.Row="1" Margin="12,0">
+        <TabItem Header="Body">
+          <Grid RowDefinitions="Auto,Auto,*">
+            <WrapPanel Margin="0,2,0,4">
+              <ComboBox x:Name="ResponseType" ItemsSource="{Binding ResponseFormats}" SelectedItem="{Binding ResponseFormat}" Width="125" Padding="8,4" Margin="0,0,8,4" />
+              <Button x:Name="FormatResponseButton" Content="格式化" Classes="ghost" Padding="8,4" Command="{Binding FormatResponseCommand}" Margin="0,0,4,4" />
+              <Button Content="压缩" Classes="ghost" Padding="8,4" Command="{Binding MinifyResponseCommand}" Margin="0,0,4,4" />
+              <Button Content="原文" Classes="ghost" Padding="8,4" Command="{Binding RestoreResponseCommand}" Margin="0,0,4,4" />
+              <Button Content="取消处理" Classes="ghost" Padding="8,4" Command="{Binding CancelResponseTransformCommand}" IsVisible="{Binding IsResponseProcessing}" Margin="0,0,4,4" />
+            </WrapPanel>
+            <TextBlock Grid.Row="1" Text="{Binding ResponseDisplayStatus}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" MaxHeight="52" Margin="0,0,0,4" />
+            <c:CodeEditor Grid.Row="2" x:Name="ResponseBodyEditor" Text="{Binding ResponseBody, Mode=OneWay}" Language="{Binding ResponseFormat}" IsReadOnly="True" WordWrap="True" />
+          </Grid>
+        </TabItem>
+        <TabItem Header="Headers"><c:CodeEditor Text="{Binding ResponseHeaders, Mode=OneWay}" IsReadOnly="True" WordWrap="True" /></TabItem>
+      </TabControl>
     </Grid>
   </Grid>
 </UserControl>

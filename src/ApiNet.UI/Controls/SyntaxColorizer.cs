@@ -6,7 +6,7 @@ using ApiNet.Desktop.Services;
 
 namespace ApiNet.Desktop.Controls;
 
-public sealed partial class SyntaxColorizer(Func<string> language) : DocumentColorizingTransformer
+public sealed partial class SyntaxColorizer(Func<string> language, Func<bool>? enabled = null) : DocumentColorizingTransformer
 {
     [GeneratedRegex("\\{\\{\\s*[\\w.\\-]+\\s*\\}\\}")]
     public static partial Regex Variables();
@@ -16,9 +16,9 @@ public sealed partial class SyntaxColorizer(Func<string> language) : DocumentCol
     private static partial Regex XmlTokens();
     protected override void ColorizeLine(DocumentLine line)
     {
-        var text = CurrentContext.Document.GetText(line);
+        if (enabled?.Invoke() == false) return;
         // Bound work per line so a large minified response remains responsive.
-        if (text.Length > 32768) text = text[..32768];
+        var text = CurrentContext.Document.GetText(line.Offset, Math.Min(line.Length, 32768));
         if (language() is "JSON" or "JavaScript")
             foreach (Match match in JsonTokens().Matches(text))
             {

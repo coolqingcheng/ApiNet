@@ -38,7 +38,7 @@ public class MobileLayoutTests
             Assert.InRange(view.Bounds.Width, 389, 391);
             Assert.Contains(view.GetVisualDescendants().OfType<CodeEditor>(), x => x.Text == main.SelectedTab.Url && x.Bounds.Width < 390 && x.Bounds.Width > 200);
             shell.ToggleDrawerCommand.Execute(null); Save(window, "android-drawer.png"); Assert.True(shell.ShowShade);
-            shell.NavigateCommand.Execute("工具"); main.Tools.Input = "{\"message\":\"你好 Android\",\"ok\":true}"; main.Tools.TransformCommand.Execute("format");
+            shell.NavigateCommand.Execute("工具"); main.Tools.Input = "{\"message\":\"你好 Android\",\"ok\":true}"; await main.Tools.TransformCommand.ExecuteAsync("format");
             Save(window, "android-tools.png"); Assert.False(shell.DrawerOpen); Assert.True(main.IsTools);
             var output = view.GetVisualDescendants().OfType<Grid>().Single(x => x.Name == "OutputPanel"); Assert.Equal(2, Grid.GetRow(output));
             await main.ToggleThemeCommand.ExecuteAsync(null); shell.NavigateCommand.Execute("工作区");

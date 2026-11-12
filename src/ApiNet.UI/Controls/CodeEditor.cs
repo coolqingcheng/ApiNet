@@ -49,7 +49,7 @@ public sealed class CodeEditor : UserControl
         // editor foreground, making network addresses unreadable in the dark UI.
         Editor.Options.EnableHyperlinks = false;
         Editor.Options.EnableEmailHyperlinks = false;
-        _colorizer = new SyntaxColorizer(() => Language);
+        _colorizer = new SyntaxColorizer(() => Language, () => Editor.Document.TextLength <= 1024 * 1024);
         Editor.TextArea.TextView.LineTransformers.Add(_colorizer);
         _watermark = new TextBlock { IsHitTestVisible = false, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis };
         var content = new Grid(); content.Children.Add(Editor); content.Children.Add(_watermark);

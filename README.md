@@ -84,6 +84,7 @@ v0.1.12 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 - 深色/浅色主题，一键切换并记住选择；输入框、参数表格和代码高亮随主题变化。
 - 本地工具：JSON 格式化/压缩、URL 参数编码/解码、UTF-8 Base64 编码/解码、秒/毫秒时间戳与日期双向转换、Cron 表达式解析和生成。
 - HTTP 文本响应与响应头按面板宽度自动换行，保留原始内容及语法高亮；更新检查与下载使用状态栏旋转圆圈，底部文字统一垂直对齐。
+- 响应 Body 支持 JSON/XML/HTML/JavaScript/CSS 格式化、压缩及恢复原文，可手动选择类型；JSON 工具与响应处理在后台运行，支持取消，大文本自动跳过语法着色。
 - 文件响应完整流式接收，自动提示保存到本地；取消选择后仍可点击“保存响应”。文本响应也可保存原始内容，无需重新发送请求。
 - WebSocket：ws/wss，与 HTTP 一致的 Params / Headers / Body / Authorization / Settings；共享三列参数表、空行新增和 Bulk Edit，消息支持 JSON/XML/Text/HTML/JavaScript 高亮、格式化及 Base64 二进制，保留子协议、双向消息及会话历史。
 - 公共变量及环境变量，使用 `{{baseUrl}}`、`{{token}}` 等引用；支持嵌套引用，缺失或循环引用会阻止发送。
@@ -150,6 +151,10 @@ Body 另支持 `Form URL Encoded` 和 `Multipart`。选择 Multipart 后，在 K
 
 左侧 `◐` 按钮可立即切换深色/浅色，或在设置中选择主题，重启后恢复。左侧“工具”提供 JSON 格式化/压缩、URL 编码/解码和 Base64 编码/解码，支持复制结果、清空与结果填回输入，切换工具不会关闭请求标签页。URL 工具按参数组件编码，解码时将 `+` 还原为空格。
 
+JSON 格式化和压缩在后台逐 token 读写，保留大整数及字符串内容，处理期间可取消；修改输入或切换工具会取消旧任务，避免旧结果覆盖新输入。超过约 100 万字符的编辑内容跳过语法着色，仍保留完整文本、选择复制和滚动。格式化后的结果仍完整显示，可复制或填回输入。
+
+响应 Body 顶部提供类型选择、格式化、压缩、原文及处理期间的取消按钮，支持 JSON、XML、HTML、JavaScript 和 CSS。Content-Type 不准确时可手动选择；纯文本不删除空白。操作只调整当前显示，保存响应仍下载原始字节，历史与请求内容保持原样；收到新响应或关闭标签会取消旧处理。
+
 “时间戳 / 日期转换”支持整数秒和毫秒、负数时间戳、一键填入当前时间、本地时区与 UTC。没有偏移的日期按所选时区解析；ISO 8601 日期中的 `Z`、`+08:00` 等偏移优先生效。结果同时显示秒、毫秒、本地日期和 UTC 日期，支持复制。夏令时不存在或重复的本地时间会要求明确时间或偏移。
 
 “Cron 解析 / 生成”支持 5 段（分 时 日 月 周）和 6 段（秒 分 时 日 月 周），提供每分钟、每小时、每天、工作日、每周、每月等模板，也可手动填写范围、列表和步长。解析后显示字段含义及所选时区下接下来 10 次执行时间，可复制表达式和结果。采用 Cronos 规则：周日为 0 或 7，日与周同时指定时取交集；支持 `L`、`W`、`#`，不支持年份、随机偏移 `H` 和 Quartz 星期编号。这些工具只做本地计算，不会创建定时任务。
@@ -199,14 +204,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`linux-x64`、`osx-arm64`，打包脚本和 CI 发布矩阵仅接受这三个目标。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.12
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.13
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.12`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.13`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
