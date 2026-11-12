@@ -181,7 +181,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private async Task ToggleThemeAsync()
     {
-        Workspace.Settings.Theme = Workspace.Settings.Theme == "Light" ? "Dark" : "Light";
+        Workspace.Settings.Theme = ThemeService.Next(Workspace.Settings.Theme);
         ApplyTheme();
         await PersistSafelyAsync();
     }

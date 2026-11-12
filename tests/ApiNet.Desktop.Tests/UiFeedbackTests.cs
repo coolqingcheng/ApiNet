@@ -177,8 +177,8 @@ public partial class UiFeedbackTests
             SaveFrame(window, "input-theme.png");
             Assert.True(name.IsFocused);
             var border = name.GetVisualDescendants().OfType<Border>().Single(x => x.Name == "PART_BorderElement");
-            Assert.Equal(Color.Parse("#191B21"), Assert.IsAssignableFrom<ISolidColorBrush>(border.Background).Color);
-            Assert.Equal(Color.Parse("#E4E6ED"), Assert.IsAssignableFrom<ISolidColorBrush>(name.Foreground).Color);
+            Assert.Equal(Color.Parse("#252526"), Assert.IsAssignableFrom<ISolidColorBrush>(border.Background).Color);
+            Assert.Equal(Color.Parse("#CCCCCC"), Assert.IsAssignableFrom<ISolidColorBrush>(name.Foreground).Color);
             Assert.Equal(new Thickness(1), border.BorderThickness);
             var url = window.GetVisualDescendants().OfType<CodeEditor>().Single(x => x.SingleLine && x.Text == model.SelectedTab.Url);
             url.Editor.TextArea.TextView.EnsureVisualLines();

@@ -18,10 +18,11 @@ public partial class ParameterTableViewModel : ViewModelBase, IDisposable
     [ObservableProperty][NotifyPropertyChangedFor(nameof(EditorToggleLabel), nameof(HasPendingBulkChanges))] private bool _isBulkEditing;
     [ObservableProperty][NotifyPropertyChangedFor(nameof(HasPendingBulkChanges))] private string _bulkText = "";
     [ObservableProperty] private string _bulkError = "";
-    public string EditorToggleLabel => IsBulkEditing ? "Key-Value Edit" : "Bulk Edit";
+    public string EditorToggleLabel => IsBulkEditing ? "表格编辑" : "批量编辑";
     public bool HasPendingBulkChanges => IsBulkEditing && BulkText != _lastAppliedBulk;
     public string CountLabel => _rows is null || _rows.Count == 0 ? "" : $"{_rows.Count(x => x.Enabled && x.Key.Length > 0)} / {_rows.Count(x => x.Key.Length > 0)}";
     public bool HasRows => _rows?.Count > 0;
+    [RelayCommand] private void ToggleAll() => AllEnabled = AllEnabled != true;
     public bool? AllEnabled
     {
         get => _rows is not { Count: > 0 } ? false : _rows.All(x => x.Enabled) ? true : _rows.All(x => !x.Enabled) ? false : null;

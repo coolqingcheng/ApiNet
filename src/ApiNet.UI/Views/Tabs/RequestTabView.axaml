@@ -11,10 +11,10 @@
     </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto,Auto,Auto,*">
-    <Grid ColumnDefinitions="*,Auto,Auto" Margin="20,16,20,12"><TextBox x:Name="RequestName" Text="{Binding Name}" Background="{DynamicResource WindowBackgroundBrush}" BorderThickness="1" FontSize="17" FontWeight="SemiBold" Padding="12,7" /><Button Grid.Column="1" Content="复制" Classes="ghost" Command="{Binding DuplicateCommand}" /><Button Grid.Column="2" Content="保存" Classes="ghost" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" /></Grid>
-    <Grid Grid.Row="1" ColumnDefinitions="100,*,Auto" Margin="20,0,20,8" ColumnSpacing="8">
+    <Grid ColumnDefinitions="*,Auto,Auto" Margin="12,8,12,6"><TextBox x:Name="RequestName" Text="{Binding Name}" Background="{DynamicResource WindowBackgroundBrush}" BorderThickness="1" FontSize="14" FontWeight="SemiBold" Padding="10,5" /><Button Grid.Column="1" Content="复制" Classes="ghost" Command="{Binding DuplicateCommand}" /><Button Grid.Column="2" Content="保存" Classes="ghost" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" /></Grid>
+    <Grid Grid.Row="1" ColumnDefinitions="92,*,Auto" Margin="12,0,12,4" ColumnSpacing="8">
       <ComboBox ItemsSource="{Binding MethodOptions}" SelectedItem="{Binding Method}" IsVisible="{Binding IsHttp}" HorizontalAlignment="Stretch" />
-      <Border IsVisible="{Binding IsWebSocket}" Background="{DynamicResource PurpleSurfaceBrush}" CornerRadius="5"><TextBlock Text="WS" Foreground="{DynamicResource PurpleBrush}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
+      <Border IsVisible="{Binding IsWebSocket}" Background="{DynamicResource PurpleSurfaceBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"><TextBlock Text="WS" Foreground="{DynamicResource PurpleBrush}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border>
       <c:CodeEditor Grid.Column="1" Text="{Binding Url}" SingleLine="True" MinHeight="36" />
       <ContentControl Grid.Column="2" Content="{Binding}">
         <ContentControl.DataTemplates>
@@ -23,7 +23,7 @@
         </ContentControl.DataTemplates>
       </ContentControl>
     </Grid>
-    <Grid Grid.Row="2" ColumnDefinitions="Auto,*" Margin="20,0,20,10"><Button Content="预览变量" Classes="ghost" Command="{Binding PreviewCommand}" FontSize="11" Padding="0,5,10,5" /><TextBlock Grid.Column="1" Text="{Binding ResolvedUrl}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" /></Grid>
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,*" Margin="12,0,12,4"><Button Content="预览变量" Classes="ghost" Command="{Binding PreviewCommand}" FontSize="11" Padding="0,5,10,5" /><TextBlock Grid.Column="1" Text="{Binding ResolvedUrl}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" /></Grid>
     <ContentControl Grid.Row="3" Content="{Binding}">
       <ContentControl.DataTemplates>
         <DataTemplate DataType="{x:Type vm:HttpRequestTabViewModel}" x:DataType="vm:HttpRequestTabViewModel"><local:HttpRequestView /></DataTemplate>

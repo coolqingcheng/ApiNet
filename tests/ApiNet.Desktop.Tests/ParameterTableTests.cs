@@ -67,7 +67,7 @@ public class ParameterTableTests
             Assert.Equal(4, tab.Snapshot().HeaderParameters.Count);
             Save(window, "postman-headers-dark.png");
             var focus = Assert.IsType<Border>(key.Content);
-            Assert.Equal(Color.Parse("#969696"), Assert.IsAssignableFrom<ISolidColorBrush>(focus.BorderBrush).Color);
+            Assert.Equal(Color.Parse("#007ACC"), Assert.IsAssignableFrom<ISolidColorBrush>(focus.BorderBrush).Color);
             await model.ToggleThemeCommand.ExecuteAsync(null);
             Save(window, "postman-headers-light.png");
             Assert.Contains(table.GetVisualDescendants().OfType<TextBlock>(), x => x.Text == "DESCRIPTION");

@@ -47,14 +47,14 @@ public class RequestTabsTests
             Render(window);
             var control = window.GetVisualDescendants().OfType<TabControl>().Single(x => x.Name == "RequestTabs");
             var headers = Enumerable.Range(0, model.Tabs.Count).Select(index => Assert.IsType<TabItem>(control.ContainerFromIndex(index))).ToArray();
-            Assert.All(headers, header => { Assert.InRange(header.Bounds.Height, 37, 46); Assert.Equal(headers[0].Bounds.Top, header.Bounds.Top); });
+            Assert.All(headers, header => { Assert.InRange(header.Bounds.Height, 33, 42); Assert.Equal(headers[0].Bounds.Top, header.Bounds.Top); });
             var scroll = control.GetVisualDescendants().OfType<ScrollViewer>().Single(x => x.Name == "TabHeaderScroller");
             Assert.True(scroll.Extent.Width > scroll.Viewport.Width); Assert.InRange(scroll.Offset.X, 0, 1);
             var wheelPoint = scroll.TranslatePoint(new Point(80, 20), window)!.Value;
             window.MouseWheel(wheelPoint, new Vector(0, -1)); Render(window); Assert.True(scroll.Offset.X > 0);
             window.MouseWheel(wheelPoint, new Vector(0, 1)); Render(window); Assert.InRange(scroll.Offset.X, 0, 1);
             var button = control.GetVisualDescendants().OfType<Button>().Single(x => x.Name == "AllTabsButton");
-            Assert.True(button.Bounds.Width >= 40);
+            Assert.True(button.Bounds.Width >= 32);
             var position = button.TranslatePoint(new Point(20, 18), window)!.Value;
             window.MouseDown(position, MouseButton.Left); window.MouseUp(position, MouseButton.Left); Render(window);
             var flyout = Assert.IsType<Flyout>(button.Flyout); Assert.True(flyout.IsOpen);

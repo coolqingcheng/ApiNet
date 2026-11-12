@@ -10,12 +10,12 @@
     <Style Selector="Border.parameter-row">
       <Setter Property="Background" Value="{DynamicResource TableBackgroundBrush}" />
       <Setter Property="BorderBrush" Value="{DynamicResource TableLineBrush}" />
-      <Setter Property="BorderThickness" Value="1,0,1,1" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
     </Style>
     <Style Selector="Border.parameter-row:pointerover"><Setter Property="Background" Value="{DynamicResource TableHoverBrush}" /></Style>
     <Style Selector="Button.parameter-action">
       <Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource TableHeaderTextBrush}" />
-      <Setter Property="FontSize" Value="12" /><Setter Property="Padding" Value="8,3" /><Setter Property="CornerRadius" Value="3" />
+      <Setter Property="FontSize" Value="12" /><Setter Property="Padding" Value="8,3" /><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
     </Style>
     <Style Selector="Button.parameter-remove"><Setter Property="Opacity" Value="0" /><Setter Property="Padding" Value="7" /><Setter Property="Width" Value="32" /><Setter Property="Height" Value="32" /></Style>
     <Style Selector="Border.parameter-row:pointerover Button.parameter-remove"><Setter Property="Opacity" Value="1" /></Style>
@@ -26,47 +26,31 @@
       <Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" />
       <Setter Property="Foreground" Value="{DynamicResource TableHeaderTextBrush}" /><Setter Property="FontSize" Value="11" />
       <Setter Property="Padding" Value="4,0" /><Setter Property="MinHeight" Value="28" /><Setter Property="Width" Value="74" />
-      <Setter Property="CornerRadius" Value="0" /><Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" /><Setter Property="VerticalAlignment" Value="Center" />
     </Style>
-    <Style Selector="CheckBox.parameter-check">
-      <Setter Property="Width" Value="32" /><Setter Property="Height" Value="34" /><Setter Property="MinHeight" Value="0" />
-      <Setter Property="Template"><ControlTemplate>
-        <Grid Background="Transparent">
-          <Border Name="CheckBoxBorder" Width="14" Height="14" CornerRadius="3" BorderThickness="1" BorderBrush="{DynamicResource TablePlaceholderBrush}" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Grid><Path Name="Tick" Data="M 2,6 L 5,9 L 11,2" Stroke="{DynamicResource TableCheckedForegroundBrush}" StrokeThickness="1.5" IsVisible="False" />
-              <Path Name="Dash" Data="M 3,6 L 10,6" Stroke="{DynamicResource TableCheckedForegroundBrush}" StrokeThickness="1.5" IsVisible="False" /></Grid>
-          </Border>
-        </Grid>
-      </ControlTemplate></Setter>
-    </Style>
-    <Style Selector="CheckBox.parameter-check:checked /template/ Border#CheckBoxBorder"><Setter Property="Background" Value="{DynamicResource TableCheckedBackgroundBrush}" /><Setter Property="BorderBrush" Value="Transparent" /></Style>
-    <Style Selector="CheckBox.parameter-check:checked /template/ Path#Tick"><Setter Property="IsVisible" Value="True" /></Style>
-    <Style Selector="CheckBox.parameter-check:indeterminate /template/ Border#CheckBoxBorder"><Setter Property="Background" Value="{DynamicResource TableCheckedBackgroundBrush}" /><Setter Property="BorderBrush" Value="Transparent" /></Style>
-    <Style Selector="CheckBox.parameter-check:indeterminate /template/ Path#Dash"><Setter Property="IsVisible" Value="True" /></Style>
-    <Style Selector="CheckBox.parameter-check:focus-visible /template/ Border#CheckBoxBorder"><Setter Property="BorderBrush" Value="{DynamicResource TableFocusBrush}" /></Style>
   </UserControl.Styles>
-  <Grid DataContext="{Binding #Root.Model}" x:DataType="vm:ParameterTableViewModel" RowDefinitions="Auto,*" Margin="0,4,0,0">
-    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,8" MinHeight="26">
+  <Grid DataContext="{Binding #Root.Model}" x:DataType="vm:ParameterTableViewModel" RowDefinitions="Auto,*" Margin="0">
+    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,5" MinHeight="24">
       <TextBlock Text="{Binding #Root.Title}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
       <TextBlock Grid.Column="1" Text="{Binding CountLabel}" Margin="8,0" Foreground="{DynamicResource TablePlaceholderBrush}" FontSize="11" VerticalAlignment="Center" />
       <Button Grid.Column="2" Classes="parameter-action" Content="取消" Command="{Binding CancelBulkCommand}" IsVisible="{Binding IsBulkEditing}" />
       <Button Grid.Column="3" Classes="parameter-action" Content="{Binding EditorToggleLabel}" Command="{Binding ToggleBulkCommand}" ToolTip.Tip="切换逐行编辑与批量编辑" />
     </Grid>
     <ScrollViewer Grid.Row="1" IsVisible="{Binding !IsBulkEditing}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-      <Grid RowDefinitions="Auto,*" MinWidth="{Binding #Root.MinTableWidth}">
-        <Border BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="1" Background="{DynamicResource TableBackgroundBrush}">
-          <Grid ColumnDefinitions="32,*,*,0.8*,32" Height="32">
-            <CheckBox Classes="parameter-check" Height="30" IsChecked="{Binding AllEnabled}" IsEnabled="{Binding HasRows}" ToolTip.Tip="全部启用或停用" AutomationProperties.Name="全部启用或停用" />
-            <Border x:Name="HeaderKey" Grid.Column="1" Classes="parameter-cell"><TextBlock Text="KEY" Margin="11,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" /></Border>
-            <Border x:Name="HeaderValue" Grid.Column="2" Classes="parameter-cell"><TextBlock Text="VALUE" Margin="11,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" /></Border>
-            <Border x:Name="HeaderDescription" Grid.Column="3"><TextBlock Text="DESCRIPTION" Margin="11,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" /></Border>
+      <Border Classes="data-table" MinWidth="{Binding #Root.MinTableWidth}"><Grid RowDefinitions="Auto,*">
+        <Border BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="0,0,0,1" Background="{DynamicResource TableHeaderBackgroundBrush}">
+          <Grid ColumnDefinitions="36,*,*,0.7*,32" Height="30">
+            <CheckBox Classes="parameter-check" Height="28" IsChecked="{Binding AllEnabled, Mode=OneWay}" Command="{Binding ToggleAllCommand}" IsEnabled="{Binding HasRows}" ToolTip.Tip="全部启用或停用" AutomationProperties.Name="全部启用或停用" />
+            <Border x:Name="HeaderKey" Grid.Column="1" Classes="parameter-cell"><TextBlock Text="KEY" Margin="10,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="10" FontWeight="SemiBold" LetterSpacing="0.6" VerticalAlignment="Center" /></Border>
+            <Border x:Name="HeaderValue" Grid.Column="2" Classes="parameter-cell"><TextBlock Text="VALUE" Margin="10,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="10" FontWeight="SemiBold" LetterSpacing="0.6" VerticalAlignment="Center" /></Border>
+            <Border x:Name="HeaderDescription" Grid.Column="3"><TextBlock Text="DESCRIPTION" Margin="10,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="10" FontWeight="SemiBold" LetterSpacing="0.6" VerticalAlignment="Center" /></Border>
           </Grid>
         </Border>
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
           <ItemsControl ItemsSource="{Binding Items}" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:ParameterRowViewModel">
               <Border Classes="parameter-row">
-                <Grid ColumnDefinitions="32,Auto,Auto,Auto,32" Height="34">
+                <Grid ColumnDefinitions="36,Auto,Auto,Auto,32" Height="32">
                   <CheckBox Classes="parameter-check" IsChecked="{Binding Enabled}" IsVisible="{Binding !IsDraft}" ToolTip.Tip="启用此参数" AutomationProperties.Name="启用此参数" />
                   <Border Grid.Column="1" Classes="parameter-cell" Width="{Binding #HeaderKey.Bounds.Width}"><Grid ColumnDefinitions="*,Auto">
                     <c:CodeEditor Text="{Binding Key}" Watermark="Key" SingleLine="True" IsTableCell="True" IsMuted="{Binding !Enabled}" />
@@ -85,11 +69,11 @@
             </DataTemplate></ItemsControl.ItemTemplate>
           </ItemsControl>
         </ScrollViewer>
-      </Grid>
+      </Grid></Border>
     </ScrollViewer>
     <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto" IsVisible="{Binding IsBulkEditing}">
       <TextBlock Text="每行 key: value；// 开头的行停用。" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" Margin="0,0,0,8" />
-      <Border Grid.Row="1" BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="1"><c:CodeEditor Text="{Binding BulkText}" /></Border>
+      <Border Grid.Row="1" Classes="data-table"><c:CodeEditor Text="{Binding BulkText}" /></Border>
       <TextBlock Grid.Row="2" Text="{Binding BulkError}" Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,5" TextWrapping="Wrap" />
     </Grid>
   </Grid>

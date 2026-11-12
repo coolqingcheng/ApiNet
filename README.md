@@ -2,13 +2,19 @@
 
 # ApiNet
 
-基于 .NET 10、Avalonia 和 CommunityToolkit.Mvvm 的跨平台网络调试工作台。布局参考 Postman，采用 VS Code 风格的紧凑界面，提供深色和浅色主题。
+基于 .NET 10、Avalonia 和 CommunityToolkit.Mvvm 的跨平台网络调试工作台。布局参考 Postman，采用 VS Code 风格的紧凑界面，提供深色、浅色和午夜蓝三套主题。
 
 [下载安装包](https://github.com/coolqingcheng/ApiNet/releases/latest) · [CI 构建](https://github.com/coolqingcheng/ApiNet/actions) · [问题反馈](https://github.com/coolqingcheng/ApiNet/issues)
 
 ![ApiNet 请求工作台](docs/images/workbench.png)
 
-截图使用 Avalonia Headless + Skia 渲染真实界面，响应来自测试中的本地 HTTP 服务。
+截图使用 Avalonia Headless + Skia 渲染真实界面，展示测试响应数据。
+
+三套主题共用圆角、边框、控件尺寸和表格样式。侧栏主题按钮按深色 → 浅色 → 午夜蓝依次切换，也可在设置中直接选择；偏好保存在本地，旧版本的深浅主题配置继续有效。
+
+![浅色主题](docs/images/workbench-light-compact.png)
+
+![午夜蓝主题](docs/images/workbench-midnight-compact.png)
 
 ## 安装
 
@@ -83,7 +89,8 @@ v0.1.13 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 - HTTP 方法、URL 与 Params 双向同步，省略协议时默认使用 `http://`；Query/Header/Form 参数采用 Postman 风格的 KEY / VALUE / DESCRIPTION 表格，底部空行新增、悬停删除、全选启停和 Bulk Edit；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
 - URL、参数、Header、认证和请求体中的 `{{变量}}` 高亮；JSON/XML/HTML 语法高亮和 JSON/XML 格式化，支持 JSON、XML、Text、HTML、JavaScript 请求体类型。显式填写的 Content-Type 优先于类型默认值；Multipart 保留客户端生成的边界。
 - Multipart 混合文本与文件上传，支持同名字段上传多个文件、变量文件路径、文件选择与流式发送。
-- 深色/浅色主题，一键切换并记住选择；输入框、参数表格和代码高亮随主题变化。
+- 深色/浅色/午夜蓝三套主题，切换并记住选择；统一 4 px 圆角、细边框、紧凑间距，输入框、参数表格、勾选框和代码高亮随主题变化。
+- 响应 Headers 默认显示 KEY / VALUE 表格，可切换纯文本；长值自动换行，可选择复制，保留字段顺序、重复字段和原始内容。
 - 本地工具：JSON 格式化/压缩、URL 参数编码/解码、UTF-8 Base64 编码/解码、秒/毫秒时间戳与日期双向转换、Cron 表达式解析和生成。
 - HTTP 文本响应与响应头按面板宽度自动换行，保留原始内容及语法高亮；更新检查与下载使用状态栏旋转圆圈，底部文字统一垂直对齐。
 - 响应 Body 支持 JSON/XML/HTML/JavaScript/CSS 格式化、压缩及恢复原文，可手动选择类型；JSON 工具与响应处理在后台运行，支持取消，大文本自动跳过语法着色。
@@ -135,11 +142,11 @@ WebSocket 的 Headers 与 HTTP 共用同一个参数编辑组件，Body 可选�
 
 HTTP 地址省略协议时默认使用 `http://`，例如 `localhost:8080/api` 会请求 `http://localhost:8080/api`；域名、IP、带端口地址以及变量解析后的地址均支持，也可填写 `//example.com/api`。显式填写的 `https://` 保留；预览和历史显示实际请求地址，输入框和已保存的变量表达式保留原样。
 
-Query、Headers 和表单参数使用 Postman 风格的 KEY / VALUE / DESCRIPTION 三列表格。直接在底部空行输入即可新增，悬停行时显示删除按钮；左侧勾选启停，表头支持全选，Tab / Shift+Tab 切换单元格。细分隔线、占位提示、灰色焦点边框及参数描述均适配深色/浅色主题。
+Query、Headers 和表单参数使用 KEY / VALUE / DESCRIPTION 三列表格，表头 30 px、数据行约 33 px。直接在底部空行输入即可新增，悬停行时显示删除按钮；左侧勾选启停，表头支持全选，Tab / Shift+Tab 切换单元格。半选时点击表头会全部启用，全选后点击则全部停用。表头底色、细分隔线、主题色焦点边框及参数描述适配全部三套主题，HTTP 与 WebSocket 共用同一组件。
 
 v0.1.10 修复鼠标点击和编辑参数单元格时的栈溢出崩溃：单行编辑器禁用纵向滚动，避免光标定位与鼠标选区递归触发滚动；长值仍可横向滚动，变量高亮、中文输入和选中替换保留。
 
-右上角 `Bulk Edit` 可按每行 `key: value` 批量编辑，`// ` 开头表示停用；保留重复 key、顺序以及匹配行的描述和文件类型。发送、保存和草稿持久化会使用有效的批量修改，无需先切回表格；格式错误直接显示在编辑区，发送/保存前需修正，点击“取消”可丢弃尚未应用的批量文本。描述会随 Postman / ApiPost / OpenAPI 导入，保存到本机并包含在文档导出中。
+右上角“批量编辑”可按每行 `key: value` 批量编辑，`// ` 开头表示停用；保留重复 key、顺序以及匹配行的描述和文件类型。发送、保存和草稿持久化会使用有效的批量修改，无需先切回表格；格式错误直接显示在编辑区，发送/保存前需修正，点击“取消”可丢弃尚未应用的批量文本。描述会随 Postman / ApiPost / OpenAPI 导入，保存到本机并包含在文档导出中。
 
 ![Headers 参数表格（深色）](docs/images/postman-headers-dark.png)
 
@@ -156,6 +163,8 @@ Body 另支持 `Form URL Encoded` 和 `Multipart`。选择 Multipart 后，在 K
 JSON 格式化和压缩在后台逐 token 读写，保留大整数及字符串内容，处理期间可取消；修改输入或切换工具会取消旧任务，避免旧结果覆盖新输入。超过约 100 万字符的编辑内容跳过语法着色，仍保留完整文本、选择复制和滚动。格式化后的结果仍完整显示，可复制或填回输入。
 
 v0.1.13 的本机核心处理对比：10.87 MiB UTF-8 JSON、150,000 条含中文/大整数/数组的记录，Release 模式预热后各执行 3 次，平均格式化耗时由 221 ms 降为 84 ms，单次托管内存分配由 147.97 MiB 降为 111.49 MiB。结果的完整 JSON 数据已比对一致；此数字不包含编辑器显示耗时，也不代表进程峰值内存或所有数据规模的表现。
+
+响应 Headers 提供 [KEY / VALUE 表格](docs/images/response-headers-table.png) 与 [纯文本](docs/images/response-headers-text.png) 两种视图，可选择复制，长值自动换行；切换保留原文，每个请求独立记住当前视图。
 
 响应 Body 顶部提供类型选择、格式化、压缩、原文及处理期间的取消按钮，支持 JSON、XML、HTML、JavaScript 和 CSS。Content-Type 不准确时可手动选择；纯文本不删除空白。操作只调整当前显示，保存响应仍下载原始字节，历史与请求内容保持原样；收到新响应或关闭标签会取消旧处理。
 
@@ -208,14 +217,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`linux-x64`、`osx-arm64`，打包脚本和 CI 发布矩阵仅接受这三个目标。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.13
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.14
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.13`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.14`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 

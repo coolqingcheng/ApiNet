@@ -6,7 +6,7 @@ namespace ApiNet.Desktop.ViewModels.Settings;
 public partial class SettingsViewModel : ViewModelBase
 {
     private readonly AppSettings _settings;
-    public static string[] Themes { get; } = ["深色", "浅色"];
+    public static string[] Themes { get; } = ["深色", "浅色", "午夜蓝"];
     [ObservableProperty] private string _theme;
     [ObservableProperty] private bool _closeToTray;
     [ObservableProperty] private string _proxyPort;
@@ -17,7 +17,7 @@ public partial class SettingsViewModel : ViewModelBase
     public SettingsViewModel(AppSettings settings)
     {
         _settings = settings;
-        _theme = settings.Theme == "Light" ? "浅色" : "深色";
+        _theme = settings.Theme switch { "Light" => "浅色", "Midnight" => "午夜蓝", _ => "深色" };
         _closeToTray = settings.CloseToTray;
         _proxyPort = settings.ProxyPort.ToString();
         _decryptHttps = settings.DecryptHttps;
@@ -35,7 +35,7 @@ public partial class SettingsViewModel : ViewModelBase
         _settings.ProxyPort = port;
         _settings.DecryptHttps = DecryptHttps;
         _settings.AutoCheckUpdates = AutoCheckUpdates;
-        _settings.Theme = Theme == "浅色" ? "Light" : "Dark";
+        _settings.Theme = Theme switch { "浅色" => "Light", "午夜蓝" => "Midnight", _ => "Dark" };
         Saved?.Invoke();
     }
 }

@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:c="using:ApiNet.Desktop.Controls"
+             x:Class="ApiNet.Desktop.Views.Tabs.ResponseHeadersView" x:DataType="vm:ResponseHeadersViewModel">
+  <Grid RowDefinitions="Auto,*" RowSpacing="6">
+    <Grid ColumnDefinitions="*,Auto" MinHeight="28">
+      <TextBlock Text="{Binding CountLabel}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" />
+      <Border Grid.Column="1" Classes="view-switch">
+        <StackPanel Orientation="Horizontal">
+          <RadioButton x:Name="HeadersTableMode" Classes="view-switch" Content="表格" IsChecked="{Binding IsTableView}" />
+          <RadioButton x:Name="HeadersTextMode" Classes="view-switch" Content="纯文本" IsChecked="{Binding IsTextView}" />
+        </StackPanel>
+      </Border>
+    </Grid>
+    <Border Grid.Row="1" Classes="data-table" IsVisible="{Binding IsTableView}">
+      <Grid RowDefinitions="Auto,*">
+        <Border Background="{DynamicResource TableHeaderBackgroundBrush}" BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="0,0,0,1">
+          <Grid ColumnDefinitions="2*,5*" Height="30">
+            <Border BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="0,0,1,0"><TextBlock Classes="table-heading" Text="KEY" /></Border>
+            <TextBlock Grid.Column="1" Classes="table-heading" Text="VALUE" />
+          </Grid>
+        </Border>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+          <ItemsControl x:Name="ResponseHeadersTable" ItemsSource="{Binding Rows}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ResponseHeaderRow">
+                <Border Classes="data-row">
+                  <Grid ColumnDefinitions="2*,5*" MinHeight="32">
+                    <Border BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="0,0,1,0" Padding="10,7">
+                      <SelectableTextBlock Text="{Binding Key}" FontSize="12" FontWeight="Medium" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </Border>
+                    <SelectableTextBlock Grid.Column="1" Text="{Binding Value}" Margin="10,7" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TableTextBrush}" />
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+        <TextBlock Grid.Row="1" IsVisible="{Binding !HasHeaders}" Text="暂无响应头" Margin="12" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" />
+      </Grid>
+    </Border>
+    <Border Grid.Row="1" Classes="data-table" IsVisible="{Binding IsTextView}">
+      <c:CodeEditor x:Name="ResponseHeadersText" Text="{Binding RawText, Mode=OneWay}" IsReadOnly="True" WordWrap="True" />
+    </Border>
+  </Grid>
+</UserControl>

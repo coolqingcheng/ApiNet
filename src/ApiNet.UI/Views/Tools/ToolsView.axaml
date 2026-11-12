@@ -1,8 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tools" xmlns:c="using:ApiNet.Desktop.Controls" xmlns:tools="using:ApiNet.Desktop.Views.Tools"
              x:Class="ApiNet.Desktop.Views.Tools.ToolsView" x:DataType="vm:ToolsViewModel">
-  <Grid RowDefinitions="Auto,*,Auto" Margin="24,20">
-    <StackPanel Spacing="10" Margin="0,0,0,18">
-      <TextBlock Text="{Binding SelectedTool}" FontSize="22" FontWeight="SemiBold" />
+  <Grid RowDefinitions="Auto,*,Auto" Margin="12">
+    <StackPanel Spacing="8" Margin="0,0,0,10">
+      <TextBlock Text="{Binding SelectedTool}" FontSize="18" FontWeight="SemiBold" />
       <TextBlock Text="{Binding Hint}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
       <WrapPanel Margin="0,6,0,0" IsVisible="{Binding IsTextTool}">
         <Button Margin="0,0,8,8" Content="格式化" Classes="primary" Command="{Binding TransformCommand}" CommandParameter="format" IsVisible="{Binding IsJson}" />
@@ -15,8 +15,8 @@
       </WrapPanel>
     </StackPanel>
     <Grid x:Name="EditorPanels" Grid.Row="1" ColumnDefinitions="*,12,*" IsVisible="{Binding IsTextTool}">
-      <Grid x:Name="InputPanel" RowDefinitions="Auto,*"><TextBlock Text="输入" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,10" /><Border Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4"><c:CodeEditor Text="{Binding Input}" Language="{Binding Language}" /></Border></Grid>
-      <Grid x:Name="OutputPanel" Grid.Column="2" RowDefinitions="Auto,*"><Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10"><TextBlock Text="结果" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" /><Button Grid.Column="1" Content="复制结果" Classes="ghost" Padding="6,0" Click="CopyOutput" /></Grid><Border Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4"><c:CodeEditor Text="{Binding Output, Mode=OneWay}" Language="{Binding Language}" IsReadOnly="True" /></Border></Grid>
+      <Grid x:Name="InputPanel" RowDefinitions="Auto,*"><TextBlock Text="输入" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,10" /><Border Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"><c:CodeEditor Text="{Binding Input}" Language="{Binding Language}" /></Border></Grid>
+      <Grid x:Name="OutputPanel" Grid.Column="2" RowDefinitions="Auto,*"><Grid ColumnDefinitions="*,Auto" Margin="0,0,0,10"><TextBlock Text="结果" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" /><Button Grid.Column="1" Content="复制结果" Classes="ghost" Padding="6,0" Click="CopyOutput" /></Grid><Border Grid.Row="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"><c:CodeEditor Text="{Binding Output, Mode=OneWay}" Language="{Binding Language}" IsReadOnly="True" /></Border></Grid>
     </Grid>
     <Border Grid.Row="1" IsVisible="{Binding IsTimestamp}"><tools:TimestampToolView DataContext="{Binding Timestamp}" /></Border>
     <Border Grid.Row="1" IsVisible="{Binding IsCron}"><tools:CronToolView DataContext="{Binding Cron}" /></Border>

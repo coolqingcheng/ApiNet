@@ -11,7 +11,7 @@
         <StackPanel Margin="8" Spacing="8"><TextBlock Text="{Binding Description}" FontWeight="SemiBold" /><TextBlock Text="{Binding DataDirectory}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" TextWrapping="Wrap" /></StackPanel>
       </DataTemplate></ListBox.ItemTemplate>
     </ListBox>
-    <Border IsVisible="{Binding NoSources}" Background="{DynamicResource RaisedBackgroundBrush}" Padding="16" CornerRadius="5"><TextBlock Text="未检测到可用的 ApiPost / Postman 本地数据。可以选择原软件导出的 JSON 文件。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /></Border>
+    <Border IsVisible="{Binding NoSources}" Background="{DynamicResource RaisedBackgroundBrush}" Padding="16" CornerRadius="{DynamicResource ControlCornerRadius}"><TextBlock Text="未检测到可用的 ApiPost / Postman 本地数据。可以选择原软件导出的 JSON 文件。" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" /></Border>
     <TextBlock Text="读取原软件数据的副本，不修改原数据。导入前可查看请求数量、变量和兼容性提示。" TextWrapping="Wrap" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" />
     <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="8">
       <Button Content="选择 JSON 文件…" Command="{Binding ChooseFileCommand}" />

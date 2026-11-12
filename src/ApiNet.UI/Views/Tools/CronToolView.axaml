@@ -6,7 +6,7 @@
         <StackPanel Spacing="6" Margin="0,0,18,8"><TextBlock Text="表达式格式" Foreground="{DynamicResource TextMutedBrush}" /><ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding Format}" MinWidth="240" /></StackPanel>
         <StackPanel Spacing="6" Margin="0,0,0,8"><TextBlock Text="执行时区" Foreground="{DynamicResource TextMutedBrush}" /><ComboBox ItemsSource="{Binding Zones}" SelectedItem="{Binding Zone}" Width="160" /></StackPanel>
       </WrapPanel>
-      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="6" Padding="18">
+      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12">
         <StackPanel Spacing="12">
           <TextBlock Text="解析表达式" FontWeight="SemiBold" />
           <TextBox x:Name="CronExpressionInput" Text="{Binding Expression}" Watermark="例如 */5 * * * *" FontFamily="Cascadia Code, Consolas, Menlo, monospace" />
@@ -15,7 +15,7 @@
           <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
         </StackPanel>
       </Border>
-      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="6" Padding="18">
+      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12">
         <StackPanel Spacing="12">
           <TextBlock Text="生成表达式" FontWeight="SemiBold" />
           <WrapPanel><ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" MinWidth="210" Margin="0,0,12,8" /><Button Content="套用模板" Command="{Binding ApplyPresetCommand}" Margin="0,0,0,8" /></WrapPanel>

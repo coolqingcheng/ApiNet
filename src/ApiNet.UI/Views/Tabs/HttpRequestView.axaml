@@ -1,17 +1,17 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs"
-             xmlns:c="using:ApiNet.Desktop.Controls" x:Class="ApiNet.Desktop.Views.Tabs.HttpRequestView" x:DataType="vm:HttpRequestTabViewModel">
-  <Grid RowDefinitions="3*,5,2*">
-    <TabControl Margin="12,0">
+             xmlns:local="using:ApiNet.Desktop.Views.Tabs" xmlns:c="using:ApiNet.Desktop.Controls" x:Class="ApiNet.Desktop.Views.Tabs.HttpRequestView" x:DataType="vm:HttpRequestTabViewModel">
+  <Grid RowDefinitions="*,4,*">
+    <TabControl x:Name="HttpRequestTabs" Classes="section-tabs" Margin="12,0">
       <TabItem Header="Params"><c:ParameterTable Title="Query Params" Model="{Binding QueryTable}" /></TabItem>
       <TabItem Header="{Binding HeaderTabTitle}"><c:ParameterTable Title="Headers" Model="{Binding HeaderTable}" /></TabItem>
-      <TabItem Header="Body"><Grid RowDefinitions="Auto,*"><Grid ColumnDefinitions="Auto,*,Auto" Margin="8,4"><ComboBox ItemsSource="{Binding BodyFormats}" SelectedItem="{Binding BodyFormat}" MinWidth="130" /><TextBlock Grid.Column="1" Text="Multipart 支持文本与文件上传" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="12,0" /><Button Grid.Column="2" Classes="ghost" Content="格式化" Command="{Binding FormatBodyCommand}" IsVisible="{Binding IsRawBody}" /></Grid><c:CodeEditor Grid.Row="1" Text="{Binding Body}" Language="{Binding BodyFormat}" IsVisible="{Binding IsRawBody}" /><c:ParameterTable Grid.Row="1" Title="Body Parameters" Model="{Binding BodyTable}" AllowFiles="{Binding IsMultipartBody}" IsVisible="{Binding IsFormBody}" /></Grid></TabItem>
-      <TabItem Header="Authorization"><StackPanel Margin="16" Spacing="14"><TextBlock Text="Bearer Token" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding BearerToken}" SingleLine="True" /><TextBlock Text="发送时追加 Authorization: Bearer …；支持 {{token}}。其他认证方式可在 Headers 中配置。" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
+      <TabItem Header="Body"><Grid RowDefinitions="Auto,*"><Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,6"><ComboBox ItemsSource="{Binding BodyFormats}" SelectedItem="{Binding BodyFormat}" MinWidth="130" /><TextBlock Grid.Column="1" Text="Multipart 支持文本与文件上传" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" VerticalAlignment="Center" Margin="12,0" /><Button Grid.Column="2" Classes="ghost" Content="格式化" Command="{Binding FormatBodyCommand}" IsVisible="{Binding IsRawBody}" /></Grid><c:CodeEditor Grid.Row="1" Text="{Binding Body}" Language="{Binding BodyFormat}" IsVisible="{Binding IsRawBody}" /><c:ParameterTable Grid.Row="1" Title="Body Parameters" Model="{Binding BodyTable}" AllowFiles="{Binding IsMultipartBody}" IsVisible="{Binding IsFormBody}" /></Grid></TabItem>
+      <TabItem Header="Authorization"><StackPanel Margin="8" Spacing="10"><TextBlock Text="Bearer Token" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding BearerToken}" SingleLine="True" /><TextBlock Text="发送时追加 Authorization: Bearer …；支持 {{token}}。其他认证方式可在 Headers 中配置。" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
       <TabItem Header="Settings"><CheckBox IsChecked="{Binding FollowRedirects}" Content="自动跟随重定向" Margin="12,12" /></TabItem>
     </TabControl>
     <GridSplitter Grid.Row="1" Background="{DynamicResource SubtleBorderBrush}" ResizeDirection="Rows" />
     <Grid Grid.Row="2" RowDefinitions="Auto,*">
-      <Border Background="{DynamicResource RaisedBackgroundBrush}" Padding="20,8"><Grid ColumnDefinitions="Auto,*,Auto"><TextBlock Text="响应" FontWeight="SemiBold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" Margin="15,0" VerticalAlignment="Center" /><Button Grid.Column="2" Content="保存响应 ↓" Classes="ghost" Command="{Binding SaveResponseCommand}" IsEnabled="{Binding CanSaveResponse}" /></Grid></Border>
-      <TabControl Grid.Row="1" Margin="12,0">
+      <Border Background="{DynamicResource RaisedBackgroundBrush}" Padding="12,4"><Grid ColumnDefinitions="Auto,*,Auto"><TextBlock Text="响应" FontWeight="SemiBold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" Margin="15,0" VerticalAlignment="Center" /><Button Grid.Column="2" Content="保存响应 ↓" Classes="ghost" Command="{Binding SaveResponseCommand}" IsEnabled="{Binding CanSaveResponse}" /></Grid></Border>
+      <TabControl x:Name="HttpResponseTabs" Classes="section-tabs" Grid.Row="1" Margin="12,0">
         <TabItem Header="Body">
           <Grid RowDefinitions="Auto,Auto,*">
             <WrapPanel Margin="0,2,0,4">
@@ -21,11 +21,11 @@
               <Button Content="原文" Classes="ghost" Padding="8,4" Command="{Binding RestoreResponseCommand}" Margin="0,0,4,4" />
               <Button Content="取消处理" Classes="ghost" Padding="8,4" Command="{Binding CancelResponseTransformCommand}" IsVisible="{Binding IsResponseProcessing}" Margin="0,0,4,4" />
             </WrapPanel>
-            <TextBlock Grid.Row="1" Text="{Binding ResponseDisplayStatus}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" MaxHeight="52" Margin="0,0,0,4" />
+            <TextBlock Grid.Row="1" IsVisible="{Binding ResponseDisplayStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" Text="{Binding ResponseDisplayStatus}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" MaxHeight="52" Margin="0,0,0,4" />
             <c:CodeEditor Grid.Row="2" x:Name="ResponseBodyEditor" Text="{Binding ResponseBody, Mode=OneWay}" Language="{Binding ResponseFormat}" IsReadOnly="True" WordWrap="True" />
           </Grid>
         </TabItem>
-        <TabItem Header="Headers"><c:CodeEditor Text="{Binding ResponseHeaders, Mode=OneWay}" IsReadOnly="True" WordWrap="True" /></TabItem>
+        <TabItem Header="Headers"><local:ResponseHeadersView DataContext="{Binding ResponseHeaderView}" /></TabItem>
       </TabControl>
     </Grid>
   </Grid>

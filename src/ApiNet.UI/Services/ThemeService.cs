@@ -6,9 +6,11 @@ namespace ApiNet.Desktop.Services;
 
 public static class ThemeService
 {
+    public static ThemeVariant Midnight { get; } = new("Midnight", ThemeVariant.Dark);
+    public static string Next(string theme) => theme switch { "Dark" => "Light", "Light" => "Midnight", _ => "Dark" };
     public static void Apply(string theme)
     {
-        if (Application.Current is { } app) app.RequestedThemeVariant = theme == "Light" ? ThemeVariant.Light : ThemeVariant.Dark;
+        if (Application.Current is { } app) app.RequestedThemeVariant = theme switch { "Light" => ThemeVariant.Light, "Midnight" => Midnight, _ => ThemeVariant.Dark };
     }
 
     public static IBrush Brush(string name)

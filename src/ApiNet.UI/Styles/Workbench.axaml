@@ -1,17 +1,58 @@
 <Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Style Selector="Window"><Setter Property="FontFamily" Value="Inter, Microsoft YaHei UI, Noto Sans CJK SC, sans-serif" /><Setter Property="FontSize" Value="13" /><Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" /></Style>
-  <Style Selector="TextBox"><Setter Property="CornerRadius" Value="5" /><Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" /><Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" /><Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" /><Setter Property="Padding" Value="12,8" /><Setter Property="SelectionBrush" Value="{DynamicResource SelectionBrush}" /><Setter Property="SelectionForegroundBrush" Value="White" /></Style>
-  <Style Selector="TextBox.editor"><Setter Property="FontFamily" Value="Cascadia Code, Consolas, Menlo, monospace" /><Setter Property="FontSize" Value="13" /><Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" /><Setter Property="BorderThickness" Value="0" /><Setter Property="Padding" Value="16" /><Setter Property="TextWrapping" Value="NoWrap" /><Setter Property="AcceptsReturn" Value="True" /><Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" /><Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" /></Style>
-  <Style Selector="Button"><Setter Property="CornerRadius" Value="5" /><Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" /><Setter Property="Padding" Value="12,8" /><Setter Property="BorderThickness" Value="0" /><Setter Property="Cursor" Value="Hand" /></Style>
+  <Style Selector="TextBox"><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" /><Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" /><Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" /><Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" /><Setter Property="Padding" Value="10,6" /><Setter Property="SelectionBrush" Value="{DynamicResource SelectionBrush}" /><Setter Property="SelectionForegroundBrush" Value="{DynamicResource SelectionTextBrush}" /></Style>
+  <Style Selector="TextBox.editor"><Setter Property="FontFamily" Value="Cascadia Code, Consolas, Menlo, monospace" /><Setter Property="FontSize" Value="13" /><Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}" /><Setter Property="BorderThickness" Value="0" /><Setter Property="Padding" Value="10" /><Setter Property="TextWrapping" Value="NoWrap" /><Setter Property="AcceptsReturn" Value="True" /><Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" /><Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" /></Style>
+  <Style Selector="Button"><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" /><Setter Property="Background" Value="{DynamicResource ButtonBackgroundBrush}" /><Setter Property="Padding" Value="10,6" /><Setter Property="BorderThickness" Value="0" /><Setter Property="Cursor" Value="Hand" /></Style>
   <Style Selector="Button.primary"><Setter Property="Background" Value="{DynamicResource AccentBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
   <Style Selector="Button.primary:pointerover /template/ ContentPresenter"><Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" /></Style>
-  <Style Selector="Button.ghost"><Setter Property="Background" Value="Transparent" /><Setter Property="Padding" Value="8,6" /><Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" /></Style>
-  <Style Selector="Button.rail"><Setter Property="Background" Value="Transparent" /><Setter Property="HorizontalAlignment" Value="Stretch" /><Setter Property="HorizontalContentAlignment" Value="Center" /><Setter Property="Padding" Value="4,14" /><Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" /></Style>
+  <Style Selector="Button.ghost"><Setter Property="Background" Value="Transparent" /><Setter Property="Padding" Value="8,4" /><Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" /></Style>
+  <Style Selector="Button.rail"><Setter Property="Background" Value="Transparent" /><Setter Property="HorizontalAlignment" Value="Stretch" /><Setter Property="HorizontalContentAlignment" Value="Center" /><Setter Property="Padding" Value="4,10" /><Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" /></Style>
   <Style Selector="Button.rail.active"><Setter Property="Background" Value="{DynamicResource AccentSurfaceBrush}" /><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" /></Style>
-  <Style Selector="ComboBox"><Setter Property="Background" Value="{DynamicResource RaisedBackgroundBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" /><Setter Property="CornerRadius" Value="5" /><Setter Property="Padding" Value="10,8" /></Style>
+  <Style Selector="ComboBox"><Setter Property="Background" Value="{DynamicResource RaisedBackgroundBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" /><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" /><Setter Property="Padding" Value="10,5" /></Style>
   <Style Selector="TabControl"><Setter Property="Background" Value="Transparent" /></Style>
-  <Style Selector="TabItem"><Setter Property="FontSize" Value="12" /><Setter Property="Padding" Value="14,10" /></Style>
-  <Style Selector="ListBoxItem"><Setter Property="Padding" Value="8,9" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /></Style>
-  <Style Selector="TreeViewItem"><Setter Property="Padding" Value="4,7" /></Style>
+  <Style Selector="TabItem"><Setter Property="FontSize" Value="12" /><Setter Property="Padding" Value="12,7" /></Style>
+  <Style Selector="ListBoxItem"><Setter Property="Padding" Value="8,6" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /></Style>
+  <Style Selector="TreeViewItem"><Setter Property="Padding" Value="4,5" /></Style>
   <Style Selector="ToolTip"><Setter Property="MaxWidth" Value="480" /></Style>
+  <Style Selector="TabControl.section-tabs"><Setter Property="Padding" Value="0,6,0,8" /></Style>
+  <Style Selector="TabControl.section-tabs > TabItem"><Setter Property="MinHeight" Value="32" /></Style>
+  <!-- One checkbox template across parameter tables, settings and tools. -->
+  <Style Selector="CheckBox">
+    <Setter Property="MinHeight" Value="28" /><Setter Property="Padding" Value="0" /><Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+    <Setter Property="Template"><ControlTemplate>
+      <Grid ColumnDefinitions="Auto,*" Background="Transparent">
+        <Border Name="CheckBoxBorder" Width="16" Height="16" Margin="2" CornerRadius="{DynamicResource ControlCornerRadius}" BorderThickness="1" BorderBrush="{DynamicResource TablePlaceholderBrush}" Background="{DynamicResource InputBackgroundBrush}" VerticalAlignment="Center">
+          <Grid>
+            <Path Name="Tick" Data="M 3,7 L 6,10 L 11,4" Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.8" StrokeLineCap="Round" IsVisible="False" />
+            <Path Name="Dash" Data="M 3,7 L 11,7" Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.8" StrokeLineCap="Round" IsVisible="False" />
+          </Grid>
+        </Border>
+        <ContentPresenter Grid.Column="1" Name="PART_ContentPresenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" Margin="7,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" />
+      </Grid>
+    </ControlTemplate></Setter>
+  </Style>
+  <Style Selector="CheckBox:pointerover /template/ Border#CheckBoxBorder"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Style>
+  <Style Selector="CheckBox:checked /template/ Border#CheckBoxBorder"><Setter Property="Background" Value="{DynamicResource AccentBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Style>
+  <Style Selector="CheckBox:checked /template/ Path#Tick"><Setter Property="IsVisible" Value="True" /></Style>
+  <Style Selector="CheckBox:indeterminate /template/ Border#CheckBoxBorder"><Setter Property="Background" Value="{DynamicResource AccentBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Style>
+  <Style Selector="CheckBox:indeterminate /template/ Path#Dash"><Setter Property="IsVisible" Value="True" /></Style>
+  <Style Selector="CheckBox:focus-visible /template/ Border#CheckBoxBorder"><Setter Property="BoxShadow" Value="0 0 0 2 #6080BFFF" /></Style>
+  <Style Selector="CheckBox:disabled"><Setter Property="Opacity" Value="0.45" /></Style>
+  <Style Selector="CheckBox.parameter-check"><Setter Property="Width" Value="36" /><Setter Property="MinHeight" Value="0" /><Setter Property="HorizontalContentAlignment" Value="Center" /></Style>
+  <Style Selector="CheckBox.parameter-check /template/ Grid"><Setter Property="HorizontalAlignment" Value="Center" /></Style>
+  <Style Selector="CheckBox.parameter-check /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="IsVisible" Value="False" /><Setter Property="Margin" Value="0" /></Style>
+  <Style Selector="Border.data-table"><Setter Property="Background" Value="{DynamicResource TableBackgroundBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource TableLineBrush}" /><Setter Property="BorderThickness" Value="1" /><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" /><Setter Property="ClipToBounds" Value="True" /></Style>
+  <Style Selector="Border.data-row"><Setter Property="BorderBrush" Value="{DynamicResource TableLineBrush}" /><Setter Property="BorderThickness" Value="0,0,0,1" /><Setter Property="Background" Value="{DynamicResource TableBackgroundBrush}" /></Style>
+  <Style Selector="Border.data-row:pointerover"><Setter Property="Background" Value="{DynamicResource TableHoverBrush}" /></Style>
+  <Style Selector="TextBlock.table-heading"><Setter Property="Margin" Value="10,0" /><Setter Property="FontSize" Value="10" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="LetterSpacing" Value="0.6" /><Setter Property="Foreground" Value="{DynamicResource TableHeaderTextBrush}" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+  <Style Selector="Border.view-switch"><Setter Property="Background" Value="{DynamicResource InputBackgroundBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}" /><Setter Property="BorderThickness" Value="1" /><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" /><Setter Property="Padding" Value="2" /></Style>
+  <Style Selector="RadioButton.view-switch">
+    <Setter Property="FontSize" Value="11" /><Setter Property="Padding" Value="10,3" /><Setter Property="MinHeight" Value="0" /><Setter Property="Cursor" Value="Hand" /><Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+    <Setter Property="Template"><ControlTemplate><Border Name="ModeBorder" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}" Background="Transparent"><ContentPresenter Content="{TemplateBinding Content}" VerticalAlignment="Center" /></Border></ControlTemplate></Setter>
+  </Style>
+  <Style Selector="RadioButton.view-switch:pointerover /template/ Border#ModeBorder"><Setter Property="Background" Value="{DynamicResource TableHoverBrush}" /></Style>
+  <Style Selector="RadioButton.view-switch:checked"><Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" /></Style>
+  <Style Selector="RadioButton.view-switch:checked /template/ Border#ModeBorder"><Setter Property="Background" Value="{DynamicResource AccentSurfaceBrush}" /></Style>
+  <Style Selector="RadioButton.view-switch:focus-visible /template/ Border#ModeBorder"><Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" /><Setter Property="BorderThickness" Value="1" /></Style>
 </Styles>

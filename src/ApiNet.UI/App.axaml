@@ -10,6 +10,7 @@
                 <ResourceInclude Source="avares://ApiNet.UI/Styles/ThemePalette.axaml" />
             </ResourceDictionary.MergedDictionaries>
             <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
+            <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>

@@ -7,14 +7,14 @@
         <StackPanel Spacing="6" Margin="0,0,18,8"><TextBlock Text="日期时区" Foreground="{DynamicResource TextMutedBrush}" /><ComboBox ItemsSource="{Binding Zones}" SelectedItem="{Binding Zone}" Width="160" /></StackPanel>
         <Button Content="当前时间" Classes="ghost" Command="{Binding NowCommand}" VerticalAlignment="Bottom" Margin="0,0,0,8" />
       </WrapPanel>
-      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="6" Padding="18">
+      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12">
         <StackPanel Spacing="12">
           <TextBlock Text="时间戳 → 日期" FontWeight="SemiBold" />
           <TextBox x:Name="TimestampInput" Text="{Binding Timestamp}" Watermark="输入整数时间戳" />
           <Button Content="转为日期" Classes="primary" Command="{Binding ToDateCommand}" HorizontalAlignment="Left" />
         </StackPanel>
       </Border>
-      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="6" Padding="18">
+      <Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12">
         <StackPanel Spacing="12">
           <TextBlock Text="日期 → 时间戳" FontWeight="SemiBold" />
           <TextBox x:Name="DateInput" Text="{Binding Date}" Watermark="yyyy-MM-dd HH:mm:ss.fff，或 ISO 8601 日期" />

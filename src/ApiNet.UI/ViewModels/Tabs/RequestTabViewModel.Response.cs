@@ -8,6 +8,8 @@ namespace ApiNet.Desktop.ViewModels.Tabs;
 public abstract partial class RequestTabViewModel
 {
     public static string[] ResponseFormats { get; } = ["JSON", "XML", "HTML", "JavaScript", "CSS", "Text"];
+    public ResponseHeadersViewModel ResponseHeaderView { get; } = new();
+    partial void OnResponseHeadersChanged(string value) => ResponseHeaderView.RawText = value;
     private string _rawResponseBody = "";
     private string _rawResponseFormat = "Text";
     private long _responseRevision;
