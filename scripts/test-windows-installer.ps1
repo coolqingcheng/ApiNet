@@ -44,7 +44,9 @@ function Get-ShortcutAppId([string]$Path) {
 }
 function Assert-ShortcutIcon([string]$Path, [string]$IconDataDirectory, [string]$Target, [string]$Arguments, [string]$AppId) {
     $shortcut = $shortcutReader.CreateShortcut($Path)
-    if ($shortcut.TargetPath -ne $Target -or $shortcut.Arguments -ne $Arguments) { throw "快捷方式目标或参数被改动：$Path" }
+    if ([IO.Path]::GetFullPath($shortcut.TargetPath) -ne [IO.Path]::GetFullPath($Target) -or $shortcut.Arguments -ne $Arguments) {
+        throw "快捷方式目标或参数被改动：$Path；实际目标='$($shortcut.TargetPath)'，参数='$($shortcut.Arguments)'；预期目标='$Target'，参数='$Arguments'"
+    }
     if ((Get-ShortcutAppId $Path) -ne $AppId) { throw "快捷方式 AppUserModelID 被改动：$Path" }
     $iconPath = $shortcut.IconLocation -replace ',0$', ''
     if (!$iconPath.StartsWith((Join-Path $IconDataDirectory 'shell-icons'), [StringComparison]::OrdinalIgnoreCase)) { throw "快捷方式仍使用旧图标路径：$Path" }
@@ -97,7 +99,10 @@ try {
     Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')
     Assert-ShortcutIcon $pinnedShortcut $dataDirectory $pinnedTarget $pinnedArguments $pinnedAppId
     foreach ($shortcutPath in @($startMenuShortcut, $desktopShortcut)) {
-        Assert-ShortcutIcon $shortcutPath $dataDirectory (Join-Path $installDirectory 'current/ApiNet.Desktop.exe') '' 'velopack.ApiNet'
+        $standardShortcut = $shortcutReader.CreateShortcut($shortcutPath)
+        $validTargets = @([IO.Path]::GetFullPath((Join-Path $installDirectory 'current/ApiNet.Desktop.exe')), [IO.Path]::GetFullPath((Join-Path $installDirectory 'ApiNet.exe')))
+        if ([IO.Path]::GetFullPath($standardShortcut.TargetPath) -notin $validTargets) { throw "标准快捷方式未指向本次安装：$shortcutPath → $($standardShortcut.TargetPath)" }
+        Assert-ShortcutIcon $shortcutPath $dataDirectory $standardShortcut.TargetPath '' 'velopack.ApiNet'
     }
 
     # Exercise startup repair in the actual Native AOT program, including a pin
