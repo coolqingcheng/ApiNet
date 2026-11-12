@@ -1,0 +1,30 @@
+name: Native AOT formatter smoke
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: ubuntu-24.04, rid: linux-x64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Linux Native AOT prerequisites
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+      - name: Compile formatters with Native AOT
+        run: dotnet publish tests/ApiNet.AotSmoke/ApiNet.AotSmoke.csproj -c Release -r ${{ matrix.rid }} -o artifacts/formatter-smoke
+      - name: Run native formatters and invalid-input diagnostics
+        shell: pwsh
+        run: |
+          $app = if ($IsWindows) { './artifacts/formatter-smoke/ApiNet.AotSmoke.exe' } else { './artifacts/formatter-smoke/ApiNet.AotSmoke' }
+          & $app
+          if ($LASTEXITCODE -ne 0) { throw 'Native AOT formatter smoke failed.' }
