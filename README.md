@@ -219,14 +219,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`linux-x64`、`osx-arm64`，打包脚本和 CI 发布矩阵仅接受这三个目标。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.14
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.15
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.14`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.15`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
@@ -265,4 +265,6 @@ tests/ApiNet.Desktop.Tests  MVVM 交互及 XAML 渲染测试
 
 窗口只组合视图，功能按目录拆分；MainWindowViewModel 的协调命令按 Workspace、History、Capture、OpenApi、Documents、Updates 分文件，工具与设置使用独立 View/ViewModel，深浅主题色集中在 ThemePalette.axaml。各请求 Tab 维护自己的状态，网络与存储实现不依赖 Avalonia。
 
-Logo 使用中心节点连接三个节点表达网络，提供透明底 SVG/PNG 和九种尺寸 ICO，窗口、任务栏、托盘、启动器和安装包共用图标。Windows 安装和首次启动新版本时会通知 Shell 刷新本应用的图标缓存。侧栏采用固定尺寸矢量图标，避免字体符号首次绘制时缺失或裁切。修改 Logo 后可用 `python scripts/generate-icons.py` 重新生成（需要 Python 3 和 Pillow）。
+Logo 使用蓝底、奶油脸和焦糖垂耳的小狗头像，以圆脸和简洁五官保留小尺寸辨识度。提供透明边缘 SVG/PNG 和九种尺寸 ICO，窗口、任务栏、托盘、启动器和安装包共用图标；macOS 打包时由同一 PNG 生成 ICNS。Windows 安装和首次启动新版本时会通知 Shell 刷新本应用的图标缓存。侧栏采用固定尺寸矢量图标，避免字体符号首次绘制时缺失或裁切。修改 Logo 后可用 `python scripts/generate-icons.py` 重新生成（需要 Python 3 和 Pillow）。
+
+![奶油小狗图标与小尺寸预览](docs/images/icon-sizes.png)

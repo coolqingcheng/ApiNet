@@ -30,7 +30,7 @@ function Assert-ApplicationIcon([string]$File) {
     try {
         for ($y = 0; $y -lt $actualImage.Height; $y++) {
             for ($x = 0; $x -lt $actualImage.Width; $x++) {
-                if ($actualImage.GetPixel($x, $y).ToArgb() -ne $expectedImage.GetPixel($x, $y).ToArgb()) { throw "应用图标与网络 Logo 不一致：$File" }
+                if ($actualImage.GetPixel($x, $y).ToArgb() -ne $expectedImage.GetPixel($x, $y).ToArgb()) { throw "应用图标与奶油小狗 Logo 不一致：$File" }
             }
         }
     } finally { $actualImage.Dispose(); $expectedImage.Dispose(); $actual.Dispose(); $expected.Dispose() }
@@ -69,7 +69,7 @@ try {
     Assert-ApplicationIcon (Join-Path $installDirectory 'ApiNet.exe')
     Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')
     Write-Host "已验证：0.1.0 → $Version 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留。"
-    Write-Host '已验证：安装包、启动器和 Native AOT 主程序均嵌入相同的网络 Logo。'
+    Write-Host '已验证：安装包、启动器和 Native AOT 主程序均嵌入相同的奶油小狗 Logo。'
 } finally {
     $env:APINET_DATA_DIR = $previousDataDirectory
     Get-ChildItem $testRoot -Filter '*.log' | ForEach-Object { Write-Host "安装日志：$($_.FullName)"; Get-Content $_.FullName -Tail 8 }
