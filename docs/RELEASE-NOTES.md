@@ -1,8 +1,7 @@
-ApiNet 0.1.9：省略地址协议时默认使用 HTTP。
+ApiNet 0.1.10：发布目标精简为三种架构。
 
-- HTTP 请求地址未填写协议时自动使用 `http://`，支持域名、localhost、IPv4/IPv6 和带端口地址，例如 `localhost:8080/api`。
-- 环境变量解析后应用默认协议，保留查询参数和片段；`//example.com/api` 也会使用 HTTP，显式 HTTPS 地址保留。
-- 请求预览、实际发送和历史使用同一完整地址，输入框及已保存的变量表达式保留原样。
-- 空地址、无效地址及不支持的显式协议继续提示错误，WebSocket 的 ws/wss 地址保留。
+- CI 和打包脚本只构建 Windows x64（win-x64）、Linux x64（linux-x64）和 macOS ARM64 / Apple Silicon（osx-arm64）。
+- 下载说明与在线更新通道同步为这三个目标，提供对应安装包、更新包及 SHA256 校验文件。
+- 包含 0.1.9 的地址改进：HTTP 地址省略协议时默认使用 `http://`，环境变量解析后同样生效；保留显式 HTTPS、查询参数、输入内容和 WebSocket 协议。
 
-Windows Setup.exe 支持覆盖安装和同版本修复。Windows、Linux、macOS 均提供 x64 / ARM64 Native AOT 包，在线更新继续使用公开 GitHub Releases；`*.nupkg` 和 `releases.*.json` 用于更新，SHA256SUMS.txt 提供校验。
+Windows Setup.exe 支持覆盖安装和同版本修复。Windows x64、Linux x64、macOS ARM64 均提供 Native AOT 包，在线更新继续使用公开 GitHub Releases；`*.nupkg` 和 `releases.*.json` 用于更新，SHA256SUMS.txt 提供校验。

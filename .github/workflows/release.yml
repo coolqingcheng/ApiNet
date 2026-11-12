@@ -5,7 +5,7 @@ on:
       version:
         description: SemVer version
         required: true
-        default: 0.1.9
+        default: 0.1.10
 permissions:
   contents: read
 concurrency:
@@ -36,12 +36,8 @@ jobs:
       matrix:
         include:
           - { os: windows-latest, rid: win-x64 }
-          - { os: windows-latest, rid: win-arm64 }
           - { os: ubuntu-24.04, rid: linux-x64 }
-          - { os: ubuntu-24.04-arm, rid: linux-arm64 }
-          # Native AOT supports both macOS architectures on an Intel host.
-          # Use the explicit label to avoid hosted ARM runner capacity queues.
-          - { os: macos-15-intel, rid: osx-x64 }
+          # Cross-compile Apple Silicon on Intel to avoid hosted ARM runner queues.
           - { os: macos-15-intel, rid: osx-arm64 }
     runs-on: ${{ matrix.os }}
     steps:

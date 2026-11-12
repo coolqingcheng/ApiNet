@@ -14,9 +14,9 @@
 
 | 系统 | 架构 | 下载文件 |
 | --- | --- | --- |
-| Windows | x64 / ARM64 | 对应架构的 `Setup.exe` |
-| Linux | x64 / ARM64 | 对应架构的 `.AppImage`，执行前使用 `chmod +x` |
-| macOS | Intel / Apple Silicon | 对应架构的 `.dmg` 或 `Portable.zip`，将应用复制到 Applications |
+| Windows | x64 | `ApiNet-win-x64-Setup.exe` |
+| Linux | x64 | `ApiNet-linux-x64.AppImage`，执行前使用 `chmod +x` |
+| macOS | ARM64（Apple Silicon） | `.dmg` 或 `ApiNet-osx-arm64-Portable.zip`，将应用复制到 Applications |
 
 安装包自带运行时，无需安装 .NET。安装包均未签名，不通过应用商店分发。macOS 首次打开时，在“系统设置 → 隐私与安全性”中允许打开；应用应放在当前用户可写的位置，以便更新。Linux 的 CI 构建基线为 Ubuntu 24.04；部分发行版运行 AppImage 需要 FUSE。
 
@@ -37,9 +37,9 @@ dotnet run --project src/ApiNet.Desktop
 dotnet test ApiNet.sln
 ```
 
-UI 测试通过 Avalonia Headless + Skia 渲染真实 XAML，快照保存在 `artifacts/screenshots`。这些是无窗口渲染快照，不代表已在六种系统/架构上完成实机验证。
+UI 测试通过 Avalonia Headless + Skia 渲染真实 XAML，快照保存在 `artifacts/screenshots`。这些是无窗口渲染快照，不代表已在所有目标系统/架构上完成实机验证。
 
-测试覆盖真实 HTTP/HTTPS、WebSocket、代理、增量导入、SQLite、文件上传/下载、URL 与参数双向同步、文本工具及 MVVM/界面渲染。六个平台的 Native AOT 安装包由 GitHub Actions 构建，实际结果见对应的工作流。自动化测试不等于所有系统的安装和升级流程均已完成实机验证。
+测试覆盖真实 HTTP/HTTPS、WebSocket、代理、增量导入、SQLite、文件上传/下载、URL 与参数双向同步、文本工具及 MVVM/界面渲染。Windows x64、Linux x64、macOS ARM64 的 Native AOT 安装包由 GitHub Actions 构建，实际结果见对应的工作流。自动化测试不等于所有系统的安装和升级流程均已完成实机验证。
 
 v0.1.0 验证记录：
 
@@ -56,7 +56,7 @@ v0.1.3 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs
 
 v0.1.4 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42621120142)在 Windows/Linux/macOS 均通过 71 项测试，六个桌面 Native AOT 目标构建及发布成功。Windows x64 的覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。
 
-从 v0.1.5 起只构建和发布 Windows、Linux、macOS 六个桌面目标，停止 Android 打包。
+v0.1.5 至 v0.1.9 构建和发布 Windows、Linux、macOS 六个桌面目标，停止 Android 打包。从 v0.1.10 起只构建 Windows x64、Linux x64 和 macOS ARM64 三个目标。
 
 v0.1.5 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42633425399)在 Windows/Linux/macOS 均通过 82 项测试（58 项服务/网络 + 24 项界面/MVVM），覆盖导出范围、递归多选去重、未保存内容、Markdown 转义及 PDF 生成。PDF 三页样张已渲染检查，中文复制、长参数跨页和重复表头均验证通过。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42636719580)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。六个公开更新索引均为 0.1.5，模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。macOS ARM64 公开包的 SHA256 和 Mach-O ARM64 架构已核对，尚未进行 Apple Silicon 实机安装验证。
 
@@ -183,17 +183,17 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 
 ## Native AOT 发布
 
-发布使用原生 AOT，目标为 `win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`。在对应操作系统上用 PowerShell 7 执行：
+发布使用原生 AOT，目标为 `win-x64`、`linux-x64`、`osx-arm64`，打包脚本和 CI 发布矩阵仅接受这三个目标。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.9
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.10
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.9`）。工作流运行测试，构建六个桌面目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.10`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
@@ -203,9 +203,9 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 https://github.com/coolqingcheng/ApiNet
 ```
 
-Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Actions artifacts 用于构建之间传递文件，应用使用 Release 中的长期下载地址。每个平台有独立通道：`win-x64`、`win-arm64`、`linux-x64`、`linux-arm64`、`osx-x64`、`osx-arm64`；对应 `releases.{通道}.json` 与 `*.nupkg`，不要重命名或删除更新资产。
+Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Actions artifacts 用于构建之间传递文件，应用使用 Release 中的长期下载地址。当前发布通道为 `win-x64`、`linux-x64`、`osx-arm64`；对应 `releases.{通道}.json` 与 `*.nupkg`，不要重命名或删除更新资产。Windows ARM64、Linux ARM64 和 macOS Intel 的最后一个发布版本为 v0.1.9，后续版本不再提供这些架构的更新包。
 
-启动及每四小时检查一次，也可手动检查。检查中、当前已是最新版、失败原因和下载进度都显示在窗口底部，不弹常规提示框。发现新版本后自动下载并校验，再弹出立即重启升级/退出时升级/稍后的选择，同一版本每次启动只自动提示一次；稍后可从底部“安装更新”重新打开。“退出时升级”只在真正退出应用时执行，隐藏到托盘会继续运行。开发运行不安装更新。首版需要先安装正式包；后续发布更高版本即可获得更新。尚未完成六个平台的连续版本安装/升级实机验证。
+启动及每四小时检查一次，也可手动检查。检查中、当前已是最新版、失败原因和下载进度都显示在窗口底部，不弹常规提示框。发现新版本后自动下载并校验，再弹出立即重启升级/退出时升级/稍后的选择，同一版本每次启动只自动提示一次；稍后可从底部“安装更新”重新打开。“退出时升级”只在真正退出应用时执行，隐藏到托盘会继续运行。开发运行不安装更新。首版需要先安装正式包；后续发布更高版本即可获得更新。尚未完成所有目标系统/架构的连续版本安装/升级实机验证。
 
 ## 第一版边界
 
