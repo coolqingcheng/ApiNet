@@ -151,6 +151,97 @@ public class ParameterTableTests
     private static void Render(Window window) { window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick(); }
 
     [AvaloniaFact]
+    public async Task TypingQueryKeyAndValueIntoDraftAndExistingCellsKeepsUrlInSync()
+    {
+        var model = CreateModel(); await model.InitializeAsync();
+        var tab = model.SelectedTab!;
+        var window = new MainWindow { DataContext = model }; window.Show();
+        try
+        {
+            Render(window);
+            var table = window.GetVisualDescendants().OfType<HttpRequestView>().Single().GetVisualDescendants().OfType<ParameterTable>().Single(x => x.Title == "Query Params");
+            var draft = table.Model.Items.Last();
+            var key = table.GetVisualDescendants().OfType<CodeEditor>().Single(x => ReferenceEquals(x.DataContext, draft) && x.Watermark == "Key");
+            Click(key); Type("search");
+            Assert.Same(draft, Assert.Single(tab.QueryRows)); Assert.Equal("search", draft.Key);
+            var value = table.GetVisualDescendants().OfType<CodeEditor>().Single(x => ReferenceEquals(x.DataContext, draft) && x.Watermark == "Value");
+            Click(value); Type("hello");
+            Assert.Equal("hello", draft.Value); Assert.Contains("search=hello", tab.Url);
+            Click(key);
+            var command = Application.Current!.PlatformSettings!.HotkeyConfiguration.CommandModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
+            window.KeyPressQwerty(PhysicalKey.A, command); window.KeyReleaseQwerty(PhysicalKey.A, command); Type("q");
+            Assert.Equal("q", draft.Key); Assert.Contains("q=hello", tab.Url);
+            Assert.Single(table.Model.Items, row => row.IsDraft);
+        }
+        finally { await model.ShutdownAsync(); window.Close(); }
+
+        void Click(CodeEditor editor)
+        {
+            var point = editor.TranslatePoint(new Point(20, editor.Bounds.Height / 2), window)!.Value;
+            window.MouseDown(point, MouseButton.Left); window.MouseUp(point, MouseButton.Left); Render(window);
+        }
+        void Type(string text) { foreach (var character in text) { window.KeyTextInput(character.ToString()); Render(window); } }
+    }
+
+    [AvaloniaFact]
+    public async Task MouseEditingHeadersFormsAndSocketParametersSupportsLongValuesAndSelection()
+    {
+        var model = CreateModel(); await model.InitializeAsync();
+        var window = new MainWindow { DataContext = model }; window.Show();
+        try
+        {
+            var http = model.SelectedTab!;
+            http.BodyFormat = "Form URL Encoded";
+            var socketRequest = model.Workspace.Requests.Single(request => request.Protocol == "WebSocket");
+            foreach (var socket in new[] { false, true })
+            {
+                if (socket) model.OpenRequest(socketRequest); else model.SelectedTab = http;
+                Render(window);
+                UserControl view = socket ? window.GetVisualDescendants().OfType<WebSocketView>().Single() : window.GetVisualDescendants().OfType<HttpRequestView>().Single();
+                var tabs = view.GetVisualDescendants().OfType<TabControl>().First();
+                foreach (var index in socket ? new[] { 0, 1 } : new[] { 1, 2 })
+                {
+                    tabs.SelectedIndex = index; Render(window);
+                    var table = view.GetVisualDescendants().OfType<ParameterTable>().Single(table => table.Title == (index == 0 ? "Query Params" : index == 1 ? "Headers" : "Body Parameters"));
+                    var draft = table.Model.Items.Last();
+                    var cells = table.GetVisualDescendants().OfType<CodeEditor>().Where(editor => ReferenceEquals(editor.DataContext, draft)).ToArray();
+                    var value = cells.Single(editor => editor.Watermark == "Value");
+                    Click(value); window.KeyTextInput("first"); Render(window);
+                    Assert.False(draft.IsDraft); Assert.Equal("first", draft.Value); Assert.True(value.IsKeyboardFocusWithin);
+                    var key = cells.Single(editor => editor.Watermark == "Key");
+                    Click(key); window.KeyTextInput("X-Search"); Render(window);
+                    Assert.Equal("X-Search", draft.Key); Assert.True(key.IsKeyboardFocusWithin);
+                    Click(value); SelectAll();
+                    var longText = new string('a', 220) + "{{host}}中文";
+                    window.KeyTextInput(longText); Render(window);
+                    Assert.Equal(longText, draft.Value);
+                    Assert.True(value.Editor.TextArea.TextView.ScrollOffset.X > 0);
+                    Assert.Equal(0, value.Editor.TextArea.TextView.ScrollOffset.Y);
+                    Click(value); SelectAll(); window.KeyTextInput("{{token}}中文"); Render(window);
+                    Assert.Equal("{{token}}中文", draft.Value);
+                    var description = cells.Single(editor => editor.Watermark == "Description");
+                    Click(description); window.KeyTextInput("参数描述"); Render(window); Assert.Equal("参数描述", draft.Description);
+                    Assert.Single(table.Model.Items, row => row.IsDraft);
+                }
+            }
+            await model.SaveDraftsAsync();
+            Assert.All(model.Workspace.OpenTabs, request => Assert.Contains(request.HeaderParameters, parameter => parameter.Key == "X-Search" && parameter.Value == "{{token}}中文"));
+        }
+        finally { await model.ShutdownAsync(); window.Close(); }
+
+        void Click(CodeEditor editor)
+        {
+            var point = editor.TranslatePoint(new Point(20, editor.Bounds.Height / 2), window)!.Value;
+            window.MouseDown(point, MouseButton.Left); window.MouseUp(point, MouseButton.Left); Render(window);
+        }
+        void SelectAll()
+        {
+            var command = Application.Current!.PlatformSettings!.HotkeyConfiguration.CommandModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
+            window.KeyPressQwerty(PhysicalKey.A, command); window.KeyReleaseQwerty(PhysicalKey.A, command);
+        }
+    }
+
+    [AvaloniaFact]
     public async Task WebSocketUsesHttpStyleParameterTabsAndMessageEditorAndCommitsHandshakeBulkEdits()
     {
         var model = CreateModel(); await model.InitializeAsync();

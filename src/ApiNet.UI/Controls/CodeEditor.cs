@@ -92,7 +92,9 @@ public sealed class CodeEditor : UserControl
         if (change.Property == SingleLineProperty || change.Property == IsTableCellProperty)
         {
             Editor.ShowLineNumbers = !SingleLine;
-            Editor.VerticalScrollBarVisibility = SingleLine ? Avalonia.Controls.Primitives.ScrollBarVisibility.Hidden : Avalonia.Controls.Primitives.ScrollBarVisibility.Auto;
+            // Hidden still scrolls: a short cell's caret and mouse selection can
+            // recursively scroll each other. Single-line inputs never scroll vertically.
+            Editor.VerticalScrollBarVisibility = SingleLine ? Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled : Avalonia.Controls.Primitives.ScrollBarVisibility.Auto;
             Editor.HorizontalScrollBarVisibility = SingleLine ? Avalonia.Controls.Primitives.ScrollBarVisibility.Hidden : Avalonia.Controls.Primitives.ScrollBarVisibility.Auto;
             _border.Padding = IsTableCell ? new Thickness(10, 6) : SingleLine ? new Thickness(12, 8) : new Thickness(12);
             _border.BorderThickness = SingleLine ? new Thickness(1) : new Thickness(0);
