@@ -168,7 +168,7 @@ public class ParameterTableTests
             Click(value); Type("hello");
             Assert.Equal("hello", draft.Value); Assert.Contains("search=hello", tab.Url);
             Click(key);
-            var command = Application.Current!.PlatformSettings!.HotkeyConfiguration.CommandModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
+            var command = EditorCommandModifier;
             window.KeyPressQwerty(PhysicalKey.A, command); window.KeyReleaseQwerty(PhysicalKey.A, command); Type("q");
             Assert.Equal("q", draft.Key); Assert.Contains("q=hello", tab.Url);
             Assert.Single(table.Model.Items, row => row.IsDraft);
@@ -236,10 +236,13 @@ public class ParameterTableTests
         }
         void SelectAll()
         {
-            var command = Application.Current!.PlatformSettings!.HotkeyConfiguration.CommandModifiers == KeyModifiers.Meta ? RawInputModifiers.Meta : RawInputModifiers.Control;
+            var command = EditorCommandModifier;
             window.KeyPressQwerty(PhysicalKey.A, command); window.KeyReleaseQwerty(PhysicalKey.A, command);
         }
     }
+
+    // AvaloniaEdit uses Command+A for Select All on macOS, including in Headless tests.
+    private static RawInputModifiers EditorCommandModifier => OperatingSystem.IsMacOS() ? RawInputModifiers.Meta : RawInputModifiers.Control;
 
     [AvaloniaFact]
     public async Task WebSocketUsesHttpStyleParameterTabsAndMessageEditorAndCommitsHandshakeBulkEdits()
