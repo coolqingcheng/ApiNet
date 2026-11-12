@@ -11,7 +11,7 @@
     <GridSplitter Grid.Row="1" Background="{DynamicResource SubtleBorderBrush}" ResizeDirection="Rows" />
     <Grid Grid.Row="2" RowDefinitions="Auto,*">
       <Border Background="{DynamicResource RaisedBackgroundBrush}" Padding="20,8"><Grid ColumnDefinitions="Auto,*,Auto"><TextBlock Text="响应" FontWeight="SemiBold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" TextTrimming="CharacterEllipsis" Margin="15,0" VerticalAlignment="Center" /><Button Grid.Column="2" Content="保存响应 ↓" Classes="ghost" Command="{Binding SaveResponseCommand}" IsEnabled="{Binding CanSaveResponse}" /></Grid></Border>
-      <TabControl Grid.Row="1" Margin="12,0"><TabItem Header="Body"><c:CodeEditor Text="{Binding ResponseBody, Mode=OneWay}" Language="{Binding ResponseFormat}" IsReadOnly="True" /></TabItem><TabItem Header="Headers"><c:CodeEditor Text="{Binding ResponseHeaders, Mode=OneWay}" IsReadOnly="True" /></TabItem></TabControl>
+      <TabControl Grid.Row="1" Margin="12,0"><TabItem Header="Body"><c:CodeEditor x:Name="ResponseBodyEditor" Text="{Binding ResponseBody, Mode=OneWay}" Language="{Binding ResponseFormat}" IsReadOnly="True" WordWrap="True" /></TabItem><TabItem Header="Headers"><c:CodeEditor Text="{Binding ResponseHeaders, Mode=OneWay}" IsReadOnly="True" WordWrap="True" /></TabItem></TabControl>
     </Grid>
   </Grid>
 </UserControl>

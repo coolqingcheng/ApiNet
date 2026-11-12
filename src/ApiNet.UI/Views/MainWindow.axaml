@@ -60,14 +60,26 @@
         <Border IsVisible="{Binding IsTools}"><tools:ToolsView DataContext="{Binding Tools}" /></Border>
       </Grid>
     </Grid>
-    <Border Grid.Row="2" Background="{DynamicResource RaisedBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="12,4">
-      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto"><TextBlock Text="{Binding ApplicationVersion}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextSecondaryBrush}" />
-        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" Margin="0,0,16,0" IsVisible="{Binding HasUpdateStatus}">
-          <TextBlock x:Name="UpdateStatusText" Text="{Binding UpdateStatus}" ToolTip.Tip="{Binding UpdateStatus}" MaxWidth="320" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" />
-          <ProgressBar Width="48" Height="3" Value="{Binding UpdateProgress}" IsIndeterminate="{Binding IsUpdateIndeterminate}" IsVisible="{Binding UpdateBusy}" VerticalAlignment="Center" />
-          <Button Content="安装更新" Classes="ghost" FontSize="10" Padding="6,0" Command="{Binding ShowUpdatePromptCommand}" IsVisible="{Binding UpdateReady}" />
+    <Border Grid.Row="2" Background="{DynamicResource RaisedBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="12,0">
+      <Border.Styles>
+        <Style Selector="TextBlock"><Setter Property="FontSize" Value="11" /><Setter Property="LineHeight" Value="16" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+        <Style Selector="Button"><Setter Property="FontSize" Value="11" /><Setter Property="Height" Value="22" /><Setter Property="MinHeight" Value="0" /><Setter Property="Padding" Value="8,0" /><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
+        <Style Selector="Path.update-spinner[IsVisible=True]">
+          <Style.Animations>
+            <Animation Duration="0:0:0.8" IterationCount="Infinite">
+              <KeyFrame Cue="0%"><Setter Property="RotateTransform.Angle" Value="0" /></KeyFrame>
+              <KeyFrame Cue="100%"><Setter Property="RotateTransform.Angle" Value="360" /></KeyFrame>
+            </Animation>
+          </Style.Animations>
+        </Style>
+      </Border.Styles>
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto"><TextBlock Text="{Binding ApplicationVersion}" Foreground="{DynamicResource TextMutedBrush}" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextSecondaryBrush}" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" Margin="0,0,16,0" VerticalAlignment="Center" IsVisible="{Binding HasUpdateStatus}">
+          <Path x:Name="UpdateSpinner" Classes="update-spinner" Data="M 8,1 A 7,7 0 1 1 1,8" Stroke="{DynamicResource TextMutedBrush}" StrokeThickness="2" Stretch="Uniform" Width="12" Height="12" RenderTransformOrigin="50%,50%" VerticalAlignment="Center" IsVisible="{Binding UpdateBusy}" />
+          <TextBlock x:Name="UpdateStatusText" Text="{Binding UpdateStatus}" ToolTip.Tip="{Binding UpdateStatus}" MaxWidth="320" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextMutedBrush}" />
+          <Button Content="安装更新" Classes="ghost" Command="{Binding ShowUpdatePromptCommand}" IsVisible="{Binding UpdateReady}" />
         </StackPanel>
-        <TextBlock Grid.Column="3" Text="{Binding ProxyText}" Foreground="{DynamicResource SuccessBrush}" FontSize="11" /><Button Grid.Column="4" Classes="ghost" Content="设置" FontSize="10" Padding="8,0" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
+        <TextBlock Grid.Column="3" Text="{Binding ProxyText}" Foreground="{DynamicResource SuccessBrush}" /><Button Grid.Column="4" Classes="ghost" Content="设置" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
     </Border>
   </Grid>
 </Window>

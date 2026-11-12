@@ -15,6 +15,7 @@ public sealed class CodeEditor : UserControl
     public static readonly StyledProperty<string> LanguageProperty = AvaloniaProperty.Register<CodeEditor, string>(nameof(Language), "Text");
     public static readonly StyledProperty<bool> SingleLineProperty = AvaloniaProperty.Register<CodeEditor, bool>(nameof(SingleLine));
     public static readonly StyledProperty<bool> IsReadOnlyProperty = AvaloniaProperty.Register<CodeEditor, bool>(nameof(IsReadOnly));
+    public static readonly StyledProperty<bool> WordWrapProperty = AvaloniaProperty.Register<CodeEditor, bool>(nameof(WordWrap));
     public static readonly StyledProperty<bool> IsTableCellProperty = AvaloniaProperty.Register<CodeEditor, bool>(nameof(IsTableCell));
     public static readonly StyledProperty<bool> IsMutedProperty = AvaloniaProperty.Register<CodeEditor, bool>(nameof(IsMuted));
     public static readonly StyledProperty<string> WatermarkProperty = AvaloniaProperty.Register<CodeEditor, string>(nameof(Watermark), "");
@@ -22,6 +23,7 @@ public sealed class CodeEditor : UserControl
     public string Language { get => GetValue(LanguageProperty); set => SetValue(LanguageProperty, value); }
     public bool SingleLine { get => GetValue(SingleLineProperty); set => SetValue(SingleLineProperty, value); }
     public bool IsReadOnly { get => GetValue(IsReadOnlyProperty); set => SetValue(IsReadOnlyProperty, value); }
+    public bool WordWrap { get => GetValue(WordWrapProperty); set => SetValue(WordWrapProperty, value); }
     public bool IsTableCell { get => GetValue(IsTableCellProperty); set => SetValue(IsTableCellProperty, value); }
     public bool IsMuted { get => GetValue(IsMutedProperty); set => SetValue(IsMutedProperty, value); }
     public string Watermark { get => GetValue(WatermarkProperty); set => SetValue(WatermarkProperty, value); }
@@ -89,13 +91,17 @@ public sealed class CodeEditor : UserControl
         }
         if (change.Property == LanguageProperty) Editor.TextArea.TextView.Redraw();
         if (change.Property == IsReadOnlyProperty) Editor.IsReadOnly = IsReadOnly;
+        if (change.Property == WordWrapProperty || change.Property == SingleLineProperty)
+        {
+            Editor.WordWrap = WordWrap && !SingleLine;
+            Editor.HorizontalScrollBarVisibility = SingleLine ? Avalonia.Controls.Primitives.ScrollBarVisibility.Hidden : WordWrap ? Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled : Avalonia.Controls.Primitives.ScrollBarVisibility.Auto;
+        }
         if (change.Property == SingleLineProperty || change.Property == IsTableCellProperty)
         {
             Editor.ShowLineNumbers = !SingleLine;
             // Hidden still scrolls: a short cell's caret and mouse selection can
             // recursively scroll each other. Single-line inputs never scroll vertically.
             Editor.VerticalScrollBarVisibility = SingleLine ? Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled : Avalonia.Controls.Primitives.ScrollBarVisibility.Auto;
-            Editor.HorizontalScrollBarVisibility = SingleLine ? Avalonia.Controls.Primitives.ScrollBarVisibility.Hidden : Avalonia.Controls.Primitives.ScrollBarVisibility.Auto;
             _border.Padding = IsTableCell ? new Thickness(10, 6) : SingleLine ? new Thickness(12, 8) : new Thickness(12);
             _border.BorderThickness = SingleLine ? new Thickness(1) : new Thickness(0);
             _border.CornerRadius = IsTableCell ? new CornerRadius(0) : new CornerRadius(4);

@@ -189,6 +189,37 @@ public class UiFeedbackTests
         finally { await model.ShutdownAsync(); window.Close(); }
     }
     [AvaloniaFact]
+    public async Task TextResponsesWrapToTheViewportWithoutChangingTheirContent()
+    {
+        var model = CreateModel(); await model.InitializeAsync();
+        var tab = (HttpRequestTabViewModel)model.SelectedTab!;
+        var window = new MainWindow { DataContext = model, Width = 1100 }; window.Show();
+        try
+        {
+            var longText = string.Concat(Enumerable.Repeat("中文-long-response-value-0123456789", 20));
+            foreach (var (type, text) in new[]
+            {
+                ("application/json", "{\"message\":\"" + longText + "\"}"), ("application/xml", "<message>" + longText + "</message>"),
+                ("text/html", "<p>" + longText + "</p>"), ("text/plain", longText)
+            })
+            {
+                tab.ShowHistory(new() { Body = text, ContentType = type, StatusCode = 200 });
+                window.UpdateLayout(); Dispatcher.UIThread.RunJobs(); AvaloniaHeadlessPlatform.ForceRenderTimerTick();
+                var response = window.GetVisualDescendants().OfType<CodeEditor>().Single(x => x.Name == "ResponseBodyEditor");
+                response.Editor.TextArea.TextView.EnsureVisualLines();
+                Assert.True(response.Editor.WordWrap);
+                Assert.Equal(Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled, response.Editor.HorizontalScrollBarVisibility);
+                Assert.True(response.Editor.TextArea.TextView.VisualLines.Sum(x => x.TextLines.Count) > 1);
+                Assert.Equal(text, response.Editor.Text);
+                Assert.Equal(1, response.Editor.Document.LineCount);
+                Assert.Equal(text, tab.ResponseBody);
+                Assert.True(response.Editor.IsReadOnly);
+            }
+            SaveFrame(window, "response-wrapping.png");
+        }
+        finally { await model.ShutdownAsync(); window.Close(); }
+    }
+    [AvaloniaFact]
     public async Task LoadingIndicatorAppearsForPendingRequestAndStopsAfterCancellation()
     {
         var model = CreateModel(http: new PendingHttp()); await model.InitializeAsync();
@@ -225,6 +256,7 @@ public class UiFeedbackTests
             Assert.Equal("当前已是最新版本", status.Text);
             Assert.True(status.TranslatePoint(new Point(), window)!.Value.Y > window.Bounds.Height - 35);
             updates.Report(new("正在下载更新…", 45, "0.2.0", Busy: true)); Dispatcher.UIThread.RunJobs();
+            SaveFrame(window, "update-downloading.png");
             Assert.Empty(dialogs.Titles); Assert.Equal(45, model.UpdateProgress); Assert.False(model.IsUpdateIndeterminate);
             dialogs.Choices.Enqueue(1);
             const string notes = "- 修复参数表格输入崩溃。\n- 升级提示显示更新内容。";
@@ -232,6 +264,7 @@ public class UiFeedbackTests
             Assert.Single(dialogs.Titles); Assert.True(model.UpdateOnExit);
             Assert.Contains("0.2.0", dialogs.Titles[0]);
             Assert.Contains("更新内容\n" + notes, dialogs.Messages[0]);
+            SaveFrame(window, "update-ready.png");
             updates.Report(new("更新已下载", 100, "0.2.0", Ready: true, ReleaseNotes: notes)); Dispatcher.UIThread.RunJobs();
             Assert.Single(dialogs.Titles);
             updates.Report(new("当前已是最新版本")); Dispatcher.UIThread.RunJobs();
