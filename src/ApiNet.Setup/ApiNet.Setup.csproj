@@ -12,6 +12,8 @@
     <StripSymbols>true</StripSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../Shared/WindowsShell*.cs" Link="Services/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../ApiNet.UI/Assets/app.ico" LogicalName="ApiNet.ShellIcon.ico" />
     <ProjectReference Include="../ApiNet.Core/ApiNet.Core.csproj" />
     <EmbeddedResource Include="$(InstallerPayload)" LogicalName="ApiNet.Setup.Payload.exe" Condition="'$(InstallerPayload)' != ''" />
   </ItemGroup>

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using ApiNet.Core;
+using ApiNet.Platform;
 
 namespace ApiNet.Setup;
 
@@ -51,8 +52,8 @@ internal static partial class Program
                 if (child.ExitCode != 0) throw new IOException($"安装未完成（错误码 {child.ExitCode}）。");
                 if (!options.Help)
                 {
-                    var launcher = Path.Combine(options.InstallDirectory, "ApiNet.exe");
-                    if (File.Exists(launcher)) SHChangeNotify(0x00002000, 0x0005 | 0x2000, launcher, 0);
+                    var data = Environment.GetEnvironmentVariable("APINET_DATA_DIR") ?? WorkspaceDataPaths.DefaultDirectory;
+                    WindowsShellIconRefresh.Refresh(data, Path.Combine(options.InstallDirectory, "current"));
                 }
                 if (options.StartApplication && !options.Help)
                 {
@@ -106,6 +107,4 @@ internal static partial class Program
     }
     [LibraryImport("user32.dll", EntryPoint = "MessageBoxW", StringMarshalling = StringMarshalling.Utf16)]
     private static partial int MessageBox(nint window, string text, string caption, uint type);
-    [LibraryImport("shell32.dll", StringMarshalling = StringMarshalling.Utf16)]
-    private static partial void SHChangeNotify(uint eventId, uint flags, string item, nint unused);
 }

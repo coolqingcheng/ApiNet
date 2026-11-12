@@ -36,10 +36,37 @@ function Assert-ApplicationIcon([string]$File) {
     } finally { $actualImage.Dispose(); $expectedImage.Dispose(); $actual.Dispose(); $expected.Dispose() }
 }
 
+$shortcutReader = New-Object -ComObject WScript.Shell
+$shellReader = New-Object -ComObject Shell.Application
+function Get-ShortcutAppId([string]$Path) {
+    $item = $shellReader.NameSpace((Split-Path -Parent $Path)).ParseName((Split-Path -Leaf $Path))
+    return $item.ExtendedProperty('System.AppUserModel.ID')
+}
+function Assert-ShortcutIcon([string]$Path, [string]$IconDataDirectory, [string]$Target, [string]$Arguments, [string]$AppId) {
+    $shortcut = $shortcutReader.CreateShortcut($Path)
+    if ($shortcut.TargetPath -ne $Target -or $shortcut.Arguments -ne $Arguments) { throw "快捷方式目标或参数被改动：$Path" }
+    if ((Get-ShortcutAppId $Path) -ne $AppId) { throw "快捷方式 AppUserModelID 被改动：$Path" }
+    $iconPath = $shortcut.IconLocation -replace ',0$', ''
+    if (!$iconPath.StartsWith((Join-Path $IconDataDirectory 'shell-icons'), [StringComparison]::OrdinalIgnoreCase)) { throw "快捷方式仍使用旧图标路径：$Path" }
+    if ((Get-FileHash -LiteralPath $iconPath).Hash -ne (Get-FileHash -LiteralPath (Join-Path $projectRoot 'src/ApiNet.UI/Assets/app.ico')).Hash) { throw "快捷方式 ICO 内容不正确：$Path" }
+}
+
 try {
     $legacy = Join-Path $testRoot 'ApiNet-0.1.0-Setup.exe'
     Invoke-WebRequest -Uri 'https://github.com/coolqingcheng/ApiNet/releases/download/v0.1.0/ApiNet-win-x64-Setup.exe' -OutFile $legacy
     Invoke-Setup $legacy @('--silent','--installto',$installDirectory,'--log',(Join-Path $testRoot 'legacy.log'))
+    $startMenuShortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'ApiNet.lnk'
+    $desktopShortcut = Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'ApiNet.lnk'
+    $taskbarDirectory = Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'Microsoft/Internet Explorer/Quick Launch/User Pinned/TaskBar'
+    New-Item -ItemType Directory -Path $taskbarDirectory -Force | Out-Null
+    $pinnedShortcut = Join-Path $taskbarDirectory 'ApiNet integration pin.lnk'
+    Copy-Item -LiteralPath $startMenuShortcut -Destination $pinnedShortcut
+    $pin = $shortcutReader.CreateShortcut($pinnedShortcut)
+    $pin.Arguments = '--example "中文 value"'
+    $pin.Save()
+    $pinnedTarget = $pin.TargetPath
+    $pinnedArguments = $pin.Arguments
+    $pinnedAppId = Get-ShortcutAppId $pinnedShortcut
     # Opaque fixtures verify that the installer preserves every byte, including a
     # pending WAL. Service tests separately verify a real SQLite database migration.
     [IO.File]::WriteAllText((Join-Path $installDirectory 'workspace.db'), 'workspace-and-history-fixture')
@@ -68,8 +95,41 @@ try {
     Assert-ApplicationIcon $setup
     Assert-ApplicationIcon (Join-Path $installDirectory 'ApiNet.exe')
     Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')
+    Assert-ShortcutIcon $pinnedShortcut $dataDirectory $pinnedTarget $pinnedArguments $pinnedAppId
+    foreach ($shortcutPath in @($startMenuShortcut, $desktopShortcut)) {
+        Assert-ShortcutIcon $shortcutPath $dataDirectory (Join-Path $installDirectory 'current/ApiNet.Desktop.exe') '' 'velopack.ApiNet'
+    }
+
+    # Exercise startup repair in the actual Native AOT program, including a pin
+    # recreated after installation. Keep its database separate from the fixtures.
+    $pin = $shortcutReader.CreateShortcut($pinnedShortcut)
+    $pin.IconLocation = "$pinnedTarget,0"
+    $pin.Save()
+    $startupData = Join-Path $testRoot 'startup data'
+    $nativeStart = [Diagnostics.ProcessStartInfo]::new((Join-Path $installDirectory 'current/ApiNet.Desktop.exe'))
+    $nativeStart.UseShellExecute = $false
+    $nativeStart.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+    $nativeStart.Environment['APINET_DATA_DIR'] = $startupData
+    $nativeProcess = [Diagnostics.Process]::Start($nativeStart)
+    try {
+        $deadline = [DateTime]::UtcNow.AddSeconds(30)
+        do {
+            Start-Sleep -Milliseconds 200
+            $nativeProcess.Refresh()
+            if ($nativeProcess.HasExited) { throw "原生程序提前退出：$($nativeProcess.ExitCode)" }
+            $updatedPin = $shortcutReader.CreateShortcut($pinnedShortcut)
+        } while (!$updatedPin.IconLocation.StartsWith($startupData, [StringComparison]::OrdinalIgnoreCase) -and [DateTime]::UtcNow -lt $deadline)
+        Assert-ShortcutIcon $pinnedShortcut $startupData $pinnedTarget $pinnedArguments $pinnedAppId
+    } finally {
+        if (!$nativeProcess.HasExited) {
+            $nativeProcess.CloseMainWindow() | Out-Null
+            if (!$nativeProcess.WaitForExit(3000)) { $nativeProcess.Kill($true); $nativeProcess.WaitForExit() }
+        }
+        $nativeProcess.Dispose()
+    }
     Write-Host "已验证：0.1.0 → $Version 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留。"
     Write-Host '已验证：安装包、启动器和 Native AOT 主程序均嵌入相同的双向数据流 Logo。'
+    Write-Host '已验证：Native AOT 安装器和主程序均修复桌面/开始菜单/任务栏快捷方式图标，保留目标、参数及 AppUserModelID。'
 } finally {
     $env:APINET_DATA_DIR = $previousDataDirectory
     Get-ChildItem $testRoot -Filter '*.log' | ForEach-Object { Write-Host "安装日志：$($_.FullName)"; Get-Content $_.FullName -Tail 8 }

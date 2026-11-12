@@ -13,6 +13,7 @@ using ApiNet.Proxy;
 using Avalonia.Platform;
 using Avalonia.Threading;
 using Avalonia.Controls;
+using ApiNet.Platform;
 
 namespace ApiNet.Desktop;
 
@@ -29,6 +30,7 @@ public sealed class DesktopLifetime
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             var store = new SqliteWorkspaceStore(Environment.GetEnvironmentVariable("APINET_DATA_DIR"));
+            WindowsShellIconRefresh.Refresh(store.DataDirectory, AppContext.BaseDirectory);
             var proxy = new ForwardProxyService(store.DataDirectory);
             var updates = new VelopackUpdateService();
             var window = new MainWindow();
@@ -104,7 +106,6 @@ public sealed class DesktopLifetime
                 try
                 {
                     await model.InitializeAsync();
-                    WindowsShellIconRefresh.RefreshAfterUpdate(store.DataDirectory);
                 }
                 catch (Exception exception) { await dialogs.ChooseAsync("无法加载工作区", exception.Message + "\n原数据已保留，请检查数据库。", ["退出"]); _canShutdown = true; _tray?.Dispose(); desktop.Shutdown(1); return; }
                 _updateTimer = new DispatcherTimer { Interval = TimeSpan.FromHours(4) };
