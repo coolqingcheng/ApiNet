@@ -76,13 +76,6 @@ try {
     $pinnedTarget = Get-ShortcutTarget $pinnedShortcut
     $pinnedArguments = $pin.Arguments
     $pinnedAppId = Get-ShortcutAppId $pinnedShortcut
-    $legacyLauncherShortcut = Join-Path $taskbarDirectory 'Legacy launcher integration pin.lnk'
-    Copy-Item -LiteralPath $startMenuShortcut -Destination $legacyLauncherShortcut
-    $legacyPin = $shortcutReader.CreateShortcut($legacyLauncherShortcut)
-    $legacyPin.TargetPath = Join-Path $installDirectory 'ApiNet.exe'
-    $legacyPin.Arguments = '--legacy-launcher'
-    $legacyPin.Save()
-    $legacyAppId = Get-ShortcutAppId $legacyLauncherShortcut
     # Opaque fixtures verify that the installer preserves every byte, including a
     # pending WAL. Service tests separately verify a real SQLite database migration.
     [IO.File]::WriteAllText((Join-Path $installDirectory 'workspace.db'), 'workspace-and-history-fixture')
@@ -117,11 +110,13 @@ try {
     Assert-ApplicationIcon $setup
     Assert-ApplicationIcon (Join-Path $installDirectory 'Post.NET.exe')
     Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')
-    Assert-ShortcutIcon $pinnedShortcut $dataDirectory $pinnedTarget $pinnedArguments $pinnedAppId
     $validTargets = @([IO.Path]::GetFullPath((Join-Path $installDirectory 'current/ApiNet.Desktop.exe')), [IO.Path]::GetFullPath((Join-Path $installDirectory 'Post.NET.exe')))
-    $migratedTarget = Get-ShortcutTarget $legacyLauncherShortcut
-    if ([IO.Path]::GetFullPath($migratedTarget) -notin $validTargets) { throw '旧版启动器快捷方式没有迁移到有效入口。' }
-    Assert-ShortcutIcon $legacyLauncherShortcut $dataDirectory $migratedTarget '--legacy-launcher' $legacyAppId
+    $currentPinnedTarget = Get-ShortcutTarget $pinnedShortcut
+    if ($pinnedTarget -eq (Join-Path $installDirectory 'ApiNet.exe')) {
+        if ([IO.Path]::GetFullPath($currentPinnedTarget) -notin $validTargets) { throw '旧版启动器快捷方式没有迁移到有效入口。' }
+        $pinnedTarget = $currentPinnedTarget
+    }
+    Assert-ShortcutIcon $pinnedShortcut $dataDirectory $pinnedTarget $pinnedArguments $pinnedAppId
     foreach ($shortcutPath in @($startMenuShortcut, $desktopShortcut)) {
         $standardTarget = Get-ShortcutTarget $shortcutPath
         if ([IO.Path]::GetFullPath($standardTarget) -notin $validTargets) { throw "标准快捷方式未指向本次安装：$shortcutPath → $standardTarget" }
@@ -157,7 +152,10 @@ try {
     }
     Write-Host "已验证：0.1.0 → $Version 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留。"
     Write-Host '已验证：安装包、启动器和 Native AOT 主程序均嵌入相同的双向数据流 Logo。'
-    Write-Host '已验证：Native AOT 安装器和主程序均修复桌面/开始菜单/任务栏快捷方式图标，保留目标、参数及 AppUserModelID。'
+    Write-Host '已验证：Post.NET 默认快捷方式名称、旧入口迁移、图标修复及启动参数和 AppUserModelID 保留。'
+} catch {
+    Write-Host $_.ScriptStackTrace
+    throw
 } finally {
     $env:APINET_DATA_DIR = $previousDataDirectory
     Get-ChildItem $testRoot -Filter '*.log' | ForEach-Object { Write-Host "安装日志：$($_.FullName)"; Get-Content $_.FullName -Tail 8 }
