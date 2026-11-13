@@ -1,6 +1,6 @@
 # Third-party notices
 
-ApiNet uses the following open-source components. Their respective licenses apply:
+Post.NET uses the following open-source components. Their respective licenses apply:
 
 | Component | License | Source |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-PDF 中文字体 ApiNet Document SC 基于 Noto Sans CJK SC Regular，由 Noto CJK 项目提供，使用 SIL Open Font License 1.1。源：https://github.com/notofonts/noto-cjk 。© 2014-2021 Adobe (http://www.adobe.com/). 衍生字体保留全部 Unicode 覆盖，将共享字形拆分为独立映射，以保证 PDF 复制和搜索得到原汉字；构建脚本为 scripts/prepare-pdf-font.py（需要 fonttools）。字体和完整许可证随应用嵌入，源文件位于 src/ApiNet.UI/Assets/Fonts/。保留的移动端源码字体使用同一许可证。
+PDF 中文字体 ApiNet Document SC 基于 Noto Sans CJK SC Regular，由 Noto CJK 项目提供，使用 SIL Open Font License 1.1。源：https://github.com/notofonts/noto-cjk 。© 2014-2021 Adobe (http://www.adobe.com/). 衍生字体保留全部 Unicode 覆盖，将共享字形拆分为独立映射，以保证 PDF 复制和搜索得到原汉字；构建脚本为 scripts/prepare-pdf-font.py（需要 fonttools）。字体和完整许可证随应用嵌入，源文件位于 src/PostNet.UI/Assets/Fonts/。保留的移动端源码字体使用同一许可证。
 
 ## NUglify — License
 

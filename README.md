@@ -1,12 +1,14 @@
-<img src="src/ApiNet.UI/Assets/app.png" width="80" alt="ApiNet Logo" />
+<img src="src/PostNet.UI/Assets/app.png" width="80" alt="Post.NET Logo" />
 
-# ApiNet
+# Post.NET
 
-基于 .NET 10、Avalonia 和 CommunityToolkit.Mvvm 的跨平台网络调试工作台。布局参考 Postman，采用 VS Code 风格的紧凑界面，提供深色、浅色和午夜蓝三套主题。
+开源、跨平台的 API 调试工具，支持 HTTP、WebSocket、代理抓包与接口文档管理。基于 .NET 10、Avalonia 和 CommunityToolkit.Mvvm 开发。布局参考 Postman，采用 VS Code 风格的紧凑界面，提供深色、浅色和午夜蓝三套主题。
 
-[下载安装包](https://github.com/coolqingcheng/ApiNet/releases/latest) · [CI 构建](https://github.com/coolqingcheng/ApiNet/actions) · [问题反馈](https://github.com/coolqingcheng/ApiNet/issues)
+自 v0.1.20 起，ApiNet 更名为 **Post.NET**，代码项目与命名空间统一使用 `PostNet`。旧版可通过原有在线更新入口升级；工作区、环境、历史、本地证书及设置继续使用原有数据。
 
-![ApiNet 请求工作台](docs/images/workbench.png)
+[下载安装包](https://github.com/coolqingcheng/Post.NET/releases/latest) · [CI 构建](https://github.com/coolqingcheng/Post.NET/actions) · [问题反馈](https://github.com/coolqingcheng/Post.NET/issues)
+
+![Post.NET API 调试工具](docs/images/workbench.png)
 
 截图使用 Avalonia Headless + Skia 渲染真实界面，展示测试响应数据。
 
@@ -20,9 +22,9 @@
 
 | 系统 | 架构 | 下载文件 |
 | --- | --- | --- |
-| Windows | x64 | `ApiNet-win-x64-Setup.exe` |
-| Linux | x64 | `ApiNet-linux-x64.AppImage`，执行前使用 `chmod +x` |
-| macOS | ARM64（Apple Silicon） | `.dmg` 或 `ApiNet-osx-arm64-Portable.zip`，将应用复制到 Applications |
+| Windows | x64 | `Post.NET-win-x64-Setup.exe` |
+| Linux | x64 | `Post.NET-linux-x64.AppImage`，执行前使用 `chmod +x` |
+| macOS | ARM64（Apple Silicon） | `.dmg` 或 `Post.NET-osx-arm64-Portable.zip`，将应用复制到 Applications |
 
 安装包自带运行时，无需安装 .NET。安装包均未签名，不通过应用商店分发。macOS 首次打开时，在“系统设置 → 隐私与安全性”中允许打开；应用应放在当前用户可写的位置，以便更新。Linux 的 CI 构建基线为 Ubuntu 24.04；部分发行版运行 AppImage 需要 FUSE。
 
@@ -34,13 +36,13 @@ Windows 从 0.1.1 起，再次运行 Setup.exe 会直接覆盖安装/修复，�
 
 ```sh
 dotnet restore
-dotnet run --project src/ApiNet.Desktop
+dotnet run --project src/PostNet.Desktop
 ```
 
 测试（本地 IndexedDB 解码集成测试另需 PATH 中有 Node.js 22；正式应用优先使用已安装原软件自带的 Electron，无需用户另装 Node.js）：
 
 ```sh
-dotnet test ApiNet.sln
+dotnet test PostNet.sln
 ```
 
 UI 测试通过 Avalonia Headless + Skia 渲染真实 XAML，快照保存在 `artifacts/screenshots`。这些是无窗口渲染快照，不代表已在所有目标系统/架构上完成实机验证。
@@ -50,49 +52,49 @@ UI 测试通过 Avalonia Headless + Skia 渲染真实 XAML，快照保存在 `ar
 v0.1.0 验证记录：
 
 - Windows、Linux、macOS 均通过 32 项自动化测试（24 项服务/网络测试 + 8 项桌面测试）。
-- 六个 RID 的 Native AOT 编译、Velopack 打包及 Release 上传全部成功，见[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42586154097)。
+- 六个 RID 的 Native AOT 编译、Velopack 打包及 Release 上传全部成功，见[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42586154097)。
 - Windows x64 原生程序已在本机验证启动、工作区数据库创建和正常退出。
 - 使用 Velopack 测试定位器模拟旧版本，已从公开 GitHub Releases 检查、下载并校验真实的 Windows x64 更新包，无需访问令牌；这项检查未执行应用替换和重启。
 
-v0.1.1 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42589146970)已完成六个平台打包，Windows/Linux/macOS 均通过 35 项测试。Windows x64 另执行了真实安装集成测试：从 0.1.0 覆盖升级、同版本再次安装、缺失文件修复，以及旧数据库、WAL、本地 CA 和修复后新增数据的保留，全部通过。
+v0.1.1 的[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42589146970)已完成六个平台打包，Windows/Linux/macOS 均通过 35 项测试。Windows x64 另执行了真实安装集成测试：从 0.1.0 覆盖升级、同版本再次安装、缺失文件修复，以及旧数据库、WAL、本地 CA 和修复后新增数据的保留，全部通过。
 
-v0.1.2 的[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42597343331)已完成六个平台的 Native AOT 打包及发布；Windows/Linux/macOS 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42597319162)均通过 51 项测试（41 项服务/网络 + 10 项桌面）。Windows x64 另通过从 0.1.0 覆盖升级、同版本修复及数据库/WAL/CA 保留测试。六个架构的公开更新索引均指向 0.1.2，使用模拟旧版本定位器已从 GitHub 无令牌检查、下载并校验 Windows x64 更新包；该下载验证不执行应用替换或重启。
+v0.1.2 的[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42597343331)已完成六个平台的 Native AOT 打包及发布；Windows/Linux/macOS 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42597319162)均通过 51 项测试（41 项服务/网络 + 10 项桌面）。Windows x64 另通过从 0.1.0 覆盖升级、同版本修复及数据库/WAL/CA 保留测试。六个架构的公开更新索引均指向 0.1.2，使用模拟旧版本定位器已从 GitHub 无令牌检查、下载并校验 Windows x64 更新包；该下载验证不执行应用替换或重启。
 
-v0.1.3 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42603067258)在 Windows/Linux/macOS 均通过 69 项自动化测试（51 项服务/网络 + 18 项桌面），覆盖文件上传、在线文档、双向参数同步、深浅主题和文本工具。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42603098585)已完成六个平台的 Native AOT 打包和发布，Windows x64 的 0.1.0 → 0.1.3 覆盖升级、重复修复及数据库/WAL/CA 保留验证均通过。六个公开更新索引已核对为 0.1.3，并使用模拟旧版本定位器，从 GitHub 无令牌下载并校验 Windows x64 更新包；这项客户端验证不执行应用替换或重启。
+v0.1.3 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42603067258)在 Windows/Linux/macOS 均通过 69 项自动化测试（51 项服务/网络 + 18 项桌面），覆盖文件上传、在线文档、双向参数同步、深浅主题和文本工具。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42603098585)已完成六个平台的 Native AOT 打包和发布，Windows x64 的 0.1.0 → 0.1.3 覆盖升级、重复修复及数据库/WAL/CA 保留验证均通过。六个公开更新索引已核对为 0.1.3，并使用模拟旧版本定位器，从 GitHub 无令牌下载并校验 Windows x64 更新包；这项客户端验证不执行应用替换或重启。
 
-v0.1.4 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42621120142)在 Windows/Linux/macOS 均通过 71 项测试，六个桌面 Native AOT 目标构建及发布成功。Windows x64 的覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。
+v0.1.4 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42621120142)在 Windows/Linux/macOS 均通过 71 项测试，六个桌面 Native AOT 目标构建及发布成功。Windows x64 的覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。
 
 v0.1.5 至 v0.1.9 构建和发布 Windows、Linux、macOS 六个桌面目标，停止 Android 打包。从 v0.1.10 起只构建 Windows x64、Linux x64 和 macOS ARM64 三个目标。
 
-v0.1.5 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42633425399)在 Windows/Linux/macOS 均通过 82 项测试（58 项服务/网络 + 24 项界面/MVVM），覆盖导出范围、递归多选去重、未保存内容、Markdown 转义及 PDF 生成。PDF 三页样张已渲染检查，中文复制、长参数跨页和重复表头均验证通过。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42636719580)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。六个公开更新索引均为 0.1.5，模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。macOS ARM64 公开包的 SHA256 和 Mach-O ARM64 架构已核对，尚未进行 Apple Silicon 实机安装验证。
+v0.1.5 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42633425399)在 Windows/Linux/macOS 均通过 82 项测试（58 项服务/网络 + 24 项界面/MVVM），覆盖导出范围、递归多选去重、未保存内容、Markdown 转义及 PDF 生成。PDF 三页样张已渲染检查，中文复制、长参数跨页和重复表头均验证通过。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42636719580)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。六个公开更新索引均为 0.1.5，模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。macOS ARM64 公开包的 SHA256 和 Mach-O ARM64 架构已核对，尚未进行 Apple Silicon 实机安装验证。
 
-v0.1.6 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42650191232)在 Windows/Linux/macOS 均通过 88 项测试（60 项服务/网络 + 28 项界面/MVVM），覆盖空行新增与焦点保持、Tab 导航、深浅主题渲染、长文件路径列对齐、Bulk Edit 发送/保存/草稿以及参数描述往返。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42650243719)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。六个公开更新索引均为 0.1.6，模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
+v0.1.6 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42650191232)在 Windows/Linux/macOS 均通过 88 项测试（60 项服务/网络 + 28 项界面/MVVM），覆盖空行新增与焦点保持、Tab 导航、深浅主题渲染、长文件路径列对齐、Bulk Edit 发送/保存/草稿以及参数描述往返。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42650243719)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。六个公开更新索引均为 0.1.6，模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
 
-v0.1.7 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42738255990)在 Windows/Linux/macOS 均通过 92 项测试（60 项服务/网络 + 32 项界面/MVVM），覆盖工作区 Ctrl/⌘ 多选、单行标签滚动与模糊搜索、侧栏图标首次渲染，以及 WebSocket 参数表格、批量编辑和消息高亮。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42738282235)已完成六个桌面 Native AOT 目标并发布 35 个文件；Windows x64 的 0.1.0 → 0.1.7 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过，安装包、启动器和主程序的网络 Logo 也通过逐像素比对。六个公开更新索引均为 0.1.7，SHA256 清单与发布文件摘要一致；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
+v0.1.7 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42738255990)在 Windows/Linux/macOS 均通过 92 项测试（60 项服务/网络 + 32 项界面/MVVM），覆盖工作区 Ctrl/⌘ 多选、单行标签滚动与模糊搜索、侧栏图标首次渲染，以及 WebSocket 参数表格、批量编辑和消息高亮。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42738282235)已完成六个桌面 Native AOT 目标并发布 35 个文件；Windows x64 的 0.1.0 → 0.1.7 覆盖升级、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过，安装包、启动器和主程序的网络 Logo 也通过逐像素比对。六个公开更新索引均为 0.1.7，SHA256 清单与发布文件摘要一致；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
 
-v0.1.8 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42743979186)在 Windows/Linux/macOS 均通过 96 项测试（60 项服务/网络 + 36 项界面/MVVM），覆盖标签右键菜单点击、按目标标签关闭其他/左右标签、全部关闭、菜单置灰、保存/放弃/取消、无效批量编辑、WebSocket 断开和重复关闭保护。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/42744005841)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及网络 Logo 比对均通过。六个公开更新索引均为 0.1.8，索引中的大小、SHA256 及发布校验清单均与发布文件摘要一致；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
+v0.1.8 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42743979186)在 Windows/Linux/macOS 均通过 96 项测试（60 项服务/网络 + 36 项界面/MVVM），覆盖标签右键菜单点击、按目标标签关闭其他/左右标签、全部关闭、菜单置灰、保存/放弃/取消、无效批量编辑、WebSocket 断开和重复关闭保护。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/42744005841)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及网络 Logo 比对均通过。六个公开更新索引均为 0.1.8，索引中的大小、SHA256 及发布校验清单均与发布文件摘要一致；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
 
-v0.1.9 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43165089538)在 Windows/Linux/macOS 均通过 113 项测试（76 项服务/网络 + 37 项界面/MVVM），新增覆盖省略 HTTP 协议的真实请求、域名/IP/端口、变量解析、查询参数、预览/历史一致性及显式 HTTPS 保留。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43165150609)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及图标比对均通过。六个公开更新索引均为 0.1.9，大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
+v0.1.9 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43165089538)在 Windows/Linux/macOS 均通过 113 项测试（76 项服务/网络 + 37 项界面/MVVM），新增覆盖省略 HTTP 协议的真实请求、域名/IP/端口、变量解析、查询参数、预览/历史一致性及显式 HTTPS 保留。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43165150609)已完成六个桌面 Native AOT 目标；Windows x64 覆盖升级、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及图标比对均通过。六个公开更新索引均为 0.1.9，大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
 
-v0.1.10 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43169564006)在 Windows/Linux/macOS 均通过 115 项测试（76 项服务/网络 + 39 项界面/MVVM），新增 Headless 鼠标点击和输入回归，覆盖 HTTP/WebSocket 参数表格、草稿行新增、长值横向滚动、中文、变量及选中替换。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43170030284)仅构建 Windows x64、Linux x64、macOS ARM64 三个 Native AOT 目标，已发布 18 个文件；Windows x64 覆盖升级、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及图标比对均通过。三个公开更新索引均为 0.1.10，大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
+v0.1.10 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43169564006)在 Windows/Linux/macOS 均通过 115 项测试（76 项服务/网络 + 39 项界面/MVVM），新增 Headless 鼠标点击和输入回归，覆盖 HTTP/WebSocket 参数表格、草稿行新增、长值横向滚动、中文、变量及选中替换。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43170030284)仅构建 Windows x64、Linux x64、macOS ARM64 三个 Native AOT 目标，已发布 18 个文件；Windows x64 覆盖升级、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及图标比对均通过。三个公开更新索引均为 0.1.10，大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows x64 更新包，此项验证不执行应用替换或重启。
 
-v0.1.11 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43173394863)在 Windows/Linux/macOS 均通过 117 项测试（76 项服务/网络 + 41 项界面/MVVM），覆盖更新说明随目标版本切换、缺省说明、稍后重新查看，以及长说明滚动时升级按钮保持可见。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43173451093)已完成三个 Native AOT 目标并发布 18 个文件，Windows x64 覆盖安装、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。GitHub 发布页与三个公开更新索引的更新说明均与源文件一致，更新包大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取完整更新说明，此项验证不执行应用替换或重启。
+v0.1.11 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43173394863)在 Windows/Linux/macOS 均通过 117 项测试（76 项服务/网络 + 41 项界面/MVVM），覆盖更新说明随目标版本切换、缺省说明、稍后重新查看，以及长说明滚动时升级按钮保持可见。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43173451093)已完成三个 Native AOT 目标并发布 18 个文件，Windows x64 覆盖安装、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。GitHub 发布页与三个公开更新索引的更新说明均与源文件一致，更新包大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取完整更新说明，此项验证不执行应用替换或重启。
 
-v0.1.12 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43179392296)在 Windows/Linux/macOS 均通过 134 项测试（89 项服务/工具/网络 + 45 项界面/MVVM），新增覆盖秒/毫秒与负数时间戳、时区与闰日、夏令时歧义、Cron 模板及执行预览，以及 JSON/XML/HTML/普通文本响应换行时原文保留。工具的深浅主题、紧凑布局、状态栏对齐与更新圆圈已通过 Headless 渲染检查。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43179393812)已完成三个 Native AOT 目标并发布 18 个文件，Windows x64 覆盖安装、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。三个公开更新索引、更新说明、包大小和 SHA256 校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取完整更新说明，此项验证不执行应用替换或重启。
+v0.1.12 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43179392296)在 Windows/Linux/macOS 均通过 134 项测试（89 项服务/工具/网络 + 45 项界面/MVVM），新增覆盖秒/毫秒与负数时间戳、时区与闰日、夏令时歧义、Cron 模板及执行预览，以及 JSON/XML/HTML/普通文本响应换行时原文保留。工具的深浅主题、紧凑布局、状态栏对齐与更新圆圈已通过 Headless 渲染检查。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43179393812)已完成三个 Native AOT 目标并发布 18 个文件，Windows x64 覆盖安装、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。三个公开更新索引、更新说明、包大小和 SHA256 校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取完整更新说明，此项验证不执行应用替换或重启。
 
-v0.1.13 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43184996059)在 Windows/Linux/macOS 均通过 153 项测试（102 项服务/工具/网络 + 51 项界面/MVVM），覆盖格式化/压缩、数字与转义保留、多兆字节 JSON 的后台处理与取消、旧任务失效，以及响应原文、下载和历史保留。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43184997700)已完成三个 Native AOT 目标并发布 18 个文件，Windows x64 覆盖安装、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。三个更新索引、更新说明、包摘要及校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取完整说明，此项验证不替换或重启应用。另通过 Windows x64/Linux x64 的[原生运行检查](https://github.com/coolqingcheng/ApiNet/actions/runs/43186375089)，实际执行 JSON/XML/HTML/JavaScript/CSS 格式化、压缩及无效 JavaScript 报错；NUglify 的反射辅助代码仍产生裁剪告警，此检查覆盖当前使用的调用路径，macOS 的对应功能尚未做原生运行检查。
+v0.1.13 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43184996059)在 Windows/Linux/macOS 均通过 153 项测试（102 项服务/工具/网络 + 51 项界面/MVVM），覆盖格式化/压缩、数字与转义保留、多兆字节 JSON 的后台处理与取消、旧任务失效，以及响应原文、下载和历史保留。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43184997700)已完成三个 Native AOT 目标并发布 18 个文件，Windows x64 覆盖安装、同版本修复、缺失文件恢复及数据库/WAL/CA 保留验证通过。三个更新索引、更新说明、包摘要及校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取完整说明，此项验证不替换或重启应用。另通过 Windows x64/Linux x64 的[原生运行检查](https://github.com/coolqingcheng/Post.NET/actions/runs/43186375089)，实际执行 JSON/XML/HTML/JavaScript/CSS 格式化、压缩及无效 JavaScript 报错；NUglify 的反射辅助代码仍产生裁剪告警，此检查覆盖当前使用的调用路径，macOS 的对应功能尚未做原生运行检查。
 
-v0.1.14 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43189979115)在 Windows/Linux/macOS 均通过 156 项测试（102 项服务/工具/网络 + 54 项界面/MVVM），新增覆盖响应头重复字段、冒号与原文保留、鼠标切换表格/纯文本、历史刷新、三套主题即时切换与保存，以及表头半选、鼠标全选和空格键停用。三套主题、紧凑布局和小窗口响应头视图已通过 Headless 渲染检查。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43190007463)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及图标一致性验证通过。三个公开更新索引、更新说明、包大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取本次更新说明，此项验证不替换或重启应用。
+v0.1.14 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43189979115)在 Windows/Linux/macOS 均通过 156 项测试（102 项服务/工具/网络 + 54 项界面/MVVM），新增覆盖响应头重复字段、冒号与原文保留、鼠标切换表格/纯文本、历史刷新、三套主题即时切换与保存，以及表头半选、鼠标全选和空格键停用。三套主题、紧凑布局和小窗口响应头视图已通过 Headless 渲染检查。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43190007463)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留及图标一致性验证通过。三个公开更新索引、更新说明、包大小、SHA256 和发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取本次更新说明，此项验证不替换或重启应用。
 
-v0.1.15 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43195224516)在 Windows/Linux/macOS 均通过 156 项测试（102 项服务/工具/网络 + 54 项界面/MVVM），新版奶油小狗图标已完成三套主题的 Headless 渲染检查，PNG 与九种 ICO 尺寸的透明边缘已核对。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43195276860)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 覆盖安装、同版本修复、缺失文件恢复和数据库/WAL/CA 保留验证通过，安装器、启动器及主程序的新图标通过逐像素比对。三个公开更新索引、更新说明、包大小、SHA256 与发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取本次说明，此项验证不替换或重启应用。
+v0.1.15 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43195224516)在 Windows/Linux/macOS 均通过 156 项测试（102 项服务/工具/网络 + 54 项界面/MVVM），新版奶油小狗图标已完成三套主题的 Headless 渲染检查，PNG 与九种 ICO 尺寸的透明边缘已核对。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43195276860)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 覆盖安装、同版本修复、缺失文件恢复和数据库/WAL/CA 保留验证通过，安装器、启动器及主程序的新图标通过逐像素比对。三个公开更新索引、更新说明、包大小、SHA256 与发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取本次说明，此项验证不替换或重启应用。
 
-v0.1.16 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43200295961)在 Windows/Linux/macOS 均通过 156 项测试（102 项服务/工具/网络 + 54 项界面/MVVM）。双向数据流图标、发送按钮文字及加载动画居中已通过 Headless 渲染检查。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43200296852)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 覆盖安装、同版本修复、缺失文件恢复和数据库/WAL/CA 保留验证通过，安装器、启动器及主程序的图标通过逐像素比对。三个公开更新索引、更新说明、包大小、SHA256 与发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取本次说明，此项验证不替换或重启应用。
+v0.1.16 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43200295961)在 Windows/Linux/macOS 均通过 156 项测试（102 项服务/工具/网络 + 54 项界面/MVVM）。双向数据流图标、发送按钮文字及加载动画居中已通过 Headless 渲染检查。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43200296852)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 覆盖安装、同版本修复、缺失文件恢复和数据库/WAL/CA 保留验证通过，安装器、启动器及主程序的图标通过逐像素比对。三个公开更新索引、更新说明、包大小、SHA256 与发布校验清单已核对；模拟旧版本客户端已无需令牌下载、校验 Windows x64 更新包并读取本次说明，此项验证不替换或重启应用。
 
-v0.1.17 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43222256906)在 Windows 通过 159 项测试（102 项服务/工具/网络 + 57 项界面/MVVM/系统集成）；Linux/macOS 各通过 156 项，跳过 3 项 Windows 专用测试。新增覆盖重命名的任务栏快捷方式、同版本新固定项、参数保留，以及损坏/占用快捷方式的重试。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43222364404)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 原生安装器及主程序启动均通过快捷方式图标修复验证，保留中文目标路径、启动参数及 AppUserModelID，覆盖安装、同版本修复和数据库/WAL/CA 保留检查也通过。三个公开更新索引、更新说明、包大小、SHA256 与校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
+v0.1.17 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43222256906)在 Windows 通过 159 项测试（102 项服务/工具/网络 + 57 项界面/MVVM/系统集成）；Linux/macOS 各通过 156 项，跳过 3 项 Windows 专用测试。新增覆盖重命名的任务栏快捷方式、同版本新固定项、参数保留，以及损坏/占用快捷方式的重试。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43222364404)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 原生安装器及主程序启动均通过快捷方式图标修复验证，保留中文目标路径、启动参数及 AppUserModelID，覆盖安装、同版本修复和数据库/WAL/CA 保留检查也通过。三个公开更新索引、更新说明、包大小、SHA256 与校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
 
-v0.1.18 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43345735707)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。左侧树的 24 px 行距已完成三套主题的 Headless 渲染检查，Ctrl/⌘ 多选、普通点击切换、右键保留选择及搜索后选择恢复测试通过。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43345760642)已完成三个 Native AOT 目标并发布 18 个文件；Windows 覆盖安装、同版本修复、数据保留及原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 和校验清单已核对；模拟旧版本客户端已下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
+v0.1.18 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43345735707)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。左侧树的 24 px 行距已完成三套主题的 Headless 渲染检查，Ctrl/⌘ 多选、普通点击切换、右键保留选择及搜索后选择恢复测试通过。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43345760642)已完成三个 Native AOT 目标并发布 18 个文件；Windows 覆盖安装、同版本修复、数据保留及原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 和校验清单已核对；模拟旧版本客户端已下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
 
-v0.1.19 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43350270523)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。三套主题的约 28 px 树行距、圆角选中背景、默认控件强调色及主题切换后选择保留已通过 Headless 交互与渲染检查；侧栏、地址栏、标签和表格密度同步调整。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43350283268)已完成三个 Native AOT 目标并发布 18 个文件，Windows 覆盖安装、同版本修复、数据保留和原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 与校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
+v0.1.19 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43350270523)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。三套主题的约 28 px 树行距、圆角选中背景、默认控件强调色及主题切换后选择保留已通过 Headless 交互与渲染检查；侧栏、地址栏、标签和表格密度同步调整。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43350283268)已完成三个 Native AOT 目标并发布 18 个文件，Windows 覆盖安装、同版本修复、数据保留和原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 与校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
 
 ## 已实现
 
@@ -132,7 +134,7 @@ v0.1.19 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 
 - **Markdown (.md)**：按文件夹路径分组，包含 URL、Query、Headers、表单字段、请求体、WebSocket 子协议，以及导入源中可用的描述、响应定义和引用模型。
 - **PDF (.pdf)**：与 Markdown 使用相同内容，内置中文字体；长 URL、长参数和表格自动换行/分页，跨页表格重复表头。
-- **OpenAPI JSON (.json)**：适合继续导入 Swagger 等工具；保留相关模型引用和 ApiNet 文件夹/WebSocket 扩展。
+- **OpenAPI JSON (.json)**：适合继续导入 Swagger 等工具；保留相关模型引用和 Post.NET 文件夹/WebSocket 扩展。
 
 导出使用已打开标签页的当前编辑内容，无需先保存；变量保留为占位符，标记为敏感的值脱敏，常见认证/Cookie 头和本机上传路径不写入文档。历史记录、抓包和实际响应内容不参与文档导出；普通手动请求未定义的响应结构不会自动推断。
 
@@ -222,6 +224,8 @@ HTTP 抓包和主动 HTTP 调试分别保留至多 1 MB、4 MB 的响应预览�
 
 Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDATA%/ApiNet` 中的安装文件分开。0.1.0 的工作区数据库、待提交的 SQLite WAL 和 `certificates` 会自动迁移；迁移不覆盖已有新版数据库，源文件保留到覆盖安装或用户自行清理。其他系统继续使用系统 LocalApplicationData 下的 `ApiNet`。
 
+为保持旧版升级兼容，更名后沿用这些数据目录、`APINET_DATA_DIR`、Velopack 的 `ApiNet` 包标识和已安装启动程序名。界面、系统安装名称和公开安装包使用 Post.NET；OpenAPI 的 `x-apinet-*` 扩展继续兼容旧文件。
+
 `workspace.db` 保存配置、草稿和历史。环境变量中的敏感值保存在本机数据库，历史中的常见认证头及标记为敏感的变量值会脱敏。可用 `APINET_DATA_DIR` 环境变量指定独立的数据目录，该目录应位于安装目录之外。Windows 安装日志默认保存在 `%LOCALAPPDATA%/ApiNetSetupLogs/setup.log`。
 
 ## Native AOT 发布
@@ -229,21 +233,21 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`linux-x64`、`osx-arm64`，打包脚本和 CI 发布矩阵仅接受这三个目标。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.19
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.20
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.19`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.20`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 
 更新源固定为本项目的公开 GitHub 仓库，设置中无需填写地址；主窗口标题显示当前安装版本：
 
 ```text
-https://github.com/coolqingcheng/ApiNet
+https://github.com/coolqingcheng/Post.NET
 ```
 
 Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Actions artifacts 用于构建之间传递文件，应用使用 Release 中的长期下载地址。当前发布通道为 `win-x64`、`linux-x64`、`osx-arm64`；对应 `releases.{通道}.json` 与 `*.nupkg`，不要重命名或删除更新资产。Windows ARM64、Linux ARM64 和 macOS Intel 的最后一个发布版本为 v0.1.9，后续版本不再提供这些架构的更新包。
@@ -263,14 +267,14 @@ Velopack 直接读取 GitHub Releases，用户无需 GitHub 令牌。CI 的 Acti
 ## 代码结构
 
 ```text
-src/ApiNet.Desktop          桌面启动入口、托盘与生命周期
-src/ApiNet.UI               共享 Views / ViewModels / Services / Styles / Assets
-src/ApiNet.Core             模型、接口、源生成 JSON 上下文
-src/ApiNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、文档导出、集合/本机导入、更新
-src/ApiNet.Proxy            正向代理、HTTP 协议读写、本地 CA
-src/ApiNet.Setup            Windows 原生安装入口、覆盖修复和旧数据迁移
-tests/ApiNet.Tests          服务与网络集成测试
-tests/ApiNet.Desktop.Tests  MVVM 交互及 XAML 渲染测试
+src/PostNet.Desktop          桌面启动入口、托盘与生命周期
+src/PostNet.UI               共享 Views / ViewModels / Services / Styles / Assets
+src/PostNet.Core             模型、接口、源生成 JSON 上下文
+src/PostNet.Infrastructure   HTTP、WebSocket、变量、SQLite、OpenAPI、文档导出、集合/本机导入、更新
+src/PostNet.Proxy            正向代理、HTTP 协议读写、本地 CA
+src/PostNet.Setup            Windows 原生安装入口、覆盖修复和旧数据迁移
+tests/PostNet.Tests          服务与网络集成测试
+tests/PostNet.Desktop.Tests  MVVM 交互及 XAML 渲染测试
 ```
 
 窗口只组合视图，功能按目录拆分；MainWindowViewModel 的协调命令按 Workspace、History、Capture、OpenApi、Documents、Updates 分文件，工具与设置使用独立 View/ViewModel，深浅主题色集中在 ThemePalette.axaml。各请求 Tab 维护自己的状态，网络与存储实现不依赖 Avalonia。

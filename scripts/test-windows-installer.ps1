@@ -24,7 +24,7 @@ function Invoke-Setup([string]$File, [string[]]$SetupArguments) {
 
 function Assert-ApplicationIcon([string]$File) {
     $actual = [Drawing.Icon]::ExtractAssociatedIcon($File)
-    $expected = [Drawing.Icon]::new((Join-Path $projectRoot 'src/ApiNet.UI/Assets/app.ico'), $actual.Size)
+    $expected = [Drawing.Icon]::new((Join-Path $projectRoot 'src/PostNet.UI/Assets/app.ico'), $actual.Size)
     $actualImage = $actual.ToBitmap()
     $expectedImage = $expected.ToBitmap()
     try {
@@ -57,12 +57,12 @@ function Assert-ShortcutIcon([string]$Path, [string]$IconDataDirectory, [string]
     if ((Get-ShortcutAppId $Path) -ne $AppId) { throw "快捷方式 AppUserModelID 被改动：$Path" }
     $iconPath = $shortcut.IconLocation -replace ',0$', ''
     if (!$iconPath.StartsWith((Join-Path $IconDataDirectory 'shell-icons'), [StringComparison]::OrdinalIgnoreCase)) { throw "快捷方式仍使用旧图标路径：$Path" }
-    if ((Get-FileHash -LiteralPath $iconPath).Hash -ne (Get-FileHash -LiteralPath (Join-Path $projectRoot 'src/ApiNet.UI/Assets/app.ico')).Hash) { throw "快捷方式 ICO 内容不正确：$Path" }
+    if ((Get-FileHash -LiteralPath $iconPath).Hash -ne (Get-FileHash -LiteralPath (Join-Path $projectRoot 'src/PostNet.UI/Assets/app.ico')).Hash) { throw "快捷方式 ICO 内容不正确：$Path" }
 }
 
 try {
     $legacy = Join-Path $testRoot 'ApiNet-0.1.0-Setup.exe'
-    Invoke-WebRequest -Uri 'https://github.com/coolqingcheng/ApiNet/releases/download/v0.1.0/ApiNet-win-x64-Setup.exe' -OutFile $legacy
+    Invoke-WebRequest -Uri 'https://github.com/coolqingcheng/Post.NET/releases/download/v0.1.0/ApiNet-win-x64-Setup.exe' -OutFile $legacy
     Invoke-Setup $legacy @('--silent','--installto',$installDirectory,'--log',(Join-Path $testRoot 'legacy.log'))
     $startMenuShortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'ApiNet.lnk'
     $desktopShortcut = Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'ApiNet.lnk'
@@ -101,6 +101,9 @@ try {
     $manifest = [xml](Get-Content (Join-Path $installDirectory 'current/sq.version') -Raw)
     if ($manifest.package.metadata.version -ne $Version) { throw '安装版本不匹配。' }
     if ((Get-Content $repairLog -Raw) -notmatch 'User chose to overwrite existing installation') { throw '同版本安装未进入修复流程。' }
+    if ($manifest.package.metadata.id -ne 'ApiNet' -or $manifest.package.metadata.title -ne 'Post.NET') { throw '产品名称或兼容更新标识不正确。' }
+    $startMenuShortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'Post.NET.lnk'
+    $desktopShortcut = Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'Post.NET.lnk'
     Assert-ApplicationIcon $setup
     Assert-ApplicationIcon (Join-Path $installDirectory 'ApiNet.exe')
     Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')

@@ -1,0 +1,80 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PostNet.Desktop.ViewModels.Tabs" xmlns:c="using:PostNet.Desktop.Controls"
+             x:Class="PostNet.Desktop.Controls.ParameterTable" x:Name="Root" x:DataType="c:ParameterTable">
+  <UserControl.Styles>
+    <Style Selector="Border.parameter-cell">
+      <Setter Property="BorderBrush" Value="{DynamicResource TableLineBrush}" />
+      <Setter Property="BorderThickness" Value="0,0,1,0" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+    <Style Selector="Border.parameter-row">
+      <Setter Property="Background" Value="{DynamicResource TableBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TableLineBrush}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+    <Style Selector="Border.parameter-row:pointerover"><Setter Property="Background" Value="{DynamicResource TableHoverBrush}" /></Style>
+    <Style Selector="Button.parameter-action">
+      <Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource TableHeaderTextBrush}" />
+      <Setter Property="FontSize" Value="12" /><Setter Property="Padding" Value="8,3" /><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    </Style>
+    <Style Selector="Button.parameter-remove"><Setter Property="Opacity" Value="0" /><Setter Property="Padding" Value="6" /><Setter Property="Width" Value="30" /><Setter Property="Height" Value="28" /></Style>
+    <Style Selector="Border.parameter-row:pointerover Button.parameter-remove"><Setter Property="Opacity" Value="1" /></Style>
+    <Style Selector="Border.parameter-row:focus-within Button.parameter-remove"><Setter Property="Opacity" Value="1" /></Style>
+    <Style Selector="Button.parameter-remove:focus-visible"><Setter Property="Opacity" Value="1" /></Style>
+    <Style Selector="Button.parameter-remove:pointerover /template/ ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}" /></Style>
+    <Style Selector="ComboBox.parameter-type">
+      <Setter Property="Background" Value="Transparent" /><Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Foreground" Value="{DynamicResource TableHeaderTextBrush}" /><Setter Property="FontSize" Value="11" />
+      <Setter Property="Padding" Value="4,0" /><Setter Property="MinHeight" Value="28" /><Setter Property="Width" Value="74" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" /><Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+  <Grid DataContext="{Binding #Root.Model}" x:DataType="vm:ParameterTableViewModel" RowDefinitions="Auto,*" Margin="0">
+    <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,5" MinHeight="24">
+      <TextBlock Text="{Binding #Root.Title}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" />
+      <TextBlock Grid.Column="1" Text="{Binding CountLabel}" Margin="8,0" Foreground="{DynamicResource TablePlaceholderBrush}" FontSize="11" VerticalAlignment="Center" />
+      <Button Grid.Column="2" Classes="parameter-action" Content="取消" Command="{Binding CancelBulkCommand}" IsVisible="{Binding IsBulkEditing}" />
+      <Button Grid.Column="3" Classes="parameter-action" Content="{Binding EditorToggleLabel}" Command="{Binding ToggleBulkCommand}" ToolTip.Tip="切换逐行编辑与批量编辑" />
+    </Grid>
+    <ScrollViewer Grid.Row="1" IsVisible="{Binding !IsBulkEditing}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+      <Border Classes="data-table" MinWidth="{Binding #Root.MinTableWidth}"><Grid RowDefinitions="Auto,*">
+        <Border BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="0,0,0,1" Background="{DynamicResource TableHeaderBackgroundBrush}">
+          <Grid ColumnDefinitions="36,*,*,0.7*,32" Height="30">
+            <CheckBox Classes="parameter-check" Height="28" IsChecked="{Binding AllEnabled, Mode=OneWay}" Command="{Binding ToggleAllCommand}" IsEnabled="{Binding HasRows}" ToolTip.Tip="全部启用或停用" AutomationProperties.Name="全部启用或停用" />
+            <Border x:Name="HeaderKey" Grid.Column="1" Classes="parameter-cell"><TextBlock Text="KEY" Margin="10,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="10" FontWeight="SemiBold" LetterSpacing="0.6" VerticalAlignment="Center" /></Border>
+            <Border x:Name="HeaderValue" Grid.Column="2" Classes="parameter-cell"><TextBlock Text="VALUE" Margin="10,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="10" FontWeight="SemiBold" LetterSpacing="0.6" VerticalAlignment="Center" /></Border>
+            <Border x:Name="HeaderDescription" Grid.Column="3"><TextBlock Text="DESCRIPTION" Margin="10,0" Foreground="{DynamicResource TableHeaderTextBrush}" FontSize="10" FontWeight="SemiBold" LetterSpacing="0.6" VerticalAlignment="Center" /></Border>
+          </Grid>
+        </Border>
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+          <ItemsControl ItemsSource="{Binding Items}" VerticalAlignment="Top">
+            <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:ParameterRowViewModel">
+              <Border Classes="parameter-row">
+                <Grid ColumnDefinitions="36,Auto,Auto,Auto,32" Height="{DynamicResource DataRowHeight}">
+                  <CheckBox Classes="parameter-check" IsChecked="{Binding Enabled}" IsVisible="{Binding !IsDraft}" ToolTip.Tip="启用此参数" AutomationProperties.Name="启用此参数" />
+                  <Border Grid.Column="1" Classes="parameter-cell" Width="{Binding #HeaderKey.Bounds.Width}"><Grid ColumnDefinitions="*,Auto">
+                    <c:CodeEditor Text="{Binding Key}" Watermark="Key" SingleLine="True" IsTableCell="True" IsMuted="{Binding !Enabled}" />
+                    <ComboBox Grid.Column="1" Classes="parameter-type" ItemsSource="{Binding TypeOptions}" SelectedItem="{Binding Type}" IsVisible="{Binding #Root.AllowFiles}" ToolTip.Tip="参数类型" />
+                  </Grid></Border>
+                  <Border Grid.Column="2" Classes="parameter-cell" Width="{Binding #HeaderValue.Bounds.Width}"><Grid ColumnDefinitions="*,Auto">
+                    <c:CodeEditor Text="{Binding Value}" Watermark="Value" SingleLine="True" IsTableCell="True" IsMuted="{Binding !Enabled}" />
+                    <Button Grid.Column="1" Content="选择文件" Classes="parameter-action" Command="{Binding BrowseFileCommand}" IsVisible="{Binding IsFile}" Margin="0,0,3,0" />
+                  </Grid></Border>
+                  <c:CodeEditor Grid.Column="3" Width="{Binding #HeaderDescription.Bounds.Width}" Text="{Binding Description}" Watermark="Description" SingleLine="True" IsTableCell="True" IsMuted="{Binding !Enabled}" />
+                  <Button Grid.Column="4" Classes="parameter-action parameter-remove" Command="{Binding RemoveCommand}" IsVisible="{Binding !IsDraft}" ToolTip.Tip="删除此参数" AutomationProperties.Name="删除此参数">
+                    <Path Width="14" Height="14" Stretch="Uniform" Data="M 3,4 L 13,4 M 6,4 L 6,2 L 10,2 L 10,4 M 4,4 L 5,14 L 11,14 L 12,4 M 7,6 L 7,11 M 9,6 L 9,11" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.2" />
+                  </Button>
+                </Grid>
+              </Border>
+            </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+      </Grid></Border>
+    </ScrollViewer>
+    <Grid Grid.Row="1" RowDefinitions="Auto,*,Auto" IsVisible="{Binding IsBulkEditing}">
+      <TextBlock Text="每行 key: value；// 开头的行停用。" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" Margin="0,0,0,8" />
+      <Border Grid.Row="1" Classes="data-table"><c:CodeEditor Text="{Binding BulkText}" /></Border>
+      <TextBlock Grid.Row="2" Text="{Binding BulkError}" Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,5" TextWrapping="Wrap" />
+    </Grid>
+  </Grid>
+</UserControl>

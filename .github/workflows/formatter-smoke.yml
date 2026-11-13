@@ -21,10 +21,10 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
       - name: Compile formatters with Native AOT
-        run: dotnet publish tests/ApiNet.AotSmoke/ApiNet.AotSmoke.csproj -c Release -r ${{ matrix.rid }} -o artifacts/formatter-smoke
+        run: dotnet publish tests/PostNet.AotSmoke/PostNet.AotSmoke.csproj -c Release -r ${{ matrix.rid }} -o artifacts/formatter-smoke
       - name: Run native formatters and invalid-input diagnostics
         shell: pwsh
         run: |
-          $app = if ($IsWindows) { './artifacts/formatter-smoke/ApiNet.AotSmoke.exe' } else { './artifacts/formatter-smoke/ApiNet.AotSmoke' }
+          $app = if ($IsWindows) { './artifacts/formatter-smoke/PostNet.AotSmoke.exe' } else { './artifacts/formatter-smoke/PostNet.AotSmoke' }
           & $app
           if ($LASTEXITCODE -ne 0) { throw 'Native AOT formatter smoke failed.' }

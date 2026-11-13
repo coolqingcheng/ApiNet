@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:PostNet.Desktop.ViewModels.Tabs"
+             x:Class="PostNet.Desktop.Views.Tabs.OpenTabsView" x:DataType="vm:OpenTabsViewModel" Width="380">
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="10">
+    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="全部标签" FontWeight="SemiBold" /><TextBlock Grid.Column="1" Text="{Binding Count, StringFormat=共 {0} 个}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" /></Grid>
+    <TextBox Grid.Row="1" x:Name="TabSearch" Text="{Binding Search}" Watermark="搜索名称、方法或 URL，支持模糊匹配" KeyDown="OnSearchKeyDown" />
+    <ListBox Grid.Row="2" x:Name="TabResults" ItemsSource="{Binding Matches}" MaxHeight="350" MinHeight="40" Background="Transparent" Tapped="OnResultTapped" KeyDown="OnResultKeyDown">
+      <ListBox.ItemTemplate><DataTemplate x:DataType="vm:RequestTabViewModel">
+        <Grid ColumnDefinitions="42,*" RowDefinitions="Auto,Auto" RowSpacing="4" ColumnSpacing="8" Margin="2,3">
+          <TextBlock Text="{Binding Badge}" Foreground="{Binding BadgeColor}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center" />
+          <TextBlock Grid.Column="1" Text="{Binding Title}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+          <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Url}" FontSize="11" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+        </Grid>
+      </DataTemplate></ListBox.ItemTemplate>
+    </ListBox>
+    <TextBlock Grid.Row="3" Text="没有匹配的标签" IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" Foreground="{DynamicResource TextMutedBrush}" Margin="0,8" />
+  </Grid>
+</UserControl>

@@ -1,0 +1,85 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PostNet.Desktop.ViewModels"
+        xmlns:tabs="using:PostNet.Desktop.ViewModels.Tabs"
+        xmlns:m="using:PostNet.Core.Models"
+        xmlns:views="using:PostNet.Desktop.Views.Tabs"
+        xmlns:workspace="using:PostNet.Desktop.Views.Workspace"
+        xmlns:history="using:PostNet.Desktop.Views.History"
+        xmlns:capture="using:PostNet.Desktop.Views.Capture"
+        xmlns:tools="using:PostNet.Desktop.Views.Tools"
+        xmlns:c="using:PostNet.Desktop.Controls"
+        x:Class="PostNet.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel" Icon="avares://PostNet.UI/Assets/app.ico"
+        Title="{Binding WindowTitle}" Width="1420" Height="920" MinWidth="1100" MinHeight="700"
+        WindowStartupLocation="CenterScreen" Background="{DynamicResource WindowBackgroundBrush}">
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Ctrl+S" Command="{Binding SelectedTab.SaveCommand}" />
+    <KeyBinding Gesture="Ctrl+W" Command="{Binding SelectedTab.CloseCommand}" />
+    <KeyBinding Gesture="Ctrl+N" Command="{Binding NewHttpCommand}" />
+  </Window.KeyBindings>
+  <Grid RowDefinitions="40,*,26">
+    <Border Background="{DynamicResource HeaderBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
+      <Grid ColumnDefinitions="52,*,Auto" Margin="0,0,16,0">
+        <Image Source="avares://PostNet.UI/Assets/app.png" Width="28" Height="28" Stretch="Uniform" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="14" VerticalAlignment="Center"><TextBlock Text="Post.NET" FontSize="14" FontWeight="Bold" LetterSpacing="1" /><Border Width="1" Height="18" Background="{DynamicResource SubtleBorderBrush}" /><TextBlock Text="个人工作区" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" /><Border Background="{DynamicResource RaisedBackgroundBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,3"><TextBlock Text="本地" FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}" /></Border></StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <TextBlock Text="环境" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,5,0" />
+          <ComboBox Width="180" ItemsSource="{Binding Environments}" SelectedItem="{Binding SelectedEnvironment}"><ComboBox.ItemTemplate><DataTemplate x:DataType="m:EnvironmentDefinition"><TextBlock Text="{Binding Name}" /></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+          <Button Content="管理变量" Classes="ghost" Command="{Binding ManageEnvironmentsCommand}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+    <Grid Grid.Row="1" ColumnDefinitions="52,260,4,*">
+      <Border Background="{DynamicResource RailBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,0,1,0">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto" Margin="3,6">
+          <Button Classes="rail" Classes.active="{Binding IsWorkspace}" Command="{Binding NavigateCommand}" CommandParameter="工作区" AutomationProperties.Name="工作区"><StackPanel Spacing="4"><c:NavigationIcon Kind="Workspace" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="工作区" FontSize="10" /></StackPanel></Button>
+          <Button Grid.Row="1" Classes="rail" Classes.active="{Binding IsHistory}" Command="{Binding NavigateCommand}" CommandParameter="历史记录" AutomationProperties.Name="历史记录"><StackPanel Spacing="4"><c:NavigationIcon Kind="History" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="历史" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="2" Classes="rail" Classes.active="{Binding IsCapture}" Command="{Binding NavigateCommand}" CommandParameter="代理抓包" AutomationProperties.Name="代理抓包"><StackPanel Spacing="4"><c:NavigationIcon Kind="Capture" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="抓包" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="3" Classes="rail" Classes.active="{Binding IsTools}" Command="{Binding NavigateCommand}" CommandParameter="工具" AutomationProperties.Name="常用工具"><StackPanel Spacing="4"><c:NavigationIcon Kind="Tools" Foreground="{Binding $parent[Button].Foreground}" HorizontalAlignment="Center" /><TextBlock Text="工具" FontSize="10" HorizontalAlignment="Center" /></StackPanel></Button>
+          <Button Grid.Row="5" Classes="rail" ToolTip.Tip="切换主题：深色 / 浅色 / 午夜蓝" AutomationProperties.Name="切换主题" Command="{Binding ToggleThemeCommand}"><c:NavigationIcon Kind="Theme" Foreground="{Binding $parent[Button].Foreground}" /></Button>
+          <Button Grid.Row="6" Classes="rail" ToolTip.Tip="检查更新" AutomationProperties.Name="检查更新" Command="{Binding CheckUpdatesCommand}"><c:NavigationIcon Kind="Update" Foreground="{Binding $parent[Button].Foreground}" /></Button>
+          <Button Grid.Row="7" Classes="rail" ToolTip.Tip="设置" AutomationProperties.Name="设置" Command="{Binding SettingsCommand}"><c:NavigationIcon Kind="Settings" Foreground="{Binding $parent[Button].Foreground}" /></Button>
+        </Grid>
+      </Border>
+      <Grid Grid.Column="1" Background="{DynamicResource SidebarBackgroundBrush}">
+        <workspace:WorkspaceExplorerView IsVisible="{Binding IsWorkspace}" />
+        <history:HistoryPanelView IsVisible="{Binding IsHistory}" />
+        <capture:CapturePanelView IsVisible="{Binding IsCapture}" />
+        <StackPanel IsVisible="{Binding IsTools}" Margin="10,8" Spacing="8"><TextBlock Text="常用工具" FontSize="16" FontWeight="SemiBold" /><TextBlock Text="所有内容仅在本地处理" Foreground="{DynamicResource TextMutedBrush}" FontSize="12" /><ListBox ItemsSource="{Binding Tools.Kinds}" SelectedItem="{Binding Tools.SelectedTool}" Background="Transparent" /></StackPanel>
+      </Grid>
+      <GridSplitter Grid.Column="2" Background="{DynamicResource SubtleBorderBrush}" ResizeDirection="Columns" />
+      <Grid Grid.Column="3">
+        <Grid IsVisible="{Binding ShowEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" RowDefinitions="Auto,Auto,Auto,Auto">
+          <Image Source="avares://PostNet.UI/Assets/app.png" Width="84" Height="84" Stretch="Uniform" />
+          <TextBlock Grid.Row="1" Text="从一个请求开始" FontSize="26" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,26,0,10" />
+          <TextBlock Grid.Row="2" Text="调试接口、连接 WebSocket，或导入你的 OpenAPI 文档。" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" />
+          <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10" Margin="0,24,0,0"><Button Content="＋ HTTP 请求" Classes="primary" Command="{Binding NewHttpCommand}" /><Button Content="导入 OpenAPI" Command="{Binding ImportCommand}" /></StackPanel>
+        </Grid>
+        <views:RequestTabsView IsVisible="{Binding ShowRequests}" />
+        <Border IsVisible="{Binding IsTools}"><tools:ToolsView DataContext="{Binding Tools}" /></Border>
+      </Grid>
+    </Grid>
+    <Border Grid.Row="2" Background="{DynamicResource RaisedBackgroundBrush}" BorderBrush="{DynamicResource SubtleBorderBrush}" BorderThickness="0,1,0,0" Padding="12,0">
+      <Border.Styles>
+        <Style Selector="TextBlock"><Setter Property="FontSize" Value="11" /><Setter Property="LineHeight" Value="16" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+        <Style Selector="Button"><Setter Property="FontSize" Value="11" /><Setter Property="Height" Value="22" /><Setter Property="MinHeight" Value="0" /><Setter Property="Padding" Value="8,0" /><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
+        <Style Selector="Path.update-spinner[IsVisible=True]">
+          <Style.Animations>
+            <Animation Duration="0:0:0.8" IterationCount="Infinite">
+              <KeyFrame Cue="0%"><Setter Property="RotateTransform.Angle" Value="0" /></KeyFrame>
+              <KeyFrame Cue="100%"><Setter Property="RotateTransform.Angle" Value="360" /></KeyFrame>
+            </Animation>
+          </Style.Animations>
+        </Style>
+      </Border.Styles>
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto"><TextBlock Text="{Binding ApplicationVersion}" Foreground="{DynamicResource TextMutedBrush}" /><TextBlock Grid.Column="1" Text="{Binding Status}" Margin="20,0" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextSecondaryBrush}" />
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" Margin="0,0,16,0" VerticalAlignment="Center" IsVisible="{Binding HasUpdateStatus}">
+          <Path x:Name="UpdateSpinner" Classes="update-spinner" Data="M 8,1 A 7,7 0 1 1 1,8" Stroke="{DynamicResource TextMutedBrush}" StrokeThickness="2" Stretch="Uniform" Width="12" Height="12" RenderTransformOrigin="50%,50%" VerticalAlignment="Center" IsVisible="{Binding UpdateBusy}" />
+          <TextBlock x:Name="UpdateStatusText" Text="{Binding UpdateStatus}" ToolTip.Tip="{Binding UpdateStatus}" MaxWidth="320" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextMutedBrush}" />
+          <Button Content="安装更新" Classes="ghost" Command="{Binding ShowUpdatePromptCommand}" IsVisible="{Binding UpdateReady}" />
+        </StackPanel>
+        <TextBlock Grid.Column="3" Text="{Binding ProxyText}" Foreground="{DynamicResource SuccessBrush}" /><Button Grid.Column="4" Classes="ghost" Content="设置" Margin="12,0,0,0" Command="{Binding SettingsCommand}" /></Grid>
+    </Border>
+  </Grid>
+</Window>

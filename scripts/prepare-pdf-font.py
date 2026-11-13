@@ -10,8 +10,8 @@ from fontTools import subset
 from fontTools.ttLib import TTFont
 
 root = Path(__file__).resolve().parent.parent
-source = root / "src/ApiNet.Android/Assets/Fonts/NotoSansCJKsc-Regular.otf"
-destination = root / "src/ApiNet.UI/Assets/Fonts/ApiNetDocumentSC-Regular.otf"
+source = root / "src/PostNet.Android/Assets/Fonts/NotoSansCJKsc-Regular.otf"
+destination = root / "src/PostNet.UI/Assets/Fonts/ApiNetDocumentSC-Regular.otf"
 font = TTFont(source, recalcTimestamp=False)
 options = subset.Options()
 options.layout_features = ["*"]

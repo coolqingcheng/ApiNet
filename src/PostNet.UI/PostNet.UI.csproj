@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  <ItemGroup><AvaloniaResource Include="Assets/**" /></ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.22" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.4.1" />
+    <PackageReference Include="SkiaSharp" Version="2.88.9" />
+    <ProjectReference Include="../PostNet.Core/PostNet.Core.csproj" />
+    <ProjectReference Include="../PostNet.Infrastructure/PostNet.Infrastructure.csproj" />
+    <ProjectReference Include="../PostNet.Proxy/PostNet.Proxy.csproj" />
+  </ItemGroup>
+</Project>

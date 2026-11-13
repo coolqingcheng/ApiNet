@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Versioning;
 
-namespace ApiNet.Platform;
+namespace PostNet.Platform;
 
 // Source-generated COM interop also works in Native AOT; no WScript/dynamic COM dependency.
 [SupportedOSPlatform("windows")]

@@ -1,9 +1,9 @@
-"""Generate ApiNet's duplex mark as SVG, transparent PNG and ICO (Python 3 + Pillow)."""
+"""Generate Post.NET's duplex mark as SVG, transparent PNG and ICO (Python 3 + Pillow)."""
 from pathlib import Path
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
-ASSETS = ROOT / "src" / "ApiNet.UI" / "Assets"
+ASSETS = ROOT / "src" / "PostNet.UI" / "Assets"
 SCALE = 4
 
 # Opposing geometric arrows represent outgoing requests and incoming responses.
@@ -19,7 +19,7 @@ def generate():
     draw = ImageDraw.Draw(canvas)
     svg = [
         '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">',
-        '  <title>ApiNet Duplex</title>',
+        '  <title>Post.NET Duplex</title>',
     ]
     for color, points in PANELS:
         draw.polygon([(x * SCALE, y * SCALE) for x, y in points], fill=color)

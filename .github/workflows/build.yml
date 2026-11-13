@@ -24,7 +24,7 @@ jobs:
       - name: Linux rendering dependencies
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libfontconfig1 fonts-noto-cjk
-      - run: dotnet test ApiNet.sln --logger trx --results-directory artifacts/test-results
+      - run: dotnet test PostNet.sln --logger trx --results-directory artifacts/test-results
       - uses: actions/upload-artifact@v4
         if: always()
         with:

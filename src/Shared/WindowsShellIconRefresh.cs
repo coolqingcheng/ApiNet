@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
-namespace ApiNet.Platform;
+namespace PostNet.Platform;
 
 internal static partial class WindowsShellIconRefresh
 {
@@ -11,7 +11,7 @@ internal static partial class WindowsShellIconRefresh
         if (!OperatingSystem.IsWindows()) return;
         try
         {
-            using var resource = typeof(WindowsShellIconRefresh).Assembly.GetManifestResourceStream("ApiNet.ShellIcon.ico")
+            using var resource = typeof(WindowsShellIconRefresh).Assembly.GetManifestResourceStream("PostNet.ShellIcon.ico")
                 ?? throw new IOException("Missing Windows shell icon.");
             using var bytes = new MemoryStream();
             resource.CopyTo(bytes);

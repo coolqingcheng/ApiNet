@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:PostNet.Desktop.ViewModels.Tabs" xmlns:m="using:PostNet.Core.Models" xmlns:c="using:PostNet.Desktop.Controls"
+             x:Class="PostNet.Desktop.Views.Mobile.MobileWebSocketView" x:DataType="vm:WebSocketTabViewModel">
+  <Grid RowDefinitions="Auto,*">
+    <TextBlock Text="{Binding Status}" Margin="8,0,8,4" TextWrapping="Wrap" Foreground="{DynamicResource PurpleBrush}" />
+    <TabControl Grid.Row="1" x:Name="SocketTabs">
+      <TabItem Header="消息">
+        <ListBox ItemsSource="{Binding Messages}" Background="{DynamicResource RaisedBackgroundBrush}" BorderThickness="0">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="m:SocketMessage">
+              <StackPanel Spacing="6" Margin="4">
+                <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8">
+                  <TextBlock Text="{Binding Direction}" Foreground="{DynamicResource PurpleBrush}" FontSize="11" />
+                  <TextBlock Grid.Column="1" Text="{Binding Kind}" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" />
+                  <TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" HorizontalAlignment="Right" Foreground="{DynamicResource TextMutedBrush}" FontSize="11" />
+                </Grid>
+                <SelectableTextBlock Text="{Binding Content}" TextWrapping="Wrap" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </TabItem>
+      <TabItem Header="Body">
+        <Grid RowDefinitions="Auto,*,Auto" Margin="4">
+          <Grid ColumnDefinitions="*,Auto" Margin="0,6"><ComboBox ItemsSource="{Binding MessageFormats}" SelectedItem="{Binding BodyFormat}" IsEnabled="{Binding !Binary}" HorizontalAlignment="Stretch" /><Button Grid.Column="1" Content="格式化" Classes="ghost" Command="{Binding FormatBodyCommand}" IsVisible="{Binding !Binary}" /></Grid>
+          <c:CodeEditor Grid.Row="1" x:Name="MessageEditor" Text="{Binding Body}" Language="{Binding MessageLanguage}" MinHeight="60" />
+          <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+            <CheckBox Content="二进制（Base64）" IsChecked="{Binding Binary}" />
+            <Button Grid.Column="1" Content="发送消息" Classes="primary" Command="{Binding SendMessageCommand}" />
+          </Grid>
+        </Grid>
+      </TabItem>
+      <TabItem Header="{Binding HeaderTabTitle}"><c:ParameterTable Title="Headers" Model="{Binding HeaderTable}" MinTableWidth="320" /></TabItem>
+      <TabItem Header="Params"><c:ParameterTable Title="Query Params" Model="{Binding QueryTable}" MinTableWidth="320" /></TabItem>
+      <TabItem Header="Settings"><StackPanel Margin="8" Spacing="10"><TextBlock Text="WebSocket 子协议（可选）" Foreground="{DynamicResource TextMutedBrush}" /><c:CodeEditor Text="{Binding Subprotocol}" SingleLine="True" MinHeight="44" /></StackPanel></TabItem>
+    </TabControl>
+  </Grid>
+</UserControl>

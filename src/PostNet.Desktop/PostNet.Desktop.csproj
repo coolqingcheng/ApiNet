@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <!-- Keep the installed entry point stable for existing launchers and pinned shortcuts. -->
+    <AssemblyName>ApiNet.Desktop</AssemblyName>
+    <RootNamespace>PostNet.Desktop</RootNamespace>
+    <Title>Post.NET</Title>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <IsAotCompatible>true</IsAotCompatible>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>../PostNet.UI/Assets/app.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishAot>true</PublishAot>
+    <RuntimeFrameworkVersion>10.0.14</RuntimeFrameworkVersion>
+    <StripSymbols>true</StripSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Shared/WindowsShell*.cs" Link="Services/%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../PostNet.UI/Assets/app.ico" LogicalName="PostNet.ShellIcon.ico" />
+    <InternalsVisibleTo Include="PostNet.Desktop.Tests" />
+    <ProjectReference Include="../PostNet.UI/PostNet.UI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.22" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.4.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../PostNet.Core/PostNet.Core.csproj" />
+    <ProjectReference Include="../PostNet.Infrastructure/PostNet.Infrastructure.csproj" />
+    <ProjectReference Include="../PostNet.Proxy/PostNet.Proxy.csproj" />
+  </ItemGroup>
+</Project>
