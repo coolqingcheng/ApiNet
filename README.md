@@ -96,6 +96,8 @@ v0.1.18 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/r
 
 v0.1.19 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43350270523)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。三套主题的约 28 px 树行距、圆角选中背景、默认控件强调色及主题切换后选择保留已通过 Headless 交互与渲染检查；侧栏、地址栏、标签和表格密度同步调整。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43350283268)已完成三个 Native AOT 目标并发布 18 个文件，Windows 覆盖安装、同版本修复、数据保留和原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 与校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
 
+v0.1.20 的[测试工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43377842742)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。[发布工作流](https://github.com/coolqingcheng/Post.NET/actions/runs/43377898416)已完成三个 Native AOT 目标并发布 18 个文件；Windows 的 0.1.0 → 0.1.20 覆盖安装、同版本修复、缺失文件恢复、数据库/WAL/CA 保留，以及 Post.NET 默认快捷方式名称、旧入口迁移、图标和启动参数/AppUserModelID 检查通过。三个更新索引、更新说明、包摘要、资产清单与校验清单已核对；模拟旧版客户端分别通过新旧仓库地址下载并校验更新包、读取完整说明，该检查不执行应用替换或重启。macOS 下载包的 SHA256、`Post.NET.app` 名称、显示元数据及 ARM64 架构也已核对。
+
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。左侧树采用约 28 px 行距，选中背景使用主题蓝色和 4 px 圆角；与侧栏、输入框、标签和参数表保持协调的密度。
