@@ -92,7 +92,7 @@ v0.1.17 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 
 ## 已实现
 
-- 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。
+- 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。左侧树采用 24 px 紧凑行距，文件夹和请求统一对齐。
 - 每个请求独立标签页；清晰边框区分当前与其他标签，固定单行、横向滚动；右侧“全部标签”支持名称/方法/URL 模糊搜索及快速切换。右键支持关闭、关闭其他、关闭左侧、关闭右侧和全部关闭；支持保存、复制、草稿恢复和 Ctrl+N、Ctrl+S、Ctrl+W。
 - HTTP 方法、URL 与 Params 双向同步，省略协议时默认使用 `http://`；Query/Header/Form 参数采用 Postman 风格的 KEY / VALUE / DESCRIPTION 表格，底部空行新增、悬停删除、全选启停和 Bulk Edit；支持重复查询参数、Bearer Token、重定向控制、发送动画、取消和响应查看。
 - URL、参数、Header、认证和请求体中的 `{{变量}}` 高亮；JSON/XML/HTML 语法高亮和 JSON/XML 格式化，支持 JSON、XML、Text、HTML、JavaScript 请求体类型。显式填写的 Content-Type 优先于类型默认值；Multipart 保留客户端生成的边界。
@@ -225,14 +225,14 @@ Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDA
 发布使用原生 AOT，目标为 `win-x64`、`linux-x64`、`osx-arm64`，打包脚本和 CI 发布矩阵仅接受这三个目标。在对应操作系统上用 PowerShell 7 执行：
 
 ```powershell
-./scripts/publish.ps1 -Rid win-x64 -Version 0.1.17
+./scripts/publish.ps1 -Rid win-x64 -Version 0.1.18
 ```
 
 - Windows 需要 Visual Studio C++ 桌面构建工具和 Windows SDK，ARM64 额外需要 ARM64 C++ 工具链。生成未签名 Setup.exe。
 - Linux 需要 clang、zlib 开发库和 squashfs-tools，生成 AppImage。CI 的 Linux 基线为 Ubuntu 24.04。
 - macOS 需要 Xcode Command Line Tools，生成便携 `.app.zip` 和 `.dmg`。不配置 Developer ID 签名、公证或商店发布。
 
-在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.17`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
+在仓库 Actions 中运行 **Native AOT packages**，输入递增的 SemVer 版本号（例如 `0.1.18`）。工作流运行测试，构建 Windows x64、Linux x64 和 macOS ARM64 三个目标，全部成功后发布同名 GitHub Release，同时上传安装包、更新包、架构索引和 SHA256 校验文件。无需签名密钥。发布使用工作流内置的 `GITHUB_TOKEN`，无需个人访问令牌。本地输出在 `artifacts/releases/{RID}`。
 
 ## 在线更新源
 

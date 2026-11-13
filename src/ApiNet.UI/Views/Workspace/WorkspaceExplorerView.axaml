@@ -5,7 +5,14 @@
     <TextBox Grid.Row="1" Text="{Binding Search}" Watermark="搜索名称、路径或方法" Margin="10,0,10,8" />
     <Grid Grid.Row="2" ColumnDefinitions="*,*" Margin="10,0,10,8" ColumnSpacing="6"><Button Content="＋ HTTP" Command="{Binding NewHttpCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" /><Button Grid.Column="1" Content="＋ WebSocket" Command="{Binding NewSocketCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" /></Grid>
     <TreeView Grid.Row="3" x:Name="RequestTree" ItemsSource="{Binding Nodes}" SelectedItem="{Binding SelectedNode}" SelectionMode="Multiple" Background="Transparent" Margin="5,0" SelectionChanged="OnSelectionChanged" DragDrop.AllowDrop="True">
-      <TreeView.Styles><Style Selector="TreeViewItem" x:DataType="node:WorkspaceNodeViewModel"><Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" /><Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" /></Style></TreeView.Styles>
+      <TreeView.Styles>
+        <Style Selector="TreeViewItem" x:DataType="node:WorkspaceNodeViewModel">
+          <Setter Property="MinHeight" Value="24" />
+          <Setter Property="Padding" Value="4,1" />
+          <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+          <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+        </Style>
+      </TreeView.Styles>
       <TreeView.ItemTemplate><TreeDataTemplate x:DataType="node:WorkspaceNodeViewModel" ItemsSource="{Binding Children}"><Grid ColumnDefinitions="38,*,Auto" ColumnSpacing="4"><TextBlock Text="{Binding Badge}" IsVisible="{Binding !IsFolder}" Foreground="{Binding BadgeColor}" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center" /><c:NavigationIcon Kind="Folder" Width="16" Height="16" IsVisible="{Binding IsFolder}" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Left" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" /><TextBlock Grid.Column="2" IsVisible="{Binding SourceRemoved}" Text="!" Foreground="{DynamicResource WarningBrush}" ToolTip.Tip="接口已从导入文档中移除，本地仍保留" /></Grid></TreeDataTemplate></TreeView.ItemTemplate>
       <TreeView.ContextMenu><ContextMenu><MenuItem Header="新建文件夹" Command="{Binding NewFolderCommand}" /><MenuItem Header="新建 HTTP 请求" Command="{Binding NewHttpCommand}" /><MenuItem Header="新建 WebSocket" Command="{Binding NewSocketCommand}" /><Separator /><MenuItem Header="重命名" Command="{Binding RenameCommand}" /><MenuItem Header="删除" Command="{Binding DeleteCommand}" /><Separator /><MenuItem Header="导入到此文件夹" Command="{Binding ImportCommand}" /><MenuItem Header="增量更新导入源" Command="{Binding RefreshImportCommand}" /><MenuItem Header="导出文档（MD / PDF / JSON）" Command="{Binding ExportCommand}" /></ContextMenu></TreeView.ContextMenu>
     </TreeView>
