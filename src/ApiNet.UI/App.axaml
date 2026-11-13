@@ -11,6 +11,8 @@
             </ResourceDictionary.MergedDictionaries>
             <Thickness x:Key="TextControlBorderThemeThicknessFocused">1</Thickness>
             <CornerRadius x:Key="ControlCornerRadius">4</CornerRadius>
+            <x:Double x:Key="ControlMinHeight">30</x:Double>
+            <x:Double x:Key="DataRowHeight">30</x:Double>
         </ResourceDictionary>
     </Application.Resources>
     <Application.Styles>

@@ -102,7 +102,7 @@ public sealed class CodeEditor : UserControl
             // Hidden still scrolls: a short cell's caret and mouse selection can
             // recursively scroll each other. Single-line inputs never scroll vertically.
             Editor.VerticalScrollBarVisibility = SingleLine ? Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled : Avalonia.Controls.Primitives.ScrollBarVisibility.Auto;
-            _border.Padding = IsTableCell ? new Thickness(9, 5) : SingleLine ? new Thickness(10, 6) : new Thickness(10);
+            _border.Padding = IsTableCell ? new Thickness(9, 4) : SingleLine ? new Thickness(10, 4) : new Thickness(10);
             _border.BorderThickness = SingleLine ? new Thickness(1) : new Thickness(0);
             _border.CornerRadius = new CornerRadius(4);
             Editor.FontSize = IsTableCell ? 12 : 13;

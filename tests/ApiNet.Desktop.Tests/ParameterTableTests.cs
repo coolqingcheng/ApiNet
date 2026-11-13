@@ -72,7 +72,7 @@ public class ParameterTableTests
             Save(window, "postman-headers-light.png");
             Assert.Contains(table.GetVisualDescendants().OfType<TextBlock>(), x => x.Text == "DESCRIPTION");
             Assert.DoesNotContain(table.GetVisualDescendants().OfType<Button>(), x => x.Content is string content && content.Contains("添加参数"));
-            Assert.All(table.GetVisualDescendants().OfType<Border>().Where(x => x.Classes.Contains("parameter-row")), row => Assert.InRange(row.Bounds.Height, 32, 36));
+            Assert.All(table.GetVisualDescendants().OfType<Border>().Where(x => x.Classes.Contains("parameter-row")), row => Assert.InRange(row.Bounds.Height, 30, 32));
             table.Model.ToggleBulkCommand.Execute(null); Save(window, "postman-headers-bulk.png");
             table.Model.CancelBulkCommand.Execute(null);
             tab.BodyFormat = "Multipart"; tabs.SelectedIndex = 2; Render(window);

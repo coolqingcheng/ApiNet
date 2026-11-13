@@ -22,10 +22,8 @@ public partial class WorkspaceNodeViewModel : ViewModelBase
     {
         get;
     }
-    public string BadgeColor
-    {
-        get;
-    }
+    public string BadgeColor => ApiNet.Desktop.Services.ThemeService.MethodColor(IsFolder ? "" : Badge);
+    public void RefreshTheme() => OnPropertyChanged(nameof(BadgeColor));
     public bool SourceRemoved
     {
         get;
@@ -39,7 +37,6 @@ public partial class WorkspaceNodeViewModel : ViewModelBase
         IsFolder = true;
         Name = folder.Name;
         Badge = "▱";
-        BadgeColor = ApiNet.Desktop.Services.ThemeService.MethodColor("");
     }
     public WorkspaceNodeViewModel(RequestDefinition request)
     {
@@ -47,6 +44,5 @@ public partial class WorkspaceNodeViewModel : ViewModelBase
         Name = request.Name;
         Badge = request.Protocol == "WebSocket" ? "WS" : request.Method;
         SourceRemoved = request.SourceRemoved;
-        BadgeColor = ApiNet.Desktop.Services.ThemeService.MethodColor(Badge);
     }
 }

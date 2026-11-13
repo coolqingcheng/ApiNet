@@ -47,7 +47,7 @@ public class RequestTabsTests
             Render(window);
             var control = window.GetVisualDescendants().OfType<TabControl>().Single(x => x.Name == "RequestTabs");
             var headers = Enumerable.Range(0, model.Tabs.Count).Select(index => Assert.IsType<TabItem>(control.ContainerFromIndex(index))).ToArray();
-            Assert.All(headers, header => { Assert.InRange(header.Bounds.Height, 33, 42); Assert.Equal(headers[0].Bounds.Top, header.Bounds.Top); });
+            Assert.All(headers, header => { Assert.InRange(header.Bounds.Height, 29, 34); Assert.Equal(headers[0].Bounds.Top, header.Bounds.Top); });
             var scroll = control.GetVisualDescendants().OfType<ScrollViewer>().Single(x => x.Name == "TabHeaderScroller");
             Assert.True(scroll.Extent.Width > scroll.Viewport.Width); Assert.InRange(scroll.Offset.X, 0, 1);
             var wheelPoint = scroll.TranslatePoint(new Point(80, 20), window)!.Value;

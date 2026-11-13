@@ -188,7 +188,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void ApplyTheme()
     {
         ThemeService.Apply(Workspace.Settings.Theme);
-        RefreshTree();
+        foreach (var node in Flatten(Nodes)) node.RefreshTheme();
         foreach (var tab in Tabs) tab.RefreshTheme();
     }
     private static bool SameContent(RequestDefinition? left, RequestDefinition right) => left is not null && left.Name == right.Name && QueryUrl.WithoutQuery(left.Url) == QueryUrl.WithoutQuery(right.Url) && left.Method == right.Method && left.Body == right.Body && left.BodyFormat == right.BodyFormat && left.Headers == right.Headers && left.Subprotocol == right.Subprotocol && left.FollowRedirects == right.FollowRedirects && SameParameters(left.BodyParameters, right.BodyParameters) && SameParameters(QueryUrl.Parameters(left), QueryUrl.Parameters(right)) && SameParameters(left.HeaderParameters, right.HeaderParameters);

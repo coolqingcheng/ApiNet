@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:services="using:ApiNet.Desktop.Services">
   <ResourceDictionary.ThemeDictionaries>
     <ResourceDictionary x:Key="Dark">
+      <ResourceDictionary.MergedDictionaries><ColorPaletteResources Accent="#007ACC" /></ResourceDictionary.MergedDictionaries>
       <SolidColorBrush x:Key="TableBackgroundBrush" Color="#1E1E1E" />
       <SolidColorBrush x:Key="TableLineBrush" Color="#343434" />
       <SolidColorBrush x:Key="TableHoverBrush" Color="#252526" />
@@ -56,6 +57,7 @@
       <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#686868" />
     </ResourceDictionary>
     <ResourceDictionary x:Key="Light">
+      <ResourceDictionary.MergedDictionaries><ColorPaletteResources Accent="#007ACC" /></ResourceDictionary.MergedDictionaries>
       <SolidColorBrush x:Key="TableBackgroundBrush" Color="#FFFFFF" />
       <SolidColorBrush x:Key="TableLineBrush" Color="#E1E4E8" />
       <SolidColorBrush x:Key="TableHoverBrush" Color="#F3F5F7" />
@@ -111,6 +113,7 @@
       <SolidColorBrush x:Key="TextControlBorderBrushPointerOver" Color="#8491A6" />
     </ResourceDictionary>
     <ResourceDictionary x:Key="{x:Static services:ThemeService.Midnight}">
+      <ResourceDictionary.MergedDictionaries><ColorPaletteResources Accent="#2F81D0" /></ResourceDictionary.MergedDictionaries>
       <SolidColorBrush x:Key="TableBackgroundBrush" Color="#1B2333" />
       <SolidColorBrush x:Key="TableLineBrush" Color="#303D55" />
       <SolidColorBrush x:Key="TableHoverBrush" Color="#222E43" />

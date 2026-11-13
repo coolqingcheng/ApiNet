@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ApiNet.Desktop.ViewModels.Tabs" xmlns:m="using:ApiNet.Core.Models"
              xmlns:c="using:ApiNet.Desktop.Controls" x:Class="ApiNet.Desktop.Views.Tabs.WebSocketView" x:DataType="vm:WebSocketTabViewModel">
   <Grid RowDefinitions="*,4,*">
-    <TabControl x:Name="SocketRequestTabs" Classes="section-tabs" Margin="12,0">
+    <TabControl x:Name="SocketRequestTabs" Classes="section-tabs" Margin="10,0">
       <TabItem Header="Params"><c:ParameterTable Title="Query Params" Model="{Binding QueryTable}" /></TabItem>
       <TabItem Header="{Binding HeaderTabTitle}"><c:ParameterTable Title="Headers" Model="{Binding HeaderTable}" /></TabItem>
       <TabItem Header="Body">
@@ -15,13 +15,13 @@
           <c:CodeEditor Grid.Row="1" x:Name="SocketMessageEditor" Text="{Binding Body}" Language="{Binding MessageLanguage}" />
         </Grid>
       </TabItem>
-      <TabItem Header="Authorization"><StackPanel Margin="8" Spacing="10"><TextBlock Text="Bearer Token" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding BearerToken}" SingleLine="True" /><TextBlock Text="连接时追加 Authorization: Bearer …；支持 {{token}}。其他认证方式可在 Headers 中配置。" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
-      <TabItem Header="Settings"><StackPanel Margin="8" Spacing="10"><TextBlock Text="WebSocket 子协议" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding Subprotocol}" SingleLine="True" Watermark="可选，例如 graphql-transport-ws" /><TextBlock Text="修改 Params、Headers、认证或子协议后，重新连接以应用。" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
+      <TabItem Header="Authorization"><StackPanel Margin="6" Spacing="8"><TextBlock Text="Bearer Token" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding BearerToken}" SingleLine="True" /><TextBlock Text="连接时追加 Authorization: Bearer …；支持 {{token}}。其他认证方式可在 Headers 中配置。" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
+      <TabItem Header="Settings"><StackPanel Margin="6" Spacing="8"><TextBlock Text="WebSocket 子协议" FontWeight="SemiBold" /><c:CodeEditor Text="{Binding Subprotocol}" SingleLine="True" Watermark="可选，例如 graphql-transport-ws" /><TextBlock Text="修改 Params、Headers、认证或子协议后，重新连接以应用。" Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" FontSize="12" /></StackPanel></TabItem>
     </TabControl>
     <GridSplitter Grid.Row="1" ResizeDirection="Rows" Background="{DynamicResource SubtleBorderBrush}" />
     <Grid Grid.Row="2" RowDefinitions="Auto,*">
-      <Border Background="{DynamicResource RaisedBackgroundBrush}" Padding="12,6"><Grid ColumnDefinitions="Auto,*"><TextBlock Text="双向消息" FontWeight="SemiBold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{DynamicResource PurpleBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="15,0" /></Grid></Border>
-      <ListBox Grid.Row="1" ItemsSource="{Binding Messages}" Background="Transparent" BorderThickness="0" Margin="12,0"><ListBox.ItemTemplate><DataTemplate x:DataType="m:SocketMessage"><StackPanel Spacing="5"><Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="12"><TextBlock Text="{Binding Direction}" Foreground="{DynamicResource PurpleBrush}" FontSize="11" /><TextBlock Grid.Column="1" Text="{Binding Kind}" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" /><TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}" HorizontalAlignment="Right" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" /></Grid><SelectableTextBlock Text="{Binding Content}" FontFamily="Cascadia Code, Consolas, Menlo, monospace" TextWrapping="Wrap" /></StackPanel></DataTemplate></ListBox.ItemTemplate></ListBox>
+      <Border Background="{DynamicResource RaisedBackgroundBrush}" Padding="10,4"><Grid ColumnDefinitions="Auto,*"><TextBlock Text="双向消息" FontWeight="SemiBold" VerticalAlignment="Center" /><TextBlock Grid.Column="1" Text="{Binding Status}" Foreground="{DynamicResource PurpleBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="15,0" /></Grid></Border>
+      <ListBox Grid.Row="1" ItemsSource="{Binding Messages}" Background="Transparent" BorderThickness="0" Margin="10,0"><ListBox.ItemTemplate><DataTemplate x:DataType="m:SocketMessage"><StackPanel Spacing="4"><Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="12"><TextBlock Text="{Binding Direction}" Foreground="{DynamicResource PurpleBrush}" FontSize="11" /><TextBlock Grid.Column="1" Text="{Binding Kind}" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" /><TextBlock Grid.Column="2" Text="{Binding Timestamp, StringFormat={}{0:HH:mm:ss.fff}}" HorizontalAlignment="Right" Foreground="{DynamicResource TextMutedBrush}" FontSize="10" /></Grid><SelectableTextBlock Text="{Binding Content}" FontFamily="Cascadia Code, Consolas, Menlo, monospace" TextWrapping="Wrap" /></StackPanel></DataTemplate></ListBox.ItemTemplate></ListBox>
     </Grid>
   </Grid>
 </UserControl>

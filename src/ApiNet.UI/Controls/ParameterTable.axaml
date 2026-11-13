@@ -17,7 +17,7 @@
       <Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource TableHeaderTextBrush}" />
       <Setter Property="FontSize" Value="12" /><Setter Property="Padding" Value="8,3" /><Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
     </Style>
-    <Style Selector="Button.parameter-remove"><Setter Property="Opacity" Value="0" /><Setter Property="Padding" Value="7" /><Setter Property="Width" Value="32" /><Setter Property="Height" Value="32" /></Style>
+    <Style Selector="Button.parameter-remove"><Setter Property="Opacity" Value="0" /><Setter Property="Padding" Value="6" /><Setter Property="Width" Value="30" /><Setter Property="Height" Value="28" /></Style>
     <Style Selector="Border.parameter-row:pointerover Button.parameter-remove"><Setter Property="Opacity" Value="1" /></Style>
     <Style Selector="Border.parameter-row:focus-within Button.parameter-remove"><Setter Property="Opacity" Value="1" /></Style>
     <Style Selector="Button.parameter-remove:focus-visible"><Setter Property="Opacity" Value="1" /></Style>
@@ -50,7 +50,7 @@
           <ItemsControl ItemsSource="{Binding Items}" VerticalAlignment="Top">
             <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:ParameterRowViewModel">
               <Border Classes="parameter-row">
-                <Grid ColumnDefinitions="36,Auto,Auto,Auto,32" Height="32">
+                <Grid ColumnDefinitions="36,Auto,Auto,Auto,32" Height="{DynamicResource DataRowHeight}">
                   <CheckBox Classes="parameter-check" IsChecked="{Binding Enabled}" IsVisible="{Binding !IsDraft}" ToolTip.Tip="启用此参数" AutomationProperties.Name="启用此参数" />
                   <Border Grid.Column="1" Classes="parameter-cell" Width="{Binding #HeaderKey.Bounds.Width}"><Grid ColumnDefinitions="*,Auto">
                     <c:CodeEditor Text="{Binding Key}" Watermark="Key" SingleLine="True" IsTableCell="True" IsMuted="{Binding !Enabled}" />

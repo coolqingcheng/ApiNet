@@ -24,11 +24,11 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:ResponseHeaderRow">
                 <Border Classes="data-row">
-                  <Grid ColumnDefinitions="2*,5*" MinHeight="32">
-                    <Border BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="0,0,1,0" Padding="10,7">
+                  <Grid ColumnDefinitions="2*,5*" MinHeight="{DynamicResource DataRowHeight}">
+                    <Border BorderBrush="{DynamicResource TableLineBrush}" BorderThickness="0,0,1,0" Padding="10,5">
                       <SelectableTextBlock Text="{Binding Key}" FontSize="12" FontWeight="Medium" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
                     </Border>
-                    <SelectableTextBlock Grid.Column="1" Text="{Binding Value}" Margin="10,7" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TableTextBrush}" />
+                    <SelectableTextBlock Grid.Column="1" Text="{Binding Value}" Margin="10,5" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TableTextBrush}" />
                   </Grid>
                 </Border>
               </DataTemplate>
