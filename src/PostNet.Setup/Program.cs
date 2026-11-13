@@ -57,7 +57,7 @@ internal static partial class Program
                 }
                 if (options.StartApplication && !options.Help)
                 {
-                    var launcher = Path.Combine(options.InstallDirectory, "ApiNet.exe");
+                    var launcher = Path.Combine(options.InstallDirectory, "Post.NET.exe");
                     if (!File.Exists(launcher)) throw new IOException("安装完成后未找到应用启动程序。");
                     var launch = new ProcessStartInfo(launcher) { UseShellExecute = true, WorkingDirectory = options.InstallDirectory };
                     var separator = options.ForwardedArguments.ToList().IndexOf("--");

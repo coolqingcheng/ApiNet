@@ -76,6 +76,13 @@ try {
     $pinnedTarget = Get-ShortcutTarget $pinnedShortcut
     $pinnedArguments = $pin.Arguments
     $pinnedAppId = Get-ShortcutAppId $pinnedShortcut
+    $legacyLauncherShortcut = Join-Path $taskbarDirectory 'Legacy launcher integration pin.lnk'
+    Copy-Item -LiteralPath $startMenuShortcut -Destination $legacyLauncherShortcut
+    $legacyPin = $shortcutReader.CreateShortcut($legacyLauncherShortcut)
+    $legacyPin.TargetPath = Join-Path $installDirectory 'ApiNet.exe'
+    $legacyPin.Arguments = '--legacy-launcher'
+    $legacyPin.Save()
+    $legacyAppId = Get-ShortcutAppId $legacyLauncherShortcut
     # Opaque fixtures verify that the installer preserves every byte, including a
     # pending WAL. Service tests separately verify a real SQLite database migration.
     [IO.File]::WriteAllText((Join-Path $installDirectory 'workspace.db'), 'workspace-and-history-fixture')
@@ -104,13 +111,19 @@ try {
     if ($manifest.package.metadata.id -ne 'ApiNet' -or $manifest.package.metadata.title -ne 'Post.NET') { throw '产品名称或兼容更新标识不正确。' }
     $startMenuShortcut = Join-Path ([Environment]::GetFolderPath('Programs')) 'Post.NET.lnk'
     $desktopShortcut = Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'Post.NET.lnk'
+    foreach ($directory in @([Environment]::GetFolderPath('Programs'), [Environment]::GetFolderPath('DesktopDirectory'))) {
+        if (Test-Path -LiteralPath (Join-Path $directory 'ApiNet.lnk')) { throw '旧版默认快捷方式没有更名。' }
+    }
     Assert-ApplicationIcon $setup
-    Assert-ApplicationIcon (Join-Path $installDirectory 'ApiNet.exe')
+    Assert-ApplicationIcon (Join-Path $installDirectory 'Post.NET.exe')
     Assert-ApplicationIcon (Join-Path $installDirectory 'current/ApiNet.Desktop.exe')
     Assert-ShortcutIcon $pinnedShortcut $dataDirectory $pinnedTarget $pinnedArguments $pinnedAppId
+    $validTargets = @([IO.Path]::GetFullPath((Join-Path $installDirectory 'current/ApiNet.Desktop.exe')), [IO.Path]::GetFullPath((Join-Path $installDirectory 'Post.NET.exe')))
+    $migratedTarget = Get-ShortcutTarget $legacyLauncherShortcut
+    if ([IO.Path]::GetFullPath($migratedTarget) -notin $validTargets) { throw '旧版启动器快捷方式没有迁移到有效入口。' }
+    Assert-ShortcutIcon $legacyLauncherShortcut $dataDirectory $migratedTarget '--legacy-launcher' $legacyAppId
     foreach ($shortcutPath in @($startMenuShortcut, $desktopShortcut)) {
         $standardTarget = Get-ShortcutTarget $shortcutPath
-        $validTargets = @([IO.Path]::GetFullPath((Join-Path $installDirectory 'current/ApiNet.Desktop.exe')), [IO.Path]::GetFullPath((Join-Path $installDirectory 'ApiNet.exe')))
         if ([IO.Path]::GetFullPath($standardTarget) -notin $validTargets) { throw "标准快捷方式未指向本次安装：$shortcutPath → $standardTarget" }
         Assert-ShortcutIcon $shortcutPath $dataDirectory $standardTarget '' 'velopack.ApiNet'
     }

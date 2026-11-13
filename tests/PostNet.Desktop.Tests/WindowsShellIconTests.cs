@@ -16,7 +16,7 @@ public sealed class WindowsShellIconTests : IDisposable
         Directory.CreateDirectory(DataDirectory);
         Directory.CreateDirectory(ShortcutDirectory);
         File.WriteAllBytes(Path.Combine(ApplicationDirectory, "ApiNet.Desktop.exe"), []);
-        File.WriteAllBytes(Path.Combine(ApplicationDirectory, "..", "ApiNet.exe"), []);
+        File.WriteAllBytes(Path.Combine(ApplicationDirectory, "..", "Post.NET.exe"), []);
     }
 
     [WindowsFact]
@@ -24,9 +24,10 @@ public sealed class WindowsShellIconTests : IDisposable
     {
         if (!OperatingSystem.IsWindows()) return;
         var executable = Path.Combine(ApplicationDirectory, "ApiNet.Desktop.exe");
-        var launcher = Path.GetFullPath(Path.Combine(ApplicationDirectory, "..", "ApiNet.exe"));
+        var launcher = Path.GetFullPath(Path.Combine(ApplicationDirectory, "..", "Post.NET.exe"));
         var pin = CreateShortcut("我固定的网络工具.lnk", executable, "--example \"中文 value\"");
         var launcherLink = CreateShortcut("启动器.lnk", launcher);
+        var legacyLink = CreateShortcut("旧版启动器.lnk", Path.GetFullPath(Path.Combine(ApplicationDirectory, "..", "ApiNet.exe")), "--legacy \"保留参数\"");
         var unrelated = CreateShortcut("PostNet.lnk", Path.Combine(_root, "Other.exe"));
         var unrelatedBytes = File.ReadAllBytes(unrelated);
 
@@ -45,7 +46,17 @@ public sealed class WindowsShellIconTests : IDisposable
         using var repairedLauncher = WindowsShellLink.Open(launcherLink);
         Assert.Equal(launcher, repairedLauncher.TargetPath);
         Assert.Equal(repaired.Icon, repairedLauncher.Icon);
+        using var migrated = WindowsShellLink.Open(legacyLink);
+        Assert.Equal(launcher, migrated.TargetPath);
+        Assert.Equal("--legacy \"保留参数\"", migrated.Arguments);
+        Assert.Equal(repaired.Icon, migrated.Icon);
         Assert.Equal(unrelatedBytes, File.ReadAllBytes(unrelated));
+        // The update hook can run before Velopack recreates the renamed launcher.
+        File.Delete(launcher);
+        var pending = CreateShortcut("更新后尚未启动.lnk", Path.GetFullPath(Path.Combine(ApplicationDirectory, "..", "ApiNet.exe")));
+        Refresh();
+        using var fallback = WindowsShellLink.Open(pending);
+        Assert.Equal(executable, fallback.TargetPath);
     }
 
     [WindowsFact]

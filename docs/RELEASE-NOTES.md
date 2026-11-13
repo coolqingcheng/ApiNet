@@ -4,6 +4,7 @@ Post.NET 0.1.20：ApiNet 正式更名为 Post.NET。
 - 代码项目、解决方案和命名空间统一改为 PostNet，README 与构建发布配置同步更新。
 - Windows、Linux、macOS 的公开安装包使用 Post.NET 名称，继续提供原有三个 Native AOT 目标。
 - 保留旧版更新标识、启动入口、数据目录与 OpenAPI 扩展，旧版可直接在线升级，已有工作区、环境、历史、设置和本地 CA 继续使用。
+- Windows 自动更新默认快捷方式名称，并修复旧启动器链接；保留自定义名称、启动参数和应用标识，退出时升级也会执行兼容处理。
 
 Windows Setup.exe 支持覆盖安装和同版本修复。Windows x64、Linux x64、macOS ARM64 均提供 Native AOT 包，在线更新继续使用公开 GitHub Releases；`*.nupkg` 和 `releases.*.json` 用于更新，SHA256SUMS.txt 提供校验。
 

@@ -224,7 +224,7 @@ HTTP 抓包和主动 HTTP 调试分别保留至多 1 MB、4 MB 的响应预览�
 
 Windows 默认使用 `%LOCALAPPDATA%/ApiNetData` 保存数据，与 `%LOCALAPPDATA%/ApiNet` 中的安装文件分开。0.1.0 的工作区数据库、待提交的 SQLite WAL 和 `certificates` 会自动迁移；迁移不覆盖已有新版数据库，源文件保留到覆盖安装或用户自行清理。其他系统继续使用系统 LocalApplicationData 下的 `ApiNet`。
 
-为保持旧版升级兼容，更名后沿用这些数据目录、`APINET_DATA_DIR`、Velopack 的 `ApiNet` 包标识和已安装启动程序名。界面、系统安装名称和公开安装包使用 Post.NET；OpenAPI 的 `x-apinet-*` 扩展继续兼容旧文件。
+为保持旧版升级兼容，更名后沿用这些数据目录、`APINET_DATA_DIR`、Velopack 的 `ApiNet` 包标识和主程序入口。界面、系统安装名称和公开安装包使用 Post.NET，Windows 启动器为 `Post.NET.exe`；安装、更新和启动时将指向旧启动器的快捷方式切换到新入口，保留参数和应用标识。OpenAPI 的 `x-apinet-*` 扩展继续兼容旧文件。
 
 `workspace.db` 保存配置、草稿和历史。环境变量中的敏感值保存在本机数据库，历史中的常见认证头及标记为敏感的变量值会脱敏。可用 `APINET_DATA_DIR` 环境变量指定独立的数据目录，该目录应位于安装目录之外。Windows 安装日志默认保存在 `%LOCALAPPDATA%/ApiNetSetupLogs/setup.log`。
 
