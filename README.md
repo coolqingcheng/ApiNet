@@ -92,6 +92,8 @@ v0.1.17 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 
 v0.1.18 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43345735707)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。左侧树的 24 px 行距已完成三套主题的 Headless 渲染检查，Ctrl/⌘ 多选、普通点击切换、右键保留选择及搜索后选择恢复测试通过。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43345760642)已完成三个 Native AOT 目标并发布 18 个文件；Windows 覆盖安装、同版本修复、数据保留及原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 和校验清单已核对；模拟旧版本客户端已下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
 
+v0.1.19 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43350270523)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。三套主题的约 28 px 树行距、圆角选中背景、默认控件强调色及主题切换后选择保留已通过 Headless 交互与渲染检查；侧栏、地址栏、标签和表格密度同步调整。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43350283268)已完成三个 Native AOT 目标并发布 18 个文件，Windows 覆盖安装、同版本修复、数据保留和原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 与校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
+
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。左侧树采用约 28 px 行距，选中背景使用主题蓝色和 4 px 圆角；与侧栏、输入框、标签和参数表保持协调的密度。
