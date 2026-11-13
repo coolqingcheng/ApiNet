@@ -90,6 +90,8 @@ v0.1.16 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/run
 
 v0.1.17 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43222256906)在 Windows 通过 159 项测试（102 项服务/工具/网络 + 57 项界面/MVVM/系统集成）；Linux/macOS 各通过 156 项，跳过 3 项 Windows 专用测试。新增覆盖重命名的任务栏快捷方式、同版本新固定项、参数保留，以及损坏/占用快捷方式的重试。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43222364404)已完成三个 Native AOT 目标并发布 18 个文件；Windows x64 原生安装器及主程序启动均通过快捷方式图标修复验证，保留中文目标路径、启动参数及 AppUserModelID，覆盖安装、同版本修复和数据库/WAL/CA 保留检查也通过。三个公开更新索引、更新说明、包大小、SHA256 与校验清单已核对；模拟旧版本客户端已无需令牌下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
 
+v0.1.18 的[测试工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43345735707)在 Windows 通过 159 项测试，Linux/macOS 各通过 156 项并跳过 3 项 Windows 专用测试。左侧树的 24 px 行距已完成三套主题的 Headless 渲染检查，Ctrl/⌘ 多选、普通点击切换、右键保留选择及搜索后选择恢复测试通过。[发布工作流](https://github.com/coolqingcheng/ApiNet/actions/runs/43345760642)已完成三个 Native AOT 目标并发布 18 个文件；Windows 覆盖安装、同版本修复、数据保留及原生快捷方式图标检查通过。三个公开更新索引、更新说明、包大小、SHA256 和校验清单已核对；模拟旧版本客户端已下载并校验 Windows 更新包、读取本次说明，此项验证不替换或重启应用。
+
 ## 已实现
 
 - 多级文件夹：新建、重命名、删除、拖动移动；请求支持 HTTP 和 WebSocket。左侧树采用 24 px 紧凑行距，文件夹和请求统一对齐。
